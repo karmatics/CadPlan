@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CadPlan: Master Vision &amp; System Directive</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-card: #161b22;
+      --bg-code: #070a13;
+      --text-main: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent-cyan: #00f2fe;
+      --accent-green: #3fb950;
+      --accent-purple: #d2a8ff;
+      --accent-amber: #e3b341;
+      --accent-red: #ff7b72;
+      --border-color: #30363d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      padding-bottom: 90px;
+    }
+
+    /* Fixed Sticky Action Bar */
+    header.toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(22, 27, 34, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .toolbar-title {
+      font-size: 0.92rem;
+      font-weight: bold;
+      color: var(--accent-cyan);
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button.btn {
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    button.btn-edit {
+      background: var(--bg-card);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+    }
+    button.btn-edit.active {
+      background: #003847;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.45);
+    }
+
+    button.btn-save {
+      background: #238636;
+      color: #ffffff;
+      border-color: var(--accent-green);
+    }
+    button.btn-save:hover {
+      background: #2ea043;
+    }
+
+    button.btn-copy {
+      background: #271052;
+      color: var(--accent-purple);
+      border-color: #8257e5;
+    }
+    button.btn-copy:hover {
+      background: #381675;
+    }
+
+    /* Document Canvas */
+    main.document-container {
+      max-width: 940px;
+      margin: 1.5rem auto;
+      padding: 2.25rem 2.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55);
+    }
+
+    main.document-container[contenteditable="true"] {
+      outline: 2px dashed var(--accent-cyan);
+      outline-offset: 6px;
+      background: #0d131d;
+    }
+
+    .edit-banner {
+      display: none;
+      background: #003847;
+      border: 1px solid var(--accent-cyan);
+      color: #ffffff;
+      font-family: monospace;
+      font-size: 0.82rem;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .edit-banner.show {
+      display: flex;
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--text-bright);
+      margin-top: 1.8rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      color: var(--accent-cyan);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 0.6rem;
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: var(--accent-green);
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 0.4rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      color: var(--accent-purple);
+    }
+
+    p {
+      margin-bottom: 1.1rem;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    ul, ol {
+      margin-left: 1.7rem;
+      margin-bottom: 1.1rem;
+      font-size: 0.94rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.88em;
+      background: rgba(110, 118, 129, 0.22);
+      color: var(--accent-green);
+      padding: 0.15em 0.45em;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: var(--bg-code);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 1.1rem;
+      margin-bottom: 1.35rem;
+      overflow-x: auto;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.83rem;
+      line-height: 1.48;
+      color: #7ee787;
+    }
+
+    .meta-card {
+      background: var(--bg-code);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    .meta-card p {
+      margin-bottom: 0.35rem;
+    }
+
+    .highlight-card {
+      background: #0f1623;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-green);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .alert-card {
+      background: #1c1417;
+      border: 1px solid #4a2128;
+      border-left: 4px solid var(--accent-red);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.35rem 0;
+      font-size: 0.86rem;
+    }
+
+    table th, table td {
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 0.85rem;
+      text-align: left;
+    }
+
+    table th {
+      background: var(--bg-code);
+      color: var(--accent-cyan);
+      font-family: monospace;
+    }
+
+    table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0d2818;
+      color: #3fb950;
+      border: 1.5px solid #238636;
+      padding: 0.8rem 1.25rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.86rem;
+      font-weight: bold;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+      z-index: 2000;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.22s ease-out;
+      pointer-events: none;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Sticky Action Toolbar -->
+  <header class="toolbar">
+    <div class="toolbar-title">
+      <span>📐</span> CadPlan Master Prompt Document
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-copy" id="btn-copy-markdown">📋 Copy as Markdown Prompt</button>
+      <button class="btn btn-edit" id="btn-toggle-edit">✏️ Edit Content</button>
+      <button class="btn btn-save" id="btn-save-file" style="display: none;">💾 Save Changes to File (Ctrl+S)</button>
+    </div>
+  </header>
+
+  <!-- The Entire Document IS The Prompt -->
+  <main class="document-container" id="doc-content">
+    
+    <div class="edit-banner" id="edit-banner">
+      <span>● Live Edit Mode Active — You are editing the master prompt text. Click "Save Changes to File" to overwrite your local file.</span>
+    </div>
+
+    <h1>CadPlan: Master Architectural Vision, System Specification &amp; Execution Roadmap</h1>
+
+    <div class="meta-card">
+      <p><strong>Primary Author:</strong> Rob Brown <em>(Inventor of AccuDraw, SmartLine &amp; PowerSelector — Bentley Systems MicroStation)</em></p>
+      <p><strong>Project Code Name:</strong> <code>CadPlan</code> (Modular 3D AccuDraw Engine, Touch Controller, Anti-Lock-In Geometry Hub)</p>
+      <p><strong>Upstream Target:</strong> CADCraft (ArtCraft Rust/Wasm Clean-Room AutoCAD Architecture)</p>
+      <p><strong>Target Modality:</strong> Zero-Install Open Web App, Wireless P2P Touch Controller, Token-Free LLM Paste Driving &amp; MCP Integration</p>
+    </div>
+
+    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+    <h2>1. Role &amp; High-Level Directive for the AI Assistant</h2>
+    <p>
+      You are collaborating directly with <strong>Rob Brown</strong>, the inventor of <strong>AccuDraw</strong>, <strong>SmartLine</strong>, and <strong>PowerSelector</strong> at Bentley Systems for MicroStation.
+    </p>
+    <p>
+      This document constitutes the <strong>complete system vision, architectural specification, and multi-thread roadmap</strong> for <code>CadPlan</code>. Every section below outlines the exact requirements, technical interfaces, and design philosophy of the project.
+    </p>
+    <p>
+      Your mandate across our upcoming development threads is to understand this vision in its entirety, treat these components as an interconnected ecosystem, and help architect, audit, and build the integration modules step-by-step.
+    </p>
+
+    <h2>2. Executive Summary &amp; The Grand Strategic Opportunity</h2>
+    <p>
+      For more than 40 years, the commercial CAD industry has trapped users inside the paradigm created in the 1980s by Autodesk AutoCAD: command-line prompt loops, manual coordinate entry (such as typing <code>@10.5,0,0</code>), cumbersome User Coordinate System (<code>UCS</code>) plane rotation, and proprietary file lock-in.
+    </p>
+    <p>
+      In 1995, Rob Brown introduced <strong>AccuDraw</strong> and <strong>SmartLine</strong> in MicroStation 95, proving that computer-aided drafting could operate at 2x to 4x the speed by replacing command prompts with a <strong>kinetic, floating, context-aware 3D coordinate compass</strong> under the user's cursor.
+    </p>
+    <div class="highlight-card">
+      <p><strong>The Catalyst: ArtCraft's CADCraft Project</strong></p>
+      <p>
+        Brandon Thomas and the ArtCraft team recently released <strong>CADCraft</strong>—a clean-room, pure-Rust implementation of AutoCAD that runs natively on desktop operating systems and compiles to WebAssembly for the browser. CADCraft is fast, open-source, and supports DXF/DWG entities, layers, and AI agents via Model Context Protocol (MCP).
+      </p>
+      <p>
+        <strong>However, CADCraft currently inherits AutoCAD's historic limitations:</strong> it is strictly 2D planar drafting, lacks real 3D construction plane rotation, has no floating kinetic compass, and relies on traditional AutoCAD typing.
+      </p>
+      <p>
+        <strong>Our Move:</strong> We are stepping in at the ground floor. We are creating <code>CadPlan</code> to tack the complete 3D AccuDraw constraint engine, SmartLine chaining, and a wireless mobile P2P Touch Controller onto CADCraft in the most flexible, modular way possible—giving AutoCAD and MicroStation users the most fluid, open CAD platform ever built.
+      </p>
+    </div>
+
+    <h2>3. The Five Core Architectural Pillars of CadPlan</h2>
+
+    <h3>Pillar I: Complete Modularity (The "Tack-On" Philosophy)</h3>
+    <p>
+      <code>CadPlan</code> must not be a brittle, monolithic rewrite. It is designed as an independent, modular subsystem that can be bolted onto CADCraft or any other open-source CAD project:
+    </p>
+    <ul>
+      <li><strong>Input Interception Hook:</strong> Rather than replacing CADCraft's internal Rust geometry engine, AccuDraw intercepts raw cursor motion and keystrokes, calculates exact geometric constraints in 3D, and feeds resolved snap coordinates directly into the command pipeline.</li>
+      <li><strong>Permanent Agentic Fork Workflow:</strong> Whenever CADCraft releases an upstream update, an automated software agent pulls the release, verifies our Wasm/AST interception points, re-applies our AccuDraw modules, and verifies tests without human merge friction.</li>
+      <li><strong>Pluggable Exporters:</strong> If a user wants to output to a new format, they can simply plug in a lightweight translation module (SVG, glTF, STEP, custom JSON, or DXF).</li>
+    </ul>
+
+    <h3>Pillar II: Zero-Cost Open Web Access &amp; Token-Free LLM Paste Driving</h3>
+    <p>
+      We want users around the world to access and drive this CAD platform directly over the web on our website without installation barriers, credit cards, or expensive API keys:
+    </p>
+    <ul>
+      <li><strong>Runs 100% in Browser:</strong> Powered by WebGL (Three.js) and Rust compiled to WebAssembly.</li>
+      <li><strong>Token-Free LLM Driving via Paste:</strong> Users can open any web AI interface (Claude, Gemini, ChatGPT, DeepSeek), converse with the model for free, and copy structured HTML container code blocks:
+        <pre>&lt;script data-file="CadPlan/src/CustomPart.js" data-method="CustomPart.draw" data-action="patch"&gt;
+  // Generated drawing or surgical tool patch...
+&lt;/script&gt;</pre>
+        Tapping <strong>"Paste from Chatbot"</strong> evaluates and compiles the drawing live in browser memory—giving users full AI-driven CAD automation on a token-by-token basis without running up API bills.
+      </li>
+      <li><strong>MCP Agent Automation:</strong> For automated background workflows, the engine exposes Anthropic Model Context Protocol (MCP) tool endpoints so autonomous agents can drive AccuDraw directly.</li>
+    </ul>
+
+    <h3>Pillar III: The Wireless P2P Touch Controller</h3>
+    <p>
+      One of the crowning advantages of this platform is our mobile P2P touch control system (implemented in <code>TouchController</code>). It turns any smartphone or tablet into a dedicated, low-latency WebRTC dual-surface controller:
+    </p>
+    <ul>
+      <li><strong>Left Trackpad (3D View Navigation):</strong>
+        <ul>
+          <li><strong>1 Finger:</strong> 3D orbit and rotation with physics-based inertia. Double-tap toggles between Rotate and Pan.</li>
+          <li><strong>2 Fingers:</strong> Pinch-to-zoom.</li>
+          <li><strong>3 Fingers:</strong> Perspective camera FOV adjustment.</li>
+          <li><strong>4 Fingers:</strong> Direct, kinetic <strong>AccuDraw Z-elevation adjustment</strong> with sliding momentum.</li>
+        </ul>
+      </li>
+      <li><strong>Right Trackpad (Controls &amp; Tool Encoders):</strong>
+        <ul>
+          <li><strong>Vertical Swipe:</strong> Glides through active tool settings and compass sliders with smooth hover tracking.</li>
+          <li><strong>Horizontal Swipe:</strong> Continuously dials in selected slider and dimension parameters.</li>
+          <li><strong>Single Tap:</strong> Toggles boolean tool states (e.g., "Make Copy", "Arbitrary Pivot") or opens direct numeric input.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      This tactile dual-surface control integrates with the screen in a way desktop AutoCAD never could, providing an unmatched drafting experience.
+    </p>
+
+    <h3>Pillar IV: AccuDraw 3D &amp; SmartLine (Proven MicroStation Power)</h3>
+    <p>
+      We are bringing the proven mathematics from <code>accuCad</code> into this ecosystem:
+    </p>
+    <ul>
+      <li><strong>Floating Context-Aware Compass:</strong> Renders as an adaptive squircle (curved square transitioning to a circle in polar mode) that aligns with drawing planes in 3D space.</li>
+      <li><strong>Single-Key Plane Alignment (SmartDrawKeys):</strong>
+        <ul>
+          <li><code>T</code>: Orient compass to Top plane.</li>
+          <li><code>F</code>: Orient compass to Front plane.</li>
+          <li><code>S</code>: Orient compass to Side plane.</li>
+          <li><code>V</code>: Orient compass to current View rotation.</li>
+          <li><code>Space</code>: Instantly toggle between Rectangular (X, Y, Z) and Polar (Distance, Angle).</li>
+          <li><code>X</code>, <code>Y</code>, <code>Z</code>: Lock specific axes.</li>
+          <li><code>L</code>: Smart Lock (locks the axis closest to the cursor trajectory).</li>
+          <li><code>Enter</code>: Confirm and lock current numeric input.</li>
+          <li><code>Esc</code>: Multi-tier escape (clears active buffer &rarr; unlocks active field &rarr; unlocks all axes &rarr; resets tool).</li>
+        </ul>
+      </li>
+      <li><strong>SmartLine Chaining:</strong> Draw continuous segments where tangent arcs, sharp corners, and filleted transitions blend dynamically without breaking the drawing flow.</li>
+    </ul>
+
+    <h3>Pillar V: Anti-Lock-In Geometry Hub &amp; Non-Destructive Reference Slicing</h3>
+    <p>
+      Commercial CAD vendors weaponize file formats to force perpetual upgrades. <code>CadPlan</code> takes inspiration from MicroStation's historic <strong>reference file architecture</strong> to eliminate lock-in:
+    </p>
+    <ul>
+      <li><strong>Selective Geometric Slicing:</strong> Users can open an AutoCAD DWG or DXF file, extract only a specific sub-assembly, layer, or spatial bounding box, and work on it independently.</li>
+      <li><strong>External Metadata Layering:</strong> Add rich metadata, parametric constraints, and AccuDraw construction data stored cleanly alongside the model without mutating the base file structure.</li>
+      <li><strong>Non-Destructive Round-Tripping:</strong> Save modified components back into the original DWG/DXF file without corrupting proprietary blocks or overriding unaffected entities.</li>
+      <li><strong>Open Export Freedom:</strong> Export partial or full models to open formats (glTF, STEP, SVG, JSON) on demand.</li>
+    </ul>
+
+    <h2>4. System Architecture Diagram</h2>
+    <pre>
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           HUMAN &amp; AI COLLABORATION                              │
+│       (Browser Web Users • MCP Tool Agents • Luno Prompt/Paste Clipboard)       │
+└───────────────────────┬─────────────────────────────────┬───────────────────────┘
+                        │                                 │
+                        ▼                                 ▼
+┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
+│       P2P TOUCH CONTROLLER           │  │          LUNO WEB WORKSPACE          │
+│  - WebRTC DataChannel (0-latency)    │  │  - HTML Container Protocol (&lt;script&gt;) │
+│  - 1-Finger Orbit &amp; Double-Tap Mode  │  │  - Outbox / Inbox Pipeline           │
+│  - 2-Finger Pinch Zoom               │  │  - AST Surgical Method Patching      │
+│  - 3-Finger Perspective Camera FOV   │  │  - Zero-Token Copy/Paste Iteration   │
+│  - 4-Finger AccuDraw Z-Elevation     │  │  - Browser IndexedDB Storage         │
+│  - Right Surface Slider/Color Control│  │  - 1-Tap GitHub Pages Deployment     │
+└───────────────────────┬──────────────┘  └──────────────────┬───────────────────┘
+                        │                                    │
+                        ▼                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                     CADPLAN HYBRID ENGINE (THREE.JS / WEBGL)                    │
+│  • AccuDraw 3D Compass (Squircle3D, ArcSquircleCalc, AccuDrawLogic)             │
+│  • SmartDrawKeys (Zero-latency single-key chord parser: T, F, S, V, Space, L)   │
+│  • TentativePointHandler (Screen-space thick raycasting &amp; snap geometry)        │
+│  • SmartLine Engine (Continuous polyline / arc blending with auto-fillet)       │
+│  • Selective Slicing &amp; Reference File Subsystem (Anti-Lock-In Geometry Hub)     │
+└───────────────────────────────────────▲─────────────────────────────────────────┘
+                                        │
+                         Wasm FFI / Shared Memory Bridge
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       CADCRAFT RUST CORE (UPSTREAM FORK)                        │
+│  • Clean-Room Rust DWG / DXF Parser &amp; Exporter                                  │
+│  • Pure-Rust Geometry Pipeline &amp; Coordinate Database                            │
+│  • Autonomous Agent Upstream Synchronizer (AST Rebasing &amp; Patch Application)    │
+└─────────────────────────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <h2>5. Existing Codebase Topology &amp; Assets to Ingest</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Source Module</th>
+          <th>Location</th>
+          <th>Role in CadPlan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>AccuDrawLogic.js</code></td>
+          <td><code>accuCad/js/accudraw/AccuDrawLogic.js</code></td>
+          <td>The core AccuDraw state machine (rectangular/polar toggles, smart lock, numerical buffer, axis constraints).</td>
+        </tr>
+        <tr>
+          <td><code>AccuDraw.js</code> &amp; <code>Squircle3D.js</code></td>
+          <td><code>accuCad/js/AccuDraw.js</code> &amp; <code>Squircle3D.js</code></td>
+          <td>3D squircle compass rendering, pulsing axis tick indicators, and Mini-Jack projected snap visualizers.</td>
+        </tr>
+        <tr>
+          <td><code>SmartDrawKeys.js</code></td>
+          <td><code>accuCad/js/SmartDrawKeys.js</code></td>
+          <td>Zero-latency single-key shortcut router (T, F, S, V, Space, X, Y, Z, Enter, Esc).</td>
+        </tr>
+        <tr>
+          <td><code>TentativePointHandler.js</code></td>
+          <td><code>accuCad/js/TentativePointHandler.js</code></td>
+          <td>Screen-space thick raycasting and vertex/edge tentative snapping.</td>
+        </tr>
+        <tr>
+          <td><code>TouchController.js</code></td>
+          <td><code>TouchController/js/TouchController.js</code></td>
+          <td>WebRTC P2P mobile controller engine (3D orbit, pan, zoom, 4-finger Z-elevation, parameter sliders).</td>
+        </tr>
+        <tr>
+          <td><code>CadStorageManager.js</code></td>
+          <td><code>accuCad/js/CadStorageManager.js</code></td>
+          <td>IndexedDB persistence, JSON geometry serialization, and export hooks.</td>
+        </tr>
+        <tr>
+          <td><code>ClientApp.js</code> &amp; Luno Core</td>
+          <td><code>Luno/app/ClientApp.js</code></td>
+          <td>Dual-mode prompt cockpit, Outbox/Inbox clipboard container protocol, AST patch engine.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>6. Multi-Thread Phased Execution Strategy</h2>
+    <p>
+      To maintain clarity and rigorous architectural discipline, this project is executed across sequential, highly focused threads:
+    </p>
+    <ul>
+      <li><strong>Thread 1 (Current):</strong> Master vision, architectural specification, and system directive formulation.</li>
+      <li><strong>Thread 2:</strong> In-depth audit of CADCraft's pure-Rust codebase, mapping coordinate interception points in its command loop, and designing the WebAssembly Foreign Function Interface (FFI).</li>
+      <li><strong>Thread 3:</strong> Synthesis of <code>accuCad</code>'s Three.js solver with the Touch Controller, enabling live 3D plane rotation (T, F, S, V) and 4-finger Z-elevation.</li>
+      <li><strong>Thread 4:</strong> Anti-lock-in selective model slicing, non-destructive DWG/DXF reference layering, and open multi-format export pipelines.</li>
+      <li><strong>Thread 5:</strong> Video demonstration deck, slide-by-slide presentation script, and automated agent CI/CD upstream rebase bot.</li>
+    </ul>
+
+    <h2>7. Immediate Instructions for the AI in Thread 2</h2>
+    <p>
+      When beginning Thread 2, the AI assistant must:
+    </p>
+    <ol>
+      <li>Acknowledge this master directive and confirm full understanding of Rob Brown's AccuDraw/SmartLine paradigm.</li>
+      <li>Examine CADCraft's Rust crate structure to identify where raw mouse coordinates enter the command loop.</li>
+      <li>Formulate the WebAssembly FFI boundary connecting Rust geometry with JavaScript AccuDraw logic.</li>
+      <li>Draft <code>CadPlan/docs/CADCraftRustBridgeSpec.md</code> detailing memory layout, data structures, and coordinate event lifecycles.</li>
+    </ol>
+
+  </main>
+
+  <div id="toast">Notification</div>
+
+  <script>
+    let isEditing = false;
+    let fileHandle = null;
+
+    const docContent = document.getElementById('doc-content');
+    const editBanner = document.getElementById('edit-banner');
+    const btnToggleEdit = document.getElementById('btn-toggle-edit');
+    const btnSaveFile = document.getElementById('btn-save-file');
+    const btnCopyMarkdown = document.getElementById('btn-copy-markdown');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    // Toggle Content Editable Mode
+    btnToggleEdit.addEventListener('click', () => {
+      isEditing = !isEditing;
+      docContent.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+      
+      if (isEditing) {
+        btnToggleEdit.textContent = '🔒 Lock Content';
+        btnToggleEdit.classList.add('active');
+        btnSaveFile.style.display = 'inline-flex';
+        editBanner.classList.add('show');
+      } else {
+        btnToggleEdit.textContent = '✏️ Edit Content';
+        btnToggleEdit.classList.remove('active');
+        btnSaveFile.style.display = 'none';
+        editBanner.classList.remove('show');
+      }
+    });
+
+    // Save File Over Itself via File System Access API
+    async function saveDocumentToFile() {
+      const bannerWasShown = editBanner.classList.contains('show');
+      editBanner.classList.remove('show');
+      docContent.setAttribute('contenteditable', 'false');
+
+      const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+      if (bannerWasShown) editBanner.classList.add('show');
+      docContent.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+
+      // 1. Try modern File System Access API
+      if ('showSaveFilePicker' in window) {
+        try {
+          if (!fileHandle) {
+            fileHandle = await window.showSaveFilePicker({
+              suggestedName: 'CadPlanMasterPrompt.html',
+              types: [{
+                description: 'HTML Document',
+                accept: { 'text/html': ['.html', '.htm'] }
+              }]
+            });
+          }
+          const writable = await fileHandle.createWritable();
+          await writable.write(fullHtml);
+          await writable.close();
+          showToast('💾 Saved changes directly to file!');
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn('File System API write failed, falling back to download:', err);
+          } else {
+            return;
+          }
+        }
+      }
+
+      // 2. Fallback: Trigger direct file download
+      try {
+        const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'CadPlanMasterPrompt.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('💾 Downloaded updated HTML file!');
+      } catch (err) {
+        alert('Could not save file: ' + err.message);
+      }
+    }
+
+    btnSaveFile.addEventListener('click', saveDocumentToFile);
+
+    // Ctrl+S / Cmd+S Keyboard Shortcut
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveDocumentToFile();
+      }
+    });
+
+    // Clean DOM to Markdown Converter
+    function convertElementToMarkdown(element) {
+      let md = '';
+      const children = Array.from(element.childNodes);
+
+      for (const node of children) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          md += node.textContent.replace(/\s+/g, ' ');
+          continue;
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        if (node.id === 'edit-banner') continue;
+
+        const tag = node.tagName.toLowerCase();
+
+        switch (tag) {
+          case 'h1':
+            md += '\n\n# ' + node.textContent.trim() + '\n\n';
+            break;
+          case 'h2':
+            md += '\n\n## ' + node.textContent.trim() + '\n\n';
+            break;
+          case 'h3':
+            md += '\n\n### ' + node.textContent.trim() + '\n\n';
+            break;
+          case 'h4':
+            md += '\n\n#### ' + node.textContent.trim() + '\n\n';
+            break;
+          case 'p':
+            md += '\n\n' + convertInlineFormatting(node).trim() + '\n\n';
+            break;
+          case 'pre':
+            md += '\n\n```\n' + node.textContent.trim() + '\n```\n\n';
+            break;
+          case 'ul':
+            Array.from(node.querySelectorAll(':scope > li')).forEach(li => {
+              md += '* ' + convertInlineFormatting(li).trim() + '\n';
+            });
+            md += '\n';
+            break;
+          case 'ol':
+            Array.from(node.querySelectorAll(':scope > li')).forEach((li, idx) => {
+              md += (idx + 1) + '. ' + convertInlineFormatting(li).trim() + '\n';
+            });
+            md += '\n';
+            break;
+          case 'hr':
+            md += '\n\n---\n\n';
+            break;
+          case 'table':
+            md += '\n\n' + convertTableToMarkdown(node) + '\n\n';
+            break;
+          case 'div':
+            md += convertElementToMarkdown(node);
+            break;
+          default:
+            md += convertInlineFormatting(node);
+        }
+      }
+
+      return md.replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    }
+
+    function convertInlineFormatting(el) {
+      let text = '';
+      for (const child of el.childNodes) {
+        if (child.nodeType === Node.TEXT_NODE) {
+          text += child.textContent;
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          const t = child.tagName.toLowerCase();
+          if (t === 'strong' || t === 'b') {
+            text += '**' + child.textContent.trim() + '**';
+          } else if (t === 'em' || t === 'i') {
+            text += '*' + child.textContent.trim() + '*';
+          } else if (t === 'code') {
+            text += '`' + child.textContent.trim() + '`';
+          } else if (t === 'br') {
+            text += '\n';
+          } else {
+            text += convertInlineFormatting(child);
+          }
+        }
+      }
+      return text;
+    }
+
+    function convertTableToMarkdown(table) {
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length === 0) return '';
+
+      let mdTable = '';
+      const headers = Array.from(rows[0].querySelectorAll('th, td')).map(cell => cell.textContent.trim());
+      mdTable += '| ' + headers.join(' | ') + ' |\n';
+      mdTable += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+
+      for (let i = 1; i < rows.length; i++) {
+        const cells = Array.from(rows[i].querySelectorAll('td')).map(cell => cell.textContent.trim());
+        mdTable += '| ' + cells.join(' | ') + ' |\n';
+      }
+      return mdTable;
+    }
+
+    // Copy to Clipboard Action
+    btnCopyMarkdown.addEventListener('click', () => {
+      const markdown = convertElementToMarkdown(docContent);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(markdown).then(() => {
+          showToast('📋 Copied entire document as Markdown prompt!');
+        });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = markdown;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('📋 Copied entire document as Markdown prompt!');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "name": "CadPlan",
+  "version": "1.9.3",
+  "description": "CAD Architecture, AccuDraw Provenance, Authentic accuCad Integration, DrawingApp Dynamic Spline & Kinetic Parallax Dossier",
+  "type": "luno-web-app",
+  "mainClass": "CadPlan",
+  "entrypoint": {
+    "file": "CadPlan.js",
+    "class": "CadPlan",
+    "method": "run"
+  },
+  "main": [
+    "js/CadOriginsContent.js",
+    "js/AccuDrawPhilosophyContent.js",
+    "js/AccuCadAuditContent.js",
+    "js/KeyCommandEngineContent.js",
+    "js/CurveTouchContent.js",
+    "js/CadInteractiveDemoContent.js",
+    "js/CadLunoEcosystemContent.js",
+    "js/CadArchitectureDecisionsContent.js",
+    "js/CadCraftIntegrationContent.js",
+    "js/CadITwinParityContent.js",
+    "js/CadVisionInterviewContent.js",
+    "js/curve/BezierVertex.js",
+    "js/curve/UpdateControlPoints.js",
+    "js/curve/Curve.js",
+    "js/curve/CurveDraw.js",
+    "js/CadStudioDemoComponent.js",
+    "js/CadTouchPairingDialog.js",
+    "js/CadPromptBundlerDialog.js",
+    "ModelLoader.js",
+    "Simple3dShapes.js",
+    "CadPlan.js"
+  ],
+  "library": [
+    "DomBasics.js",
+    "UITools.js",
+    "ThreeJSLoader.js",
+    "DocumentReader.js"
+  ],
+  "styles": [
+    "basic3d.css"
+  ],
+  "processedCountSinceCheckpoint": 42,
+  "lastCheckpointTime": "2026-10-16T13:40:00.000Z",
+  "pendingCheckpointDescription": "Integrated authentic accuCad workstation and DrawingApp dynamic on-curve spline engine with true kinetic motion parallax oscillation"
+}
