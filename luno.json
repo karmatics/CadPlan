@@ -1,6 +1,6 @@
 {
   "name": "CadPlan",
-  "version": "1.9.19",
+  "version": "1.9.20",
   "description": "CAD Architecture, AccuDraw Provenance, Authentic accuCad Integration, DrawingApp Dynamic Spline & Kinetic Parallax Dossier",
   "type": "luno-web-app",
   "mainClass": "CadPlan",
@@ -29,6 +29,7 @@
     "js/CadIsolatedCompass3DComponent.js",
     "js/CadModelStudioComponent.js",
     "js/CadPlanDocumentEditor.js",
+    "js/CadPlanItemNotes.js",
     "js/CadVideoClipComponent.js",
     "js/CadCurveDrawerContent.js",
     "js/CadTouchP2PContent.js",
@@ -80,11 +81,14 @@
   "styles": [
     "basic3d.css"
   ],
-  "processedCountSinceCheckpoint": 2,
+  "processedCountSinceCheckpoint": 12,
   "lastCheckpointTime": "2026-10-18T03:02:34.325Z",
-  "pendingCheckpointDescription": "Clean working tree",
+  "pendingCheckpointDescription": "Added CadPlanItemNotes and SidePanel Navigation",
   "changedMethods": {
-    "js/CadEcosystemGraphicComponent.js": "2026-10-18T03:30:46.227Z",
-    "js/CadLunoEcosystemContent.js": "2026-10-18T03:30:46.227Z"
+    "js/CadPlanItemNotes.js": "2026-10-18T04:25:38.755Z",
+    "Library/DictationWidget.js": "2026-10-18T04:19:36.875Z",
+    "Library/DocumentReader.js": "2026-10-18T04:55:13.466Z",
+    "js/CadPlanNotesManager.js": "2026-10-18T04:16:35.397Z",
+    "CadPlan.js": "2026-10-18T05:12:52.086Z"
   }
 }

@@ -19,40 +19,37 @@ class CadPlanDocumentEditor {
     }
   }
 
-  static getOverride(pageId, blockId) {
+  static getOverride(pageId, blockId, dossierId = 'CadPlan') {
     const map = this.getOverridesMap();
-    const key = `${pageId}:${blockId}`;
-    return map[key] || null;
+    const key = `${dossierId}:${pageId}:${blockId}`;
+    return map[key] || map[`${pageId}:${blockId}`] || null;
   }
 
-  static saveOverride(pageId, blockId, text, docClassName = null) {
+  static saveOverride(pageId, blockId, text, docClassName = null, dossierId = 'CadPlan') {
     const map = this.getOverridesMap();
-    const key = `${pageId}:${blockId}`;
+    const key = `${dossierId}:${pageId}:${blockId}`;
     map[key] = {
+      dossierId,
       pageId,
       blockId,
-      docClassName: docClassName || (globalThis[pageId] ? globalThis[pageId].name : null),
+      docClassName,
       text,
       timestamp: Date.now()
     };
     localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(map));
   }
 
-  static removeOverride(pageId, blockId) {
+  static removeOverride(pageId, blockId, dossierId = 'CadPlan') {
     const map = this.getOverridesMap();
-    const key = `${pageId}:${blockId}`;
-    delete map[key];
+    delete map[`${dossierId}:${pageId}:${blockId}`];
+    delete map[`${pageId}:${blockId}`];
     localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(map));
   }
-
   static clearAllOverrides() {
     localStorage.removeItem(this.LOCAL_STORAGE_KEY);
   }
 
-  /**
-   * Compiles all customized blocks across all chapters into Luno HTML Surgical Method Patches.
-   */
-  static generateSurgicalPatches() {
+  static generateSurgicalPatches(dossierFilter = null) {
     const map = this.getOverridesMap();
     const keys = Object.keys(map);
     if (keys.length === 0) return '';
@@ -60,53 +57,86 @@ class CadPlanDocumentEditor {
     let patchBundle = '';
     const classMethodMap = {};
 
+    const pageClassMap = {
+      // CadPlan
+      meta: { cls: 'CadPlanMetaContent', file: 'CadPlan/js/CadPlanMetaContent.js' },
+      origins: { cls: 'CadOriginsContent', file: 'CadPlan/js/CadOriginsContent.js' },
+      philosophy: { cls: 'AccuDrawPhilosophyContent', file: 'CadPlan/js/AccuDrawPhilosophyContent.js' },
+      accucad: { cls: 'AccuCadAuditContent', file: 'CadPlan/js/AccuCadAuditContent.js' },
+      shortcuts: { cls: 'KeyCommandEngineContent', file: 'CadPlan/js/KeyCommandEngineContent.js' },
+      curvedrawer: { cls: 'CadCurveDrawerContent', file: 'CadPlan/js/CadCurveDrawerContent.js' },
+      touchp2p: { cls: 'CadTouchP2PContent', file: 'CadPlan/js/CadTouchP2PContent.js' },
+      demos: { cls: 'CadInteractiveDemoContent', file: 'CadPlan/js/CadInteractiveDemoContent.js' },
+      ecosystem: { cls: 'CadLunoEcosystemContent', file: 'CadPlan/js/CadLunoEcosystemContent.js' },
+      architecture: { cls: 'CadArchitectureDecisionsContent', file: 'CadPlan/js/CadArchitectureDecisionsContent.js' },
+      cadcraft: { cls: 'CadCraftIntegrationContent', file: 'CadPlan/js/CadCraftIntegrationContent.js' },
+      itwin: { cls: 'CadITwinParityContent', file: 'CadPlan/js/CadITwinParityContent.js' },
+      interview: { cls: 'CadVisionInterviewContent', file: 'CadPlan/js/CadVisionInterviewContent.js' },
+
+      // EconomicsOfAutomation
+      dividend: { cls: 'ArticleContent', file: 'EconomicsOfAutomation/js/ArticleContent.js' },
+      colony: { cls: 'ColonyContent', file: 'EconomicsOfAutomation/js/ColonyContent.js' },
+      earth: { cls: 'EarthContent', file: 'EconomicsOfAutomation/js/EarthContent.js' },
+      doomer: { cls: 'DoomerContent', file: 'EconomicsOfAutomation/js/DoomerContent.js' },
+      paradigms: { cls: 'ParadigmsContent', file: 'EconomicsOfAutomation/js/ParadigmsContent.js' },
+      objections: { cls: 'ObjectionsContent', file: 'EconomicsOfAutomation/js/ObjectionsContent.js' },
+      statusquo: { cls: 'KineticContent', file: 'EconomicsOfAutomation/js/KineticContent.js' },
+      rules: { cls: 'RulesContent', file: 'EconomicsOfAutomation/js/RulesContent.js' },
+      gametheory: { cls: 'GameTheoryContent', file: 'EconomicsOfAutomation/js/GameTheoryContent.js' },
+      'ai-rules': { cls: 'AiRulesContent', file: 'EconomicsOfAutomation/js/AiRulesContent.js' },
+
+      // situation
+      overview: { cls: 'OverviewPage', file: 'situation/js/OverviewPage.js' },
+      'elder-advocacy': { cls: 'ElderAdvocacyPage', file: 'situation/js/ElderAdvocacyPage.js' },
+      'caretaker-bias': { cls: 'CaretakerBiasPage', file: 'situation/js/CaretakerBiasPage.js' },
+      'ai-perspective': { cls: 'AiPerspectivePage', file: 'situation/js/AiPerspectivePage.js' },
+      'current-work': { cls: 'CurrentWorkPage', file: 'situation/js/CurrentWorkPage.js' },
+      valuation: { cls: 'ValuationPage', file: 'situation/js/ValuationPage.js' },
+
+      // accudraw
+      inventions: { cls: 'AccuDrawData', file: 'accudraw/js/AccuDrawData.js' },
+      articles: { cls: 'AccuDrawArchiveApp', file: 'accudraw/js/AccuDrawArchiveApp.js' },
+      lore: { cls: 'AccuDrawData', file: 'accudraw/js/AccuDrawData.js' },
+      verify: { cls: 'AccuDrawData', file: 'accudraw/js/AccuDrawData.js' },
+
+      // ValuationOfAccudraw
+      'valuation-standalone': { cls: 'ValuationOfAccudraw', file: 'ValuationOfAccudraw/js/ValuationOfAccudraw.js' }
+    };
+
     keys.forEach(key => {
       const item = map[key];
-      // Resolve class name
-      let className = item.docClassName;
-      if (!className) {
-        // Derive from pageId
-        const pageClassNames = {
-          meta: 'CadPlanMetaContent',
-          origins: 'CadOriginsContent',
-          philosophy: 'AccuDrawPhilosophyContent',
-          accucad: 'AccuCadAuditContent',
-          shortcuts: 'KeyCommandEngineContent',
-          curvedrawer: 'CadCurveDrawerContent',
-          touchp2p: 'CadTouchP2PContent',
-          demos: 'CadInteractiveDemoContent',
-          ecosystem: 'CadLunoEcosystemContent',
-          architecture: 'CadArchitectureDecisionsContent',
-          cadcraft: 'CadCraftIntegrationContent',
-          itwin: 'CadITwinParityContent',
-          interview: 'CadVisionInterviewContent'
-        };
-        className = pageClassNames[item.pageId] || 'CadPlanContent';
+      const dossier = item.dossierId || 'CadPlan';
+      if (dossierFilter && dossier !== dossierFilter) {
+        return;
       }
 
-      classMethodMap[className] = classMethodMap[className] || [];
-      classMethodMap[className].push(item);
+      const mapping = pageClassMap[item.pageId] || {
+        cls: item.docClassName || (item.pageId.charAt(0).toUpperCase() + item.pageId.slice(1) + 'Content'),
+        file: `${dossier}/js/${item.docClassName || (item.pageId.charAt(0).toUpperCase() + item.pageId.slice(1) + 'Content')}.js`
+      };
+
+      const targetKey = `${mapping.file}::${mapping.cls}`;
+      classMethodMap[targetKey] = classMethodMap[targetKey] || { file: mapping.file, cls: mapping.cls, items: [] };
+      classMethodMap[targetKey].items.push(item);
     });
 
-    for (const [clsName, items] of Object.entries(classMethodMap)) {
-      items.forEach(item => {
-        const filePath = `CadPlan/js/${clsName}.js`;
-        const methodSignature = `${clsName}.${item.blockId}`;
+    for (const entry of Object.values(classMethodMap)) {
+      entry.items.forEach(item => {
+        const methodSignature = `${entry.cls}.${item.blockId}`;
         const escapedText = JSON.stringify(item.text);
 
-        patchBundle += `<` + `script data-file="${filePath}" data-method="${methodSignature}" data-action="patch">\n`;
-        patchBundle += `  static ${item.blockId}() {\n`;
-        patchBundle += `    return [\n`;
-        patchBundle += `      ${escapedText}\n`;
-        patchBundle += `    ];\n`;
-        patchBundle += `  }\n`;
+        patchBundle += `<` + `script data-file="${entry.file}" data-method="${methodSignature}" data-action="patch">\n`;
+        patchBundle += `${item.blockId}() {\n`;
+        patchBundle += `  return [\n`;
+        patchBundle += `    ${escapedText}\n`;
+        patchBundle += `  ];\n`;
+        patchBundle += `}\n`;
         patchBundle += `<` + `/script>\n\n`;
       });
     }
 
     return patchBundle.trim();
   }
-
   /**
    * Opens the in-situ block editor modal for a specific paragraph.
    */
@@ -388,6 +418,19 @@ class CadPlanDocumentEditor {
     });
 
     return dlg;
+  }
+
+  static applyInMemoryPatch(pageId, blockId, newText, dossierId = 'CadPlan') {
+    this.saveOverride(pageId, blockId, newText, null, dossierId);
+    const targetEl = document.querySelector(`[data-block-id="${blockId}"]`);
+    if (targetEl) {
+      const textNode = targetEl.querySelector('p, .text-sm, .card-text') || targetEl;
+      if (textNode) {
+        textNode.textContent = newText;
+        targetEl.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.4)';
+      }
+    }
+    return true;
   }
 }
 

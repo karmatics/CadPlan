@@ -248,6 +248,7 @@ class CadPromptBundlerDialog {
           document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~125,000+ tokens (Includes Production Source Code Embeds)';
         }
       }
+
   static _generateMarkdownBundle() {
       let out = '# CADPLAN: NEXT-GENERATION CAD ARCHITECTURAL SPECIFICATION & AGENT DIRECTIVE\n';
       out += `Generated: ${new Date().toISOString()} • Author: Rob Brown (Inventor of AccuDraw, SmartLine)\n`;
@@ -265,6 +266,42 @@ class CadPromptBundlerDialog {
         if (notes && notes.trim().length > 0) {
           out += '## AUTHOR & INVENTOR WORKING NOTES (DIRECT DIRECTIVES)\n\n';
           out += notes.trim() + '\n\n';
+          out += '---\n\n';
+        }
+      }
+
+      // Inject Transient Block Item Notes & Cleanup Queue
+      if (globalThis.CadPlanItemNotes) {
+        const localMap = CadPlanItemNotes.getLocalMap();
+        const allList = [];
+        Object.values(localMap).forEach(arr => allList.push(...arr));
+        const active = allList.filter(n => n.status !== 'resolved');
+
+        if (active.length > 0) {
+          out += '## 📝 TRANSIENT ITEM NOTES & SPECIFICATION CLEANUP QUEUE\n';
+          out += '> **AI AGENT CLEANUP MANDATE:** The following notes were attached by the author directly to on-screen blocks.\n';
+          out += '> Read them in chronological order. Update the corresponding class methods or chapter specifications to satisfy these requests.\n';
+          out += '> In your response, explicitly report which notes have been addressed so they can be marked resolved/deleted.\n\n';
+
+          const grouped = {};
+          active.forEach(n => {
+            grouped[n.blockKey] = grouped[n.blockKey] || [];
+            grouped[n.blockKey].push(n);
+          });
+
+          for (const [key, notes] of Object.entries(grouped)) {
+            const [pageId, blockId] = key.split(':');
+            out += `### Target Block: \`${pageId}\` / \`${blockId}\`\n`;
+            notes.sort((a, b) => a.timestamp - b.timestamp).forEach((note, idx) => {
+              const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              const cleanupTag = note.status === 'pending_cleanup' ? ' [🧹 PENDING CLEANUP]' : '';
+              out += `- **Note #${idx + 1} (${timeStr})${cleanupTag}:** ${note.text}\n`;
+              if (note.videoLink) {
+                out += `  - 📹 *Video Anchor:* \`${note.videoLink.videoId}\` @ **${note.videoLink.time}s** (${note.videoLink.label || 'Timestamp'})\n`;
+              }
+            });
+            out += '\n';
+          }
           out += '---\n\n';
         }
       }
@@ -503,7 +540,7 @@ class CadPromptBundlerDialog {
       }
 
       return out;
-    }
+  }
   static _copyText(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {

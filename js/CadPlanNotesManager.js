@@ -1,6 +1,6 @@
 class CadPlanNotesManager {
   /**
-   * Manages author and inventor notes using the production Library/DictationWidget.
+   * Manages global author/inventor notes using the production Library/DictationWidget.
    * Notes are saved to localStorage and can be bundled into prompts or exported to file.
    */
   static STORAGE_KEY = 'cadplan_author_notes';
@@ -21,7 +21,7 @@ class CadPlanNotesManager {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        minHeight: '420px',
+        minHeight: '460px',
         gap: '8px',
         color: '#e2e8f0',
         fontFamily: 'var(--dr-font-sans)'
@@ -39,27 +39,26 @@ class CadPlanNotesManager {
         color: '#94a3b8'
       }
     }, [
-      makeElement('span', {}, '🎙️ Voice Dictation & Author Working Notes'),
+      makeElement('span', {}, '🎙️ Voice Dictation & Working Notes (CadPlan)'),
       makeElement('span', { id: 'cadplan-notes-char-count' }, `${this.getNotes().length} chars`)
     ]);
     wrap.appendChild(header);
 
-    // Mount DictationWidget from shared Library
     const widgetMount = makeElement('div', {
-      style: { flex: '1', minHeight: '320px', display: 'flex', flexDirection: 'column' }
+      style: { flex: '1', minHeight: '340px', display: 'flex', flexDirection: 'column' }
     });
     wrap.appendChild(widgetMount);
 
     let widget = null;
     if (typeof DictationWidget !== 'undefined') {
-      widget = new DictationWidget();
-      widget.init();
+      widget = new DictationWidget({
+        placeholder: '🎙️ Speak to dictate working notes, or type here freely...'
+      });
       widgetMount.appendChild(widget.getElement());
 
       const saved = this.getNotes();
       if (saved) {
-        widget.editorContent.textContent = saved;
-        widget.updateButtonStates();
+        widget.setText(saved);
       }
 
       widget.subscribe((text) => {
@@ -106,6 +105,16 @@ class CadPlanNotesManager {
       makeElement('div', { style: { display: 'flex', gap: '8px' } }, [
         makeElement('button', {
           className: 'dr-nav-btn',
+          style: { color: '#f59e0b', borderColor: '#f59e0b66' },
+          onclick: () => {
+            if (typeof CadPlanItemNotes !== 'undefined') {
+              CadPlanItemNotes.openPromptBuilderDialog();
+            }
+          }
+        }, '⚡ Build Notes Prompt'),
+
+        makeElement('button', {
+          className: 'dr-nav-btn',
           onclick: (e) => {
             const btn = e.currentTarget;
             navigator.clipboard.writeText(this.getNotes()).then(() => {
@@ -128,8 +137,8 @@ class CadPlanNotesManager {
 
     const dlg = UITools.makeDialog({
       title: '📝 CadPlan Author Notes & Voice Dictation',
-      size: [560, 540],
-      position: [Math.max(20, (window.innerWidth - 560) / 2), 70],
+      size: [580, 560],
+      position: [Math.max(20, (window.innerWidth - 580) / 2), 60],
       contentElement: wrap,
       appendTo: hostContainer,
       onClose: () => {
