@@ -40,19 +40,28 @@ class CurveTouchContent {
   }
 
   static p_pen_problem_2() {
-    return [
-      "Nobody thinks in off-curve tangent handles. When an artist sketches on paper, their pencil follows the line itself. In `DrawingApp/js/CurveDraw.js`, I built a replacement for the pen tool where you click *only points on the curve itself*. Through `BezierVertex.js` and `UpdateControlPoints.js`, an iterative solver evaluates the sequence of on-curve points and calculates the exact control points and tangencies in real time. You get full interactive control over `currentCurvature` and `currentBalance` without ever dragging an off-curve handle into empty space."
-    ];
-  }
+      return [
+        "Nobody thinks in off-curve tangent handles. When an artist sketches on paper, their pencil follows the line itself. In my software architecture, I developed two completely distinct, revolutionary ways of drawing digital curves without off-curve handle wrestling:",
+        "**Method 1: Interactive On-Curve Through-Points.** In `DrawingApp/js/CurveDraw.js`, every click places an anchor strictly *on the curve itself*. Through `BezierVertex.js` and `UpdateControlPoints.js`, an 8-iteration relaxation solver evaluates the sequence of through-points and derives the exact cubic Bézier control points and $G^1$ tangencies in real time. Rather than global settings, you can target individual vertices to adjust curvature (how far control points push out) and balance (weighting between incoming and outgoing chords). For endpoints, intelligent exit vectors prevent the curve from curling back awkwardly.",
+        "**Method 2: The Kinetic Tether ('String-Drag').** Pressing the `Control` key freezes the tip of the curve and lets you extend a dynamic dashed string to your mouse. Releasing `Control` pulls the curve tip forward as if towing it with an elastic rope: the longer the string, the smoother the curve, naturally dampening micro-tremors while letting you make deliberate sharp cusps by pulling at acute angles. Holding `Shift` lets you push backward along the trajectory to interactively undo glitches, re-aim the string, and pull again. When finished, our Bézier solver converts that clean physical motion into exact mathematical splines."
+      ];
+    }
+
   static sidebar_on_curve_math() {
-    return [
-      "The Authentic On-Curve Architecture (DrawingApp/js/curve):\n" +
-      "• `BezierVertex.js`: Every anchor point sits strictly on the curve itself. Stores world coordinate position along with dynamically computed forward and backward control points.\n" +
-      "• `UpdateControlPoints.js`: The iterative engine that solves for tangent angles and control point distances across adjacent through-points, producing smooth, organic curves without manual handle pulling.\n" +
-      "• Dynamic Curvature & Balance: `currentCurvature` scales curve fullness, while `currentBalance` weights tangency influence toward incoming or outgoing segments in real time.\n" +
-      "• Direct Vertex Editing: In modify mode, clicking an on-curve vertex allows direct spatial relocation, dynamic tangency adjustment, or re-balancing without wrestling with off-curve Bezier control polygons."
-    ];
-  }
+      return [
+        "The Two Authentic Curve Modalities (DrawingApp & CadPlan):\n" +
+        "• Modality 1 (On-Curve Relaxation):\n" +
+        "  - Anchor Placement: Click through-points directly on the curve.\n" +
+        "  - Relaxation Engine: `UpdateControlPoints.js` computes G1 tangents and chord distances iteratively.\n" +
+        "  - Vertex-Targeted Tuning: Curvature (fullness) and Balance (tangency weighting) can target specific vertices rather than applying globally.\n" +
+        "  - Endpoint Exit Vectors: Natural uncurled default tangencies for boundary nodes.\n" +
+        "• Modality 2 (The Kinetic String-Drag / Tether):\n" +
+        "  - `Ctrl` Drag: Anchors curve tip; extends elastic dashed string to mouse cursor.\n" +
+        "  - `Ctrl` Release: Towing action pulls curve tip; string length acts as low-pass mechanical filter.\n" +
+        "  - `Shift` Push: Reverse scrubbing interactively undos recent points for seamless correction.\n" +
+        "  - Bézier Conversion: The resulting smoothed stream resolves into optimized cubic Bézier segments."
+      ];
+    }
   static p_touch_synergy_1() {
     return [
       "Now, combine that on-curve drafting tool with another major piece of technology in my world: `TouchController.js` and `P2PConnector.js`. In modern desktop computing, your left hand is usually idle or hovering over a keyboard while your right hand does 95% of the physical work on the mouse. That is an enormous waste of human bandwidth."

@@ -8,30 +8,37 @@ class CadInteractiveDemoContent {
   }
 
   static manifest() {
-    return [
-      {
-        section: 'interactive_studio',
-        partLabel: 'Chapter 6 • Interactive Studio Laboratory',
-        title: 'Live 3D Viewport: CompassDraw & On-Curve Splines',
-        blocks: [
-          { id: 'comp_cad_studio_demo', type: 'component', component: 'CadStudioDemoComponent' },
-          { id: 'p_real_accudraw_1', type: 'p' },
-          { id: 'sidebar_real_accudraw_math', type: 'sidebar', kicker: 'accuCad Classes', title: 'AccuDraw.js & Squircle3D.js Internals' }
-        ]
-      },
-      {
-        section: 'curve_real',
-        partLabel: 'Chapter 6 • Continuous Mathematics',
-        title: 'Iterative G1 Relaxation Solver & On-Curve Math',
-        blocks: [
-          { id: 'p_real_curve_1', type: 'p' },
-          { id: 'p_real_curve_2', type: 'p' },
-          { id: 'sidebar_real_curve_math', type: 'sidebar', kicker: 'accuCad Classes', title: 'RoundingUtils3D & UpdateControlPoints Internals' }
-        ]
-      }
-    ];
-  }
-
+      return [
+        {
+          section: 'interactive_studio',
+          partLabel: 'Chapter 7 • Interactive Studio Laboratory',
+          title: 'Live 3D Viewport: CompassDraw & On-Curve Splines',
+          blocks: [
+            { id: 'comp_cad_studio_demo', type: 'component', component: 'CadStudioDemoComponent' },
+            { id: 'p_real_accudraw_1', type: 'p' },
+            { id: 'sidebar_real_accudraw_math', type: 'sidebar', kicker: 'accuCad Classes', title: 'AccuDraw.js & Squircle3D.js Internals' }
+          ]
+        },
+        {
+          section: 'model_studio_section',
+          partLabel: 'Chapter 7 • Inspection Deck',
+          title: '3D Model Studio: PBR Materials & AccuDraw Dimensions',
+          blocks: [
+            { id: 'comp_model_studio', type: 'component', component: 'CadModelStudioComponent' }
+          ]
+        },
+        {
+          section: 'curve_real',
+          partLabel: 'Chapter 7 • Continuous Mathematics',
+          title: 'Iterative G1 Relaxation Solver & On-Curve Math',
+          blocks: [
+            { id: 'p_real_curve_1', type: 'p' },
+            { id: 'p_real_curve_2', type: 'p' },
+            { id: 'sidebar_real_curve_math', type: 'sidebar', kicker: 'accuCad Classes', title: 'RoundingUtils3D & UpdateControlPoints Internals' }
+          ]
+        }
+      ];
+    }
   static p_real_accudraw_1() {
     return [
       "Rather than running an isolated, simplified toy mock-up, our studio laboratory directly runs the authentic production engine from `accuCad`. The live viewport above embeds the actual `accuCad` environment: its full direction-cosine matrix basis (`BaseController.js`), dynamic coordinate constraint engine (`AccuDrawLogic.js`), animated squircle compass (`Squircle3D.js`), side panel tool settings, and the complete single-stroke keyboard command dispatch tree (`T`, `F`, `S`, `L`, `Space`, `O`)."

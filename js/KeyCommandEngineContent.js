@@ -8,30 +8,31 @@ class KeyCommandEngineContent {
   }
 
   static manifest() {
-    return [
-      {
-        section: 'shortcut_philosophy',
-        partLabel: 'Chapter 4 • Key Engine',
-        title: 'Single-Stroke Hierarchical Commands',
-        blocks: [
-          { id: 'p_kch_1', type: 'p' },
-          { id: 'p_kch_2', type: 'p' },
-          { id: 'sidebar_kch_syntax', type: 'sidebar', kicker: 'Syntax & Parser', title: 'The & Hotkey Syntax & Numerical Range Parsing' }
-        ]
-      },
-      {
-        section: 'universality',
-        partLabel: 'Chapter 4 • Scope',
-        title: 'A Universal Model Beyond CAD',
-        blocks: [
-          { id: 'p_kch_universal_1', type: 'p' },
-          { id: 'p_kch_universal_2', type: 'p' },
-          { id: 'quote_shortcut_freedom', type: 'quote' }
-        ]
-      }
-    ];
-  }
-
+      return [
+        {
+          section: 'shortcut_philosophy',
+          partLabel: 'Chapter 4 • Key Engine',
+          title: 'Single-Stroke Hierarchical Commands',
+          blocks: [
+            { id: 'comp_kch_interactive_lab', type: 'component', component: 'KeyCommandInteractiveLab' },
+            { id: 'p_kch_1', type: 'p' },
+            { id: 'p_kch_2', type: 'p' },
+            { id: 'sidebar_kch_syntax', type: 'sidebar', kicker: 'Syntax & Parser', title: 'The & Hotkey Syntax & Numerical Range Parsing' }
+          ]
+        },
+        {
+          section: 'numerical_continuation',
+          partLabel: 'Chapter 4 • Numerical Stream',
+          title: 'Dynamic Parameter Scaling & Decimal Precision',
+          blocks: [
+            { id: 'comp_number_stream_lab', type: 'component', component: 'AccuDrawNumberStreamLab' },
+            { id: 'p_kch_universal_1', type: 'p' },
+            { id: 'p_kch_universal_2', type: 'p' },
+            { id: 'quote_shortcut_freedom', type: 'quote' }
+          ]
+        }
+      ];
+    }
   static p_kch_1() {
     return [
       "One of the crown jewels of AccuDraw—and of my wider software architecture—is how keyboard shortcuts are handled. In traditional programs, keyboard shortcuts are an afterthought: awkward multi-finger finger-twisters like Ctrl+Alt+Shift+P, or command-line key-ins that force you to press `<Enter>` after every word. That ruins drafting speed. When you are drawing, your right hand is on the mouse and your left hand rests on the home row. You shouldn't have to reach across the keyboard to hit Enter, and you shouldn't have to look down."

@@ -8,37 +8,38 @@ class CadLunoEcosystemContent {
   }
 
   static manifest() {
-    return [
-      {
-        section: 'self_rep',
-        partLabel: 'Chapter 7 • Self-Replication',
-        title: 'The Living, Self-Replicating Blueprint',
-        blocks: [
-          { id: 'p_self_rep_1', type: 'p' },
-          { id: 'p_self_rep_2', type: 'p' },
-          { id: 'sidebar_self_rep_philosophy', type: 'sidebar', kicker: 'Methodology', title: 'Why The Plan Is The Application' }
-        ]
-      },
-      {
-        section: 'luno_loop',
-        partLabel: 'Chapter 7 • Workflow',
-        title: 'Surgical Patching & Instant Iteration',
-        blocks: [
-          { id: 'p_luno_loop_1', type: 'p' },
-          { id: 'p_luno_loop_2', type: 'p' },
-          { id: 'sidebar_container_protocol', type: 'sidebar', kicker: 'Protocol Architecture', title: 'Surgical Method Patch Containers' },
-          { id: 'p_luno_loop_3', type: 'p' }
-        ]
-      }
-    ];
-  }
+      return [
+        {
+          section: 'self_rep',
+          partLabel: 'Chapter 8 • Self-Replication',
+          title: 'The Living, Self-Replicating Blueprint',
+          blocks: [
+            { id: 'comp_ecosystem_graphic', type: 'component', component: 'CadEcosystemGraphicComponent' },
+            { id: 'p_self_rep_1', type: 'p' },
+            { id: 'p_self_rep_2', type: 'p' },
+            { id: 'sidebar_self_rep_philosophy', type: 'sidebar', kicker: 'Methodology', title: 'Why The Plan Is The Application' }
+          ]
+        },
+        {
+          section: 'luno_loop',
+          partLabel: 'Chapter 8 • Workflow',
+          title: 'Surgical Patching & Instant Iteration',
+          blocks: [
+            { id: 'p_luno_loop_1', type: 'p' },
+            { id: 'p_luno_loop_2', type: 'p' },
+            { id: 'sidebar_container_protocol', type: 'sidebar', kicker: 'Protocol Architecture', title: 'Surgical Method Patch Containers' },
+            { id: 'p_luno_loop_3', type: 'p' }
+          ]
+        }
+      ];
+    }
 
   static p_self_rep_1() {
-    return [
-      "This application—CAD Plan—has a unique dual nature. It is both a comprehensive architectural specification and a functioning software laboratory. It doesn't describe AccuDraw in abstract terms; it runs the math in live interactive components. It doesn't theorize about curve fitting; it renders the curves on the screen."
-    ];
-  }
-
+      return [
+        "In traditional software engineering, developers build monolithic applications and write separate, static documentation that rots within months. In our architecture, **the document is the primary deliverable, not a secondary byproduct.**",
+        "Notice how the application ecosystem is structured: we have decomposed the monolithic CAD suite into focused, testable **sub-applications** (`CompassApp`, `KeyCommandApp`, `TouchController`, and `accuCad`), unified by the shared `Library` hub. And `CadPlan` is the living master orchestrator that embeds, audits, and runs all of these instruments side-by-side in real time."
+      ];
+    }
   static p_self_rep_2() {
     return [
       "More importantly, it is built to self-replicate and improve itself using Luno. Because every section, demo, and paragraph is an independent static method in a JavaScript class, an LLM can inspect, refine, or add new capabilities with surgical precision. When you start a fresh conversation with an AI, you don't need to paste 600,000 tokens of chat history. You simply bundle `CadPlan`, and the AI immediately receives 100% of the project's history, philosophy, prototype audits, and live demos in a lean 25k-token payload."
@@ -46,11 +47,22 @@ class CadLunoEcosystemContent {
   }
 
   static sidebar_self_rep_philosophy() {
-    return [
-      "Principles of the Self-Replicating Plan:\n1. Self-Contained Knowledge: All architectural decisions, code audits, patent history, and interactive test benches reside in this single repository.\n2. In-Situ Live Testing: Demonstrations of new geometric algorithms are built directly into document chapters, letting you verify behavior before committing to production code.\n3. Frictionless Handoff: A fresh thread starts instantly with complete context, allowing continuous incremental progress across multiple AI collaboration sessions."
-    ];
-  }
-
+      return [
+        "The Decomposed Multi-App Topology:\n" +
+        "1. `CompassApp` (`Luno/CompassApp/`):\n" +
+        "   • Standalone 3D Squircle Studio isolating compass geometry and morphing.\n" +
+        "2. `KeyCommandApp` (`Luno/KeyCommandApp/`):\n" +
+        "   • Standalone Keystroke Engine testing single-stroke commands without Enter.\n" +
+        "3. `TouchController` (`/TouchController/?room=...`):\n" +
+        "   • Standalone Mobile WebRTC Glass Deck for two-handed analog parameter scrubbing.\n" +
+        "4. `accuCad` (`accuCad/`):\n" +
+        "   • The unified CAD workstation combining snapping, solids, curves, and tools.\n" +
+        "5. `Library` (`Library/`):\n" +
+        "   • Central shared dependency repository (`DomBasics`, `ThreeJSLoader`, `UITools`).\n" +
+        "6. `CadPlan` (`CadPlan/`):\n" +
+        "   • The Living Master Specification that embeds, tests, and documents every tool!"
+      ];
+    }
   static p_luno_loop_1() {
     return [
       "The engine driving this rapid evolution is Luno's copy-paste loop. Luno runs on a local Node.js server, stores projects in IndexedDB or direct disk files, and provides an isolated preview iframe where the application updates live."

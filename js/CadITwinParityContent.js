@@ -10,6 +10,14 @@ class CadITwinParityContent {
   static manifest() {
       return [
         {
+          section: 'universal_converter_top',
+          partLabel: 'Chapter 10 • Transformation Lab',
+          title: 'Universal Arc & Coordinate Transformation Engine',
+          blocks: [
+            { id: 'comp_coordinate_converter', type: 'component', component: 'CadCoordinateConverterLab' }
+          ]
+        },
+        {
           section: 'itwin_audit',
           partLabel: 'Chapter 10 • Lineage',
           title: 'Inside Bentley iTwin AccuDraw.ts (3,862 Lines)',
@@ -20,73 +28,26 @@ class CadITwinParityContent {
           ]
         },
         {
-          section: 'accusnap_pipeline',
-          partLabel: 'Chapter 10 • Spatial Snapping',
-          title: 'AccuSnap Proximity Raycasting vs. Tentative Latching',
+          section: 'smartline_spec',
+          partLabel: 'Chapter 10 • SmartLine',
+          title: 'The SmartLine Continuous Chaining State Machine',
           blocks: [
-            { id: 'p_snap_pipeline_1', type: 'p' },
-            { id: 'p_snap_pipeline_2', type: 'p' },
-            { id: 'sidebar_accusnap_pipeline', type: 'sidebar', kicker: 'Snapping Core', title: 'AccuSnap.ts testHit & Tentative Latch' }
+            { id: 'comp_svg_smartline_lab', type: 'component', component: 'SvgSmartLineLab' },
+            { id: 'p_smartline_1', type: 'p' },
+            { id: 'p_smartline_2', type: 'p' },
+            { id: 'sidebar_smartline_transitions', type: 'sidebar', kicker: 'State Machine', title: 'SmartLine Continuous Geometry Transitions' },
+            { id: 'p_smartline_3', type: 'p' }
           ]
         },
         {
-          section: 'accudraw_tool',
-          partLabel: 'Chapter 10 • Tool Actions',
-          title: 'AccuDrawTool.ts: The Complete Interactive Action Suite',
+          section: 'surface_and_state',
+          partLabel: 'Chapter 10 • Surface Kinematics & State',
+          title: 'Surface Normal Alignment (Q), Transactional Undo & winit Key Interception',
           blocks: [
-            { id: 'p_tool_actions_1', type: 'p' },
-            { id: 'p_tool_actions_2', type: 'p' },
-            { id: 'sidebar_tool_actions', type: 'sidebar', kicker: 'Tool Hierarchy', title: 'Bentley AccuDrawTool Classes & Shortcuts' }
-          ]
-        },
-        {
-          section: 'construction_planes',
-          partLabel: 'Chapter 10 • 3D Spatial Math',
-          title: 'Hard vs. Soft Construction Planes & Axis Flashing',
-          blocks: [
-            { id: 'p_plane_math_1', type: 'p' },
-            { id: 'p_plane_math_2', type: 'p' },
-            { id: 'sidebar_plane_math_code', type: 'sidebar', kicker: 'Spatial Algorithms', title: 'rotateAxesByPoint & LockedStates.X_BM Flash' }
-          ]
-        },
-        {
-          section: 'value_history',
-          partLabel: 'Chapter 10 • Memory Stack',
-          title: 'Value History Cycling & Viewport Decoration',
-          blocks: [
-            { id: 'p_val_history_1', type: 'p' },
-            { id: 'p_val_history_2', type: 'p' },
-            { id: 'sidebar_val_history_code', type: 'sidebar', kicker: 'Memory & Decoration', title: 'choosePreviousValue & decorate() Context Pipeline' }
-          ]
-        },
-        {
-          section: 'adaptive_contrast',
-          partLabel: 'Chapter 10 • Visual Engine',
-          title: 'Adaptive Luminance Contrast (adjustedForContrast)',
-          blocks: [
-            { id: 'p_contrast_1', type: 'p' },
-            { id: 'p_contrast_2', type: 'p' },
-            { id: 'sidebar_contrast_math', type: 'sidebar', kicker: 'Visual Legibility', title: 'Luminance Delta Ratios & Viewport Legibility' }
-          ]
-        },
-        {
-          section: 'smart_keyin',
-          partLabel: 'Chapter 10 • Ergonomics',
-          title: 'SmartKeyin: Directional Sign Inference & SavedState',
-          blocks: [
-            { id: 'p_smart_keyin_1', type: 'p' },
-            { id: 'p_smart_keyin_2', type: 'p' },
-            { id: 'sidebar_smart_keyin_math', type: 'sidebar', kicker: 'Math & State Stack', title: 'SmartKeyin Quadrant Inference & SavedState' }
-          ]
-        },
-        {
-          section: 'hint_builder',
-          partLabel: 'Chapter 10 • Protocol',
-          title: 'The AccuDrawHintBuilder Context Protocol',
-          blocks: [
-            { id: 'p_hint_protocol_1', type: 'p' },
-            { id: 'p_hint_protocol_2', type: 'p' },
-            { id: 'sidebar_hint_protocol', type: 'sidebar', kicker: 'Context API', title: 'The AccuDrawHintBuilder Contract' }
+            { id: 'p_surface_normal_1', type: 'p' },
+            { id: 'sidebar_surface_normal_math', type: 'sidebar', kicker: 'Gram-Schmidt Math', title: '3D Face Normal Derivation & Non-Flipping Axes' },
+            { id: 'p_state_stack_1', type: 'p' },
+            { id: 'sidebar_smart_backspace_winit', type: 'sidebar', kicker: 'Event Interception', title: 'Single-Stroke Typing & Smart Backspace in winit' }
           ]
         },
         {
@@ -100,14 +61,13 @@ class CadITwinParityContent {
           ]
         },
         {
-          section: 'smartline_spec',
-          partLabel: 'Chapter 10 • SmartLine',
-          title: 'The SmartLine Continuous Chaining State Machine',
+          section: 'smart_keyin',
+          partLabel: 'Chapter 10 • Ergonomics',
+          title: 'SmartKeyin: Directional Sign Inference & SavedState',
           blocks: [
-            { id: 'p_smartline_1', type: 'p' },
-            { id: 'p_smartline_2', type: 'p' },
-            { id: 'sidebar_smartline_transitions', type: 'sidebar', kicker: 'State Machine', title: 'SmartLine Continuous Geometry Transitions' },
-            { id: 'p_smartline_3', type: 'p' }
+            { id: 'p_smart_keyin_1', type: 'p' },
+            { id: 'p_smart_keyin_2', type: 'p' },
+            { id: 'sidebar_smart_keyin_math', type: 'sidebar', kicker: 'Math & State Stack', title: 'SmartKeyin Quadrant Inference & SavedState' }
           ]
         },
         {
@@ -159,54 +119,67 @@ class CadITwinParityContent {
         "• `AccuSnap.ts`: Proximity-based candidate element harvesting and tentative point latching."
       ];
     }
+
   static p_smartline_1() {
-    return [
-      "In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users had to draw lines, circles, and arcs with separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture."
-    ];
-  }
-
-  static p_smartline_2() {
-    return [
-      "In SmartLine, while laying down continuous segments, the user can toggle between sharp polylines, circular tangent arcs, 3-point arcs, and chamfers without interrupting the placement lifecycle. Each placed vertex stores a discrete radius property (`v.radius`), letting sharp corners transition into dynamic arcs that preserve $G^1$ tangency in real time."
-    ];
-  }
-
-  static sidebar_smartline_transitions() {
-    return [
-      "SmartLine State Machine Lifecycle:\n" +
-      "1. Segment Mode: `Line` (sharp orthogonal or angled segment) or `Arc` (tangent to prior segment vector or 3-point defined).\n" +
-      "2. Corner Vertex Treatment:\n" +
-      "   • `Sharp`: Standard polygonal miter joint.\n" +
-      "   • `Fillet (Radius)`: Dynamic circular arc connecting segment bisectors via `RoundingUtils3D`.\n" +
-      "   • `Chamfer`: Symmetrical bevel cutting across incoming and outgoing segment vectors.\n" +
-      "3. Auto-Close Snap: When the cursor approaches within snap tolerance of Vertex 0, SmartLine previews a closed planar profile or 3D face, committing an enclosed boundary on click."
-    ];
-  }
-
-  static p_smartline_3() {
       return [
-        "In CADCraft's codebase, our server scan discovered that `crates/geom/src/fillet.rs` already contains clean pure-Rust 2D arc filleting algorithms! Furthermore, `crates/geom/src/spline_fit.rs` provides cubic spline interpolation.",
-        "What CADCraft is currently missing is the interactive glue: the **SmartLine continuous chaining state machine** and the **kinetic 3D direction-cosine basis**. Right now, CADCraft's commands (`draw.rs`, `pline_opts.rs`) prompt modally via the command line. By wrapping `cadcraft-geom`'s existing fillet math in our AccuDraw kinetic frame, we can deliver seamless SmartLine drafting without reinventing low-level circle-tangent mathematics."
+        "In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users were forced to draw individual straight lines, circles, and arcs using separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture.",
+        "Within SmartLine, there are two distinct kinds of arcs: **Rounded Corner Fillets** and **Independent Tangent Arc Segments**. If a rounded corner could do it, that's what was done—it was by far the most common architectural transition. But when an independent arc segment was required, SmartLine seamlessly transitioned into it without interrupting the placement command loop.",
+        "Furthermore, unlike legacy tools where settings applied globally, in my CurveDraw architecture we introduced **vertex-targeted parameter modulation**: you can select and adjust which specific vertex a curvature or balance setting applies to. And for expressive design, the draftsman can turn off AccuDraw constraints entirely for freeform sketching, or engage it for mathematical tangency."
       ];
     }
+
+  static p_smartline_2() {
+        return [
+          "Arc segments were remarkably easy to make tangent to the previous segment because AccuDraw automatically oriented itself with the tangent vector of the prior line. Crucially, as soon as you switched into Arc mode, AccuDraw flipped into **Polar mode**, letting the draftsperson immediately type the radius or chord distance directly without looking at a command prompt.",
+          "SmartLine arc segments are governed by **Rob Brown's Closest-Point Sweep Principle**: the orientation is solved by finding the candidate tangent arc where the cursor is as close as possible to a point along the circumference. As you pull the mouse away from the start point, the arc naturally opens out from $0^\\circ$ to $+5^\\circ$; if you back up and cross the tangent line, it smoothly flips to $-6^\\circ$. There is zero deadband jitter near zero because the math evaluates continuous proximity to the candidate circle rather than arbitrary boolean sign toggling, while edge-on view angles (looking straight down the plane normal) are handled cleanly as natural projection limits.",
+          "Upon clicking the endpoint to commit the arc, the compass **automatically oriented itself to the exit tangent vector**. This meant the draftsperson could continue drawing tangent ($G^1$) or perpendicular (90°) into the next line or arc effortlessly. If they wanted to make a sharp break away from the curve, a single keystroke—**`T`** for Top plane or **`V`** for View plane—immediately reset the compass to global orthogonal axes without breaking the continuous polyline chain."
+        ];
+      }
+
+  static sidebar_smartline_transitions() {
+        return [
+          "SmartLine Geometry & Vertex Targeting Rules:\n" +
+          "1. Type A: Rounded Corner Fillets (Most Common):\n" +
+          "   • Tangent circular arc connecting incoming and outgoing segment bisectors via closed-form O(1) math.\n" +
+          "2. Type B: Tangent Arc Segments (Closest-Point Heuristic):\n" +
+          "   • Minimizes distance between cursor and candidate arc circumference.\n" +
+          "   • Smooth transitions across zero: sweeps from 0° to +5° or backs up across the line to -6° with zero jitter.\n" +
+          "   • Degenerate limits: Edge-on viewing angles handled without mathematical instability.\n" +
+          "3. Post-Arc Exit Tangent Orientation:\n" +
+          "   • Compass automatically aligns primary axis to the exit tangent vector of the placed arc.\n" +
+          "   • Next segment can be drawn tangent (0°) or perpendicular (90°) with zero modal setup.\n" +
+          "4. Single-Stroke Escapes & Vertex Targeting:\n" +
+          "   • `T` (Top) or `V` (View) snaps compass back to standard orthogonal axes.\n" +
+          "   • Curve settings can target specific individual vertices rather than applying globally across all nodes.\n" +
+          "   • AccuDraw constraint bypass toggle: allows freeform expressive sketching on the fly."
+        ];
+      }
+  static p_smartline_3() {
+      return [
+        "To bring this interaction model into the modern open ecosystem, we implement the entire 2D drafting engine in pure SVG. In the live laboratory above, you can lay down lines, press `A` or `~` to swing dynamic tangent arcs, watch the Squircle Compass rotate to align with exit tangents, and press `T` or `V` to break onto standard planes.",
+        "Each segment drawn in the SVG canvas maps 1:1 into CADCraft's `LwPolyline` with `PolyVertex { point, bulge: tan(θ/4) }`. When the user is drafting, they can swing arcs intuitively with their cursor, and the underlying mathematical engine preserves exact CAD fidelity for export."
+      ];
+    }
+
   static p_rust_crate_1() {
-    return [
-      "To bridge our interaction design into CADCraft and the broader Rust CAD ecosystem, we are blueprinting `compassdraw-core`—a standalone, pure-Rust crate with `no_std` compatibility that compiles to native desktop binaries as well as WebAssembly."
-    ];
-  }
+      return [
+        "To bridge our interaction design into CADCraft and the broader Rust CAD ecosystem, we are blueprinting `compassdraw-core`—a standalone, pure-Rust crate with `no_std` compatibility that compiles to native desktop binaries (macOS Metal, Windows DX12, Linux Vulkan via `winit`/`wgpu`) as well as WebAssembly.",
+        "The crate contains zero UI, windowing, or DOM allocations. It takes ray origins, ray directions, and key codes, and returns constrained coordinates, direction-cosine matrix bases, and arc bulge factors."
+      ];
+    }
 
   static p_rust_crate_2() {
       return [
-        "Because `compassdraw-core` will be a decoupled, pure-Rust crate with `no_std` support, it establishes a bidirectional bridge:",
-        "1. **Input Interceptor:** Sits in `cadcraft-engine` above `pointmod.rs`, transforming mouse and keyboard events into resolved 3D points without modal prompts.",
-        "2. **SmartLine Bulge Pipeline:** Converts continuous on-curve tangent arcs directly into CADCraft's `arc_to_bulge` tuples, committing clean `LwPolyline` entities into `cadcraft-doc`.",
-        "3. **Persistent Constraint Bridge:** Emits geometric relationships directly into `cadcraft-constraints::lm` for parametric re-solving.",
-        "4. **AI Agent Channel:** Exposes relative vector navigation to `cadcraft-mcp`, allowing coding agents to draft with zero spatial hallucinations."
+        "Because `compassdraw-core` is decoupled from both the GPU and windowing systems, it satisfies both requirements simultaneously:",
+        "1. **2D Drafting Replacement:** In 2D mode, it locks the projection plane to Top ($Z=0$), converting 3D ray intersections into 2D planar coordinates (`[x, y, 0.0]`) that feed directly into CADCraft's standard `Vec2` command machines.",
+        "2. **3D Spatial Navigation:** In 3D mode, single-keystroke inputs (`T`, `F`, `S`, `V`, `Q`) reorient `ThreeAxes`, allowing `PlineM` and CADCraft's `Mat4::ocs` to extrude angled faces with exact topological continuity.",
+        "3. **Dual Host Support:** The same crate feeds CADCraft's native `wgpu` overlay pass on desktop and drives Three.js / WebGL viewports via our `host.rs` postMessage bridge on the web."
       ];
     }
+
   static sidebar_rust_crate_api() {
       return [
-        "compassdraw-core Rust Crate Architecture (crates/compassdraw-core):\n" +
+        "compassdraw-core Rust Crate Blueprint (crates/compassdraw-core):\n" +
         "```rust\n" +
         "pub struct ThreeAxes {\n" +
         "    pub x: [f64; 3],\n" +
@@ -218,23 +191,29 @@ class CadITwinParityContent {
         "    pub axes: ThreeAxes,\n" +
         "    pub mode: CompassMode, // Rectangular | Polar | Mixed\n" +
         "    pub active_field: ItemField, // X | Y | Dist | Angle | Z\n" +
+        "    pub is_3d: bool, // When false, clamps Z=0 for classic 2D AutoCAD mode\n" +
         "    pub locks: CoordinateLocks,\n" +
         "    pub roundoff: RoundOffEngine,\n" +
         "    pub smartline: SmartLineStateMachine,\n" +
         "}\n\n" +
         "impl CompassDraw {\n" +
-        "    pub fn on_pointer_motion(&mut self, ray_origin: [f64; 3], ray_dir: [f64; 3]) -> ResolvedPoint;\n" +
-        "    pub fn handle_key_stroke(&mut self, key: KeyCode) -> KeyResult;\n" +
+        "    /// Intercepts mouse raycasts from winit or WebGL canvas\n" +
+        "    pub fn on_pointer_motion(\n" +
+        "        &mut self,\n" +
+        "        ray_origin: [f64; 3],\n" +
+        "        ray_dir: [f64; 3],\n" +
+        "    ) -> ResolvedCoordinate;\n\n" +
+        "    /// Single-stroke key execution (T, F, S, V, Space, L, X, Y, Z, G, N)\n" +
+        "    pub fn handle_key_stroke(&mut self, key: &str) -> bool;\n" +
         "    pub fn handle_smart_lock(&mut self);\n" +
         "    pub fn apply_hint(&mut self, hint: AccuDrawHint);\n" +
-        "    pub fn compute_squircle(&self, t: f64) -> Vec<Segment2D>;\n" +
+        "    pub fn arc_to_bulge(&self, start: [f64; 2], end: [f64; 2], center: [f64; 2], cw: bool) -> f64;\n" +
         "}\n" +
         "```\n" +
-        "• Intercepts `cadcraft-engine::pointmod::Frame` directly.\n" +
-        "• Connects to CADCraft's `crates/geom/src/fillet.rs` for dynamic SmartLine filleting."
+        "• `no_std` compatible: Pure mathematical core with zero heap/OS bindings.\n" +
+        "• Interoperable: Feeds `winit` on desktop and WebAssembly in browser viewports."
       ];
     }
-
   static p_hint_protocol_1() {
       return [
         "A critical discovery in Bentley's `AccuDraw.ts` is `AccuDrawHintBuilder`. In inferior CAD systems, drafting tools and coordinate inputs are tightly coupled: a line tool has to know how to draw a rubber-band, how to calculate orthogonal axes, and how to snap. In AccuDraw, tools communicate with the compass via an inverted dependency called Hints."
@@ -476,6 +455,75 @@ class CadITwinParityContent {
         "• `SnapDetail`: Records snap mode, element handle, world hit point, and normal vector.\n" +
         "• AccuDraw Handshake: `AccuDraw.onTentative()` grabs focus and updates the kinetic origin.\n" +
         "• Reset Cascade: Right-click calls `tentativePoint.clear(true)`, cleanly releasing the anchor."
+      ];
+    }
+
+  static p_surface_normal_1() {
+      return [
+        "A primary capability proven in our `accuCad` prototype is **Instant Surface Normal Alignment (`Q`)**. When drafting in 3D, a user clicks or tentative-snaps onto an angled face of a 3D solid or imported assembly, and taps `Q`. The compass immediately tilts flush against that surface.",
+        "The challenge in 3D space is that a face hit provides only a single vector: the surface normal $\\vec{n}$. To construct a stable drafting plane, we must derive two orthogonal tangent vectors ($\\vec{X}_c, \\vec{Y}_c$) without gimbal lock or sudden axis flipping as the camera moves."
+      ];
+    }
+
+  static sidebar_surface_normal_math() {
+      return [
+        "Surface Normal Alignment & Non-Flipping Gram-Schmidt Math:\n" +
+        "```rust\n" +
+        "impl ThreeAxes {\n" +
+        "    /// Derives stable, non-flipping 3D drafting axes from a surface hit normal.\n" +
+        "    pub fn from_surface_normal(normal: [f64; 3]) -> Self {\n" +
+        "        let z_c = normalize(normal);\n" +
+        "        // Choose reference up vector to avoid collinear cross product\n" +
+        "        let up = if z_c[1].abs() > 0.98 { [0.0, 0.0, 1.0] } else { [0.0, 1.0, 0.0] };\n" +
+        "        let x_c = normalize(cross(up, z_c));\n" +
+        "        let y_c = cross(z_c, x_c);\n" +
+        "        Self { x: x_c, y: y_c, z: z_c }\n" +
+        "    }\n" +
+        "}\n" +
+        "```\n" +
+        "• Stable Orientation: Prevents compass jitter when snapping across adjacent angled faces.\n" +
+        "• Automatic OCS Handshake: Feeds normal vector directly to CADCraft's `Mat4::ocs`."
+      ];
+    }
+
+  static p_state_stack_1() {
+      return [
+        "To preserve continuity between AutoCAD and AccuDraw, we synchronize their state stacks. In CADCraft, drawing operations commit changes to `cadcraft-doc::EntityStore` with incremental transaction IDs.",
+        "In `compassdraw-core`, we maintain a parallel **`SavedState` stack**. Whenever an entity point is committed, AccuDraw records its floating origin, active `ThreeAxes`, and coordinate locks. If the user invokes AutoCAD's `UNDO` command (`s.doc_mut()?.undo()`), CADCraft notifies CompassDraw, which pops its state stack to the matching transaction ID—instantly returning the compass origin and working depth to the prior vertex."
+      ];
+    }
+
+  static sidebar_smart_backspace_winit() {
+      return [
+        "Single-Stroke Key Interception & Smart Backspace in winit:\n" +
+        "```rust\n" +
+        "// In PointInterceptor::handle_key_down\n" +
+        "pub fn handle_key_down(&mut self, key: &str, ctrl: bool, shift: bool) -> bool {\n" +
+        "    // 1. Intercept numbers without opening a command prompt\n" +
+        "    if is_numeric_char(key) && !ctrl {\n" +
+        "        self.typing_buffer.push_str(key);\n" +
+        "        self.is_locked[self.active_axis] = true;\n" +
+        "        self.apply_directional_sign(self.active_axis);\n" +
+        "        return true; // Consumed: CADCraft prompt never sees this keystroke!\n" +
+        "    }\n\n" +
+        "    // 2. CAD Smart Backspace\n" +
+        "    if key == \"Backspace\" {\n" +
+        "        if !self.typing_buffer.is_empty() {\n" +
+        "            self.typing_buffer.pop();\n" +
+        "        } else {\n" +
+        "            // Truncate least significant digit of live dynamic coordinate\n" +
+        "            let val = self.last_delta[self.active_axis];\n" +
+        "            self.typing_buffer = format!(\"{:.4}\", val);\n" +
+        "            self.typing_buffer.pop(); // Remove last digit\n" +
+        "            self.is_locked[self.active_axis] = true;\n" +
+        "        }\n" +
+        "        return true;\n" +
+        "    }\n" +
+        "    false\n" +
+        "}\n" +
+        "```\n" +
+        "• Zero Double-Typing: Eliminates key conflicts between AccuDraw and CADCraft.\n" +
+        "• Seamless Dimension Trimming: Smart Backspace allows rounding live measurements on the fly."
       ];
     }
 }

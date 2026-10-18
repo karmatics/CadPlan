@@ -8,41 +8,72 @@ class AccuDrawPhilosophyContent {
   }
 
   static manifest() {
-    return [
-      {
-        section: 'challenge',
-        partLabel: 'Chapter 2 • Foundations',
-        title: 'The Challenge of Drawing on a Computer',
-        blocks: [
-          { id: 'p_phil_challenge_1', type: 'p' },
-          { id: 'p_phil_challenge_2', type: 'p' },
-          { id: 'sidebar_1995_reprint', type: 'sidebar', kicker: 'February 1995 MicroStation Manager', title: 'From My Original Article: A PowerDraft Highlight' }
-        ]
-      },
-      {
-        section: 'solution',
-        partLabel: 'Chapter 2 • Synthesis',
-        title: 'Marrying Keyboard Precision and Mouse Intuition',
-        blocks: [
-          { id: 'p_phil_synthesis_1', type: 'p' },
-          { id: 'p_phil_synthesis_2', type: 'p' },
-          { id: 'sidebar_scott_williams', type: 'sidebar', kicker: 'December 1996 MicroStation Manager', title: 'Scott Williams: The 3D Thinking Tool & AccuDreamer' }
-        ]
-      },
-      {
-        section: 'squircle_story',
-        partLabel: 'Chapter 2 • The Compass',
-        title: 'The Story of the Squircle Compass',
-        blocks: [
-          { id: 'p_squircle_1', type: 'p' },
-          { id: 'p_squircle_2', type: 'p' },
-          { id: 'sidebar_squircle_math', type: 'sidebar', kicker: 'Geometry & Math', title: 'Squircle3D, ArcSquircleCalc, and BezierSquircleCalc' },
-          { id: 'p_squircle_3', type: 'p' }
-        ]
+        return [
+          {
+            section: 'isolated_compass_top',
+            partLabel: 'Chapter 2 • 3D Instrument View',
+            title: 'Isolated 3D AccuDraw Compass (Zoomed Viewport)',
+            blocks: [
+              { id: 'comp_isolated_compass_3d', type: 'component', component: 'CadIsolatedCompass3DComponent' }
+            ]
+          },
+          {
+            section: 'freedom_graphic_section',
+            partLabel: 'Chapter 2 • Human Ergonomics',
+            title: 'Freedom Over Monoliths: Composable Interactive Instruments',
+            blocks: [
+              { id: 'comp_freedom_graphic', type: 'component', component: 'CadErgonomicFreedomGraphic' }
+            ]
+          },
+          {
+            section: 'animated_svg_compass',
+            partLabel: 'Chapter 2 • Procedural Vector Lab',
+            title: 'Animated SVG Compass: Superellipse Morphing & Mini-Jack',
+            blocks: [
+              { id: 'comp_animated_svg_compass', type: 'component', component: 'CadAnimatedSvgCompassLab' }
+            ]
+          },
+          {
+            section: 'compass_anatomy_deconstruction',
+            partLabel: 'Chapter 2 • Anatomical Deconstruction',
+            title: 'The Squircle Compass: Visual Language & Geometry',
+            blocks: [
+              { id: 'comp_compass_anatomy', type: 'component', component: 'CompassAnatomyComponent' }
+            ]
+          },
+          {
+            section: 'challenge',
+            partLabel: 'Chapter 2 • Foundations',
+            title: 'The Challenge of Drawing on a Computer',
+            blocks: [
+              { id: 'p_phil_challenge_1', type: 'p' },
+              { id: 'p_phil_challenge_2', type: 'p' },
+              { id: 'sidebar_1995_reprint', type: 'sidebar', kicker: 'February 1995 MicroStation Manager', title: 'From My Original Article: A PowerDraft Highlight' }
+            ]
+          },
+          {
+            section: 'solution',
+            partLabel: 'Chapter 2 • Synthesis',
+            title: 'Marrying Keyboard Precision and Mouse Intuition',
+            blocks: [
+              { id: 'p_phil_synthesis_1', type: 'p' },
+              { id: 'p_phil_synthesis_2', type: 'p' },
+              { id: 'sidebar_scott_williams', type: 'sidebar', kicker: 'December 1996 MicroStation Manager', title: 'Scott Williams: The 3D Thinking Tool & AccuDreamer' }
+            ]
+          },
+          {
+            section: 'squircle_story',
+            partLabel: 'Chapter 2 • The Compass',
+            title: 'The Story of the Squircle Compass',
+            blocks: [
+              { id: 'p_squircle_1', type: 'p' },
+              { id: 'p_squircle_2', type: 'p' },
+              { id: 'sidebar_squircle_math', type: 'sidebar', kicker: 'Geometry & Math', title: 'Squircle3D, ArcSquircleCalc, and BezierSquircleCalc' },
+              { id: 'p_squircle_3', type: 'p' }
+            ]
+          }
+        ];
       }
-    ];
-  }
-
   static p_phil_challenge_1() {
     return [
       "When I sat down to write 'A PowerDraft Highlight: AccuDraw' for the February 1995 issue of MicroStation Manager, I started with the fundamental challenge of our medium. On paper, precision drafting had centuries of physical tools: T-squares, triangles, scales, and drafting machines. In early CAD systems, there was no direct equivalent. We had a keyboard and a mouse, and they were fighting each other."

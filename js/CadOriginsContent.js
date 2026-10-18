@@ -8,40 +8,40 @@ class CadOriginsContent {
   }
 
   static manifest() {
-    return [
-      {
-        section: 'provenance',
-        partLabel: 'Chapter 1 • Origins',
-        title: 'Inventing AccuDraw & SmartLine',
-        blocks: [
-          { id: 'p_rob_intro_1', type: 'p' },
-          { id: 'p_rob_intro_2', type: 'p' },
-          { id: 'sidebar_patent_milestone', type: 'sidebar', kicker: 'Intellectual Property', title: 'US Patent #5,754,182 & The 30-Year Moat' }
-        ]
-      },
-      {
-        section: 'playbook',
-        partLabel: 'Chapter 1 • Evolution',
-        title: 'A Familiar Playbook: From Workstations to the Open Web',
-        blocks: [
-          { id: 'p_bentley_playbook_1', type: 'p' },
-          { id: 'p_bentley_playbook_2', type: 'p' },
-          { id: 'sidebar_bentley_relation', type: 'sidebar', kicker: 'Industry Relationship', title: 'A Constructive Relationship & Strategic Leverage' }
-        ]
-      },
-      {
-        section: 'modern_tools',
-        partLabel: 'Chapter 1 • Catalysts',
-        title: 'Agentic AI & The Power to Build Alone',
-        blocks: [
-          { id: 'p_agentic_power_1', type: 'p' },
-          { id: 'p_agentic_power_2', type: 'p' },
-          { id: 'quote_origin_verdict', type: 'quote' }
-        ]
-      }
-    ];
-  }
-
+      return [
+        {
+          section: 'provenance',
+          partLabel: 'Chapter 1 • Origins',
+          title: 'Inventing AccuDraw & SmartLine',
+          blocks: [
+            { id: 'comp_origins_graphic', type: 'component', component: 'CadOriginsGraphicComponent' },
+            { id: 'p_rob_intro_1', type: 'p' },
+            { id: 'p_rob_intro_2', type: 'p' },
+            { id: 'sidebar_patent_milestone', type: 'sidebar', kicker: 'Intellectual Property', title: 'US Patent #5,754,182 & The 30-Year Moat' }
+          ]
+        },
+        {
+          section: 'playbook',
+          partLabel: 'Chapter 1 • Evolution',
+          title: 'A Familiar Playbook: From Workstations to the Open Web',
+          blocks: [
+            { id: 'p_bentley_playbook_1', type: 'p' },
+            { id: 'p_bentley_playbook_2', type: 'p' },
+            { id: 'sidebar_bentley_relation', type: 'sidebar', kicker: 'Industry Relationship', title: 'A Constructive Relationship & Strategic Leverage' }
+          ]
+        },
+        {
+          section: 'modern_tools',
+          partLabel: 'Chapter 1 • Catalysts',
+          title: 'Agentic AI & The Power to Build Alone',
+          blocks: [
+            { id: 'p_agentic_power_1', type: 'p' },
+            { id: 'p_agentic_power_2', type: 'p' },
+            { id: 'quote_origin_verdict', type: 'quote' }
+          ]
+        }
+      ];
+    }
   static p_rob_intro_1() {
     return [
       "I'm Rob Brown. In the mid-1990s, while working as a software interface designer at Bentley Systems in Exton, Pennsylvania, I invented AccuDraw and SmartLine. At the time, working in CAD was an exercise in frustration. If you wanted to draw precisely on a computer, you were forced to type repetitive command-line coordinate codes—like DX=10.5, DL=4.25, or @distance<angle—or construct disposable scratch lines just to snap to an intersection and delete them later. The mouse gave you visual rubber-banding, but was imprecise. The keyboard gave you precision, but typing coordinates wasn't drawing."
@@ -67,17 +67,19 @@ class CadOriginsContent {
   }
 
   static p_bentley_playbook_2() {
-    return [
-      "Today, a similar shift is underway. By taking the AccuDraw interaction philosophy—which has now passed out of its 20-year patent term—and combining it with modern web standards, WebGL/WebGPU, and open-source geometry tools, we can make Bentley-caliber spatial drafting run anywhere: in any browser, on any device, without expensive proprietary licenses or heavyweight desktop installations. We know this model works because it's the exact path that proved so successful thirty years ago."
-    ];
-  }
-
+      return [
+        "Today, a similar shift is underway, but with a critical distinction: **I am not positioning myself as bringing another AutoCAD clone to market**. Clones already exist (like CADCraft and various DWG viewers). What I am creating is the **superpower plugin layer on top of them** that makes them extraordinarily capable in 3D.",
+        "What we are demonstrating is that an everyday drafter can sketch a 2D profile using standard AutoCAD conventions, immediately lift it into 3D with the AccuDraw floating compass, and then save it right back into standard 3D and 2D DXF/DWG format so that standard AutoCAD or MicroStation opens it losslessly. People who already know AutoCAD can use this with zero friction—even though I don't personally know the internal mechanics of AutoCAD, the open-source tools and AI handle the AutoCAD plumbing, while I supply the 3D spatial interaction engine that makes it magical."
+      ];
+    }
   static sidebar_bentley_relation() {
-    return [
-      "Industry Leverage & Bentley Relations:\n• I have a long history with Bentley Systems and a great deal of personal respect for Ray Bentley and what they built. My ideal outcome has always been collaborative: exploring ways to work together, putting my expertise out front, and helping guide their web and spatial interaction roadmap with proper compensation.\n• At the same time, this project creates natural leverage. By demonstrating that AccuDraw workflows can run fluidly on open web standards with modern agentic code pipelines, it shows that the paradigm can thrive outside walled gardens. It's a constructive, credible alternative that keeps everyone on their toes."
-    ];
-  }
-
+      return [
+        "Industry Leverage & The Audience Capture Strategy:\n" +
+        "• Capturing the Migration Wave: Legacy CAD companies live in fear of losing their captive audience. Users are already eager to escape $10,000/seat subscriptions. By offering a familiar AutoCAD-compatible baseline and gifting AccuDraw openly, we capture the audience that was ready to leave anyway.\n" +
+        "• The Inventor's Giveaway: This is not just another generic clone; it is an open-source gift from the original inventor of AccuDraw himself, creating immense strategic leverage.\n" +
+        "• Constructive Relations: While maintaining respect for Ray Bentley and what Bentley Systems built, this project demonstrates that the AccuDraw paradigm thrives on open web standards. It provides a credible, agile alternative that keeps the entire industry on its toes."
+      ];
+    }
   static p_agentic_power_1() {
     return [
       "What makes this moment uniquely exciting is agentic AI. In the 1990s, building a new CAD platform required an army of specialized graphics programmers, compilers, and years of manual coding. Today, using modern LLMs and my local Luno workspace environment, I can prototype, refactor, and audit complex mathematical engines at a speed that simply wasn't possible before."
