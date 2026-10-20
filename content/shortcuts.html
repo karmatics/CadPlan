@@ -1,0 +1,47 @@
+<article data-page="shortcuts" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Ergonomic Engine & Interaction Architecture</span>
+    <h1 class="dossier-title">The Universal Key Command Engine</h1>
+    <p class="dossier-subtitle">How single-stroke hierarchical shortcuts operate without the Enter key, the & display syntax, and why this system transcends CAD to power creative software everywhere.</p>
+  </header>
+
+  <section data-section="shortcut_philosophy">
+    <h2 class="section-title">Single-Stroke Hierarchical Commands</h2>
+    <div data-block="comp_kch_interactive_lab" data-type="component" data-component="KeyCommandInteractiveLab"></div>
+
+    <p data-block="p_kch_1">
+      One of the crown jewels of AccuDraw—and of my wider software architecture—is how keyboard shortcuts are handled. In traditional programs, keyboard shortcuts are an afterthought: awkward multi-finger finger-twisters like Ctrl+Alt+Shift+P, or command-line key-ins that force you to press <code>&lt;Enter&gt;</code> after every word. That ruins drafting speed. When you are drawing, your right hand is on the mouse and your left hand rests on the home row. You shouldn't have to reach across the keyboard to hit Enter, and you shouldn't have to look down.
+    </p>
+
+    <p data-block="p_kch_2">
+      In <code>KeyCommandHandler.js</code> and <code>SmartDrawKeys.js</code>, I architected a hierarchical shortcut dispatch tree that executes instantly on keypress. Tapping <code>T</code> instantly sets Top view. Tapping <code>S</code> sets Side view. Tapping <code>F</code> sets Front view. Tapping <code>O</code> moves the origin. Tapping <code>Space</code> toggles polar/rectangular mode. For deeper commands, shortcuts branch cleanly: typing <code>V</code> opens the View menu, and the very next keystroke (<code>C</code> for Center, <code>D</code> for Depth, <code>O</code> for Oscillate) executes immediately. There is no Enter key, no dialog popup latency, and no mode lock.
+    </p>
+
+    <aside data-block="sidebar_kch_syntax" data-type="sidebar">
+      <span class="sidebar-kicker">Syntax & Parser</span>
+      <strong class="sidebar-title">The & Hotkey Syntax & Numerical Range Parsing</strong>
+      <ul>
+        <li><strong>The & Underline Syntax:</strong> When defining commands like <code>kch.addKeyCommand('ca&psule', '', ...)</code> or <code>&keyboard shortcuts</code>, the ampersand indicates which letter serves as the hotkey. In the UI menu, that specific letter is highlighted or underlined, allowing hotkeys to be placed anywhere in a command word.</li>
+        <li><strong>Numerical Range Parsing:</strong> Commands can bind continuous numerical ranges, such as <code>accudraw size #0-9</code>. When the user types any digit 0 through 9 after the prefix, the handler extracts the argument dynamically without hardcoding ten separate handlers.</li>
+        <li><strong>Progressive Learning:</strong> The shortcuts dialog (<code>?</code> key) lists every command, its key path, and description. Beginners can look them up, but once memorized, they execute with raw reflex speed.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="numerical_continuation">
+    <h2 class="section-title">Dynamic Parameter Scaling & Decimal Precision</h2>
+    <div data-block="comp_number_stream_lab" data-type="component" data-component="AccuDrawNumberStreamLab"></div>
+
+    <p data-block="p_kch_universal_1">
+      I want to make a critical architectural point about this shortcut engine: it is not exclusive to CAD. I designed and use this shortcut philosophy more widely across my entire development world. It works just as effectively in vector illustration tools, image editing (a Photoshop alternative), sound design, or window management.
+    </p>
+
+    <p data-block="p_kch_universal_2">
+      Because this interaction model is shared across multiple projects, we must keep the core <code>KeyCommandHandler</code> clean, modular, and uncoupled from CAD-specific assumptions. When an artist or engineer sits down at any tool built on this architecture, their left hand has the exact same fluid, single-stroke command vocabulary. That kind of cross-application muscle memory is extraordinarily rare in software today.
+    </p>
+
+    <blockquote data-block="quote_shortcut_freedom">
+      <p>If you have to press Enter to confirm a shortcut, your interface has failed. Precision shortcuts should fire with the instantaneous response of a musical instrument.</p>
+    </blockquote>
+  </section>
+</article>

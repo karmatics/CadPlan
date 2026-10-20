@@ -63,7 +63,10 @@
     "js/CadPromptBundlerDialog.js",
     "ModelLoader.js",
     "Simple3dShapes.js",
-    "CadPlan.js"
+    "CadPlan.js",
+    "js/CadPlanDataRegistry.js",
+    "js/CadPlanAardvark.js",
+    "js/CadPlanContentConverter.js"
   ],
   "library": [
     "DomBasics.js",
@@ -76,19 +79,36 @@
     "ColorPicker.js",
     "KeyCommandHandler.js",
     "SidePanel.js",
-    "CodeMirrorWidget.js"
+    "CodeMirrorWidget.js",
+    "CommunityOracle.js"
   ],
   "styles": [
     "basic3d.css"
   ],
-  "processedCountSinceCheckpoint": 0,
-  "lastCheckpointTime": "2026-10-18T05:22:59.980Z",
-  "pendingCheckpointDescription": "Clean working tree",
+  "processedCountSinceCheckpoint": 47,
   "changedMethods": {
-    "js/CadPlanItemNotes.js": "2026-10-18T04:25:38.755Z",
-    "Library/DictationWidget.js": "2026-10-18T04:19:36.875Z",
-    "Library/DocumentReader.js": "2026-10-18T04:55:13.466Z",
-    "js/CadPlanNotesManager.js": "2026-10-18T04:16:35.397Z",
-    "CadPlan.js": "2026-10-18T05:12:52.086Z"
+    "Library/CommunityOracle.js": "2026-10-20T18:21:51.929Z",
+    "Voting/luno.json": "2026-10-20T18:21:51.929Z",
+    "Community/luno.json": "2026-10-20T18:21:51.929Z",
+    "Comments/luno.json": "2026-10-20T18:21:51.929Z",
+    "luno.json": "2026-10-20T18:21:51.929Z",
+    "CadPlan.js": "2026-10-20T20:42:58.932Z",
+    "Luno/core/LunoServer.js": "2026-10-20T20:02:07.587Z",
+    "js/CadStudioDemoComponent.js": "2026-10-20T20:42:58.932Z",
+    "js/CadModelStudioComponent.js": "2026-10-20T20:21:20.437Z",
+    "Library/CodeMirrorWidget.js": "2026-10-20T20:21:20.437Z",
+    "Library/DocumentReader.js": "2026-10-20T20:42:58.932Z",
+    "js/CadPlanItemNotes.js": "2026-10-20T20:21:20.437Z",
+    "js/CadPlanDocumentEditor.js": "2026-10-20T20:21:20.437Z",
+    "js/CadIsolatedCompass3DComponent.js": "2026-10-20T20:21:20.437Z",
+    "js/CurveDrawerLabComponent.js": "2026-10-20T20:21:20.437Z",
+    "Library/SidePanel.js": "2026-10-20T20:42:58.932Z",
+    "js/AccuDrawDemoComponent.js": "2026-10-20T20:53:33.794Z",
+    "Library/KeyCommandHandler.js": "2026-10-20T20:53:33.794Z",
+    "Library/UITools.js": "2026-10-20T20:53:33.794Z",
+    "Library/SliderControl.js": "2026-10-20T20:53:33.794Z",
+    "js/CadPlanAardvark.js": "2026-10-20T20:53:33.794Z",
+    "js/CadPlanNotesManager.js": "2026-10-20T20:53:33.794Z",
+    "js/AccuCadAuditContent.js": "2026-10-20T20:53:33.794Z"
   }
 }

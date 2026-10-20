@@ -6,7 +6,7 @@ class CurveDrawerLabComponent {
       const wrap = makeElement('div', {
         style: {
           width: '100%',
-          minHeight: '580px',
+          minHeight: '600px',
           background: '#070a13',
           borderRadius: '12px',
           border: '1.5px solid #21262d',
@@ -51,12 +51,18 @@ class CurveDrawerLabComponent {
       const statusEl = makeElement('span', {
         id: 'curve-lab-status',
         style: { fontSize: '11px', fontFamily: 'monospace', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '3px 8px', borderRadius: '12px' }
-      }, 'Mode: On-Curve Points • Click on-curve to relax');
+      }, 'Mode: On-Curve Points • Click on-curve to relax G1 tangents');
 
-      const rightControls = makeElement('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, [
+      const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
         statusEl,
         makeElement('button', {
-          className: 'dr-nav-btn', style: { padding: '3px 8px', fontSize: '10px', color: '#ef4444' },
+          className: 'dr-nav-btn',
+          style: { padding: '3px 8px', fontSize: '10px', background: '#271052', color: '#d2a8ff', borderColor: '#8257e5' },
+          onclick: () => exportSplineToOutbox()
+        }, '📤 Spline to Outbox'),
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { padding: '3px 8px', fontSize: '10px', color: '#ef4444' },
           onclick: () => resetLab()
         }, '🗑️ Clear')
       ]);
@@ -65,41 +71,44 @@ class CurveDrawerLabComponent {
       toolbar.appendChild(rightControls);
       wrap.appendChild(toolbar);
 
-      const hintEl = makeElement('span', { id: 'tether-hint', style: { color: '#a855f7', display: 'none' } }, 'Hold [Ctrl] to extend string • Release to pull • Hold [Shift] to backtrack/undo');
+      const hintEl = makeElement('span', { id: 'tether-hint', style: { color: '#a855f7', display: 'none', fontSize: '10.5px' } }, 'Hold [Ctrl] to extend string • Release to pull • Hold [Shift] to backtrack/undo');
 
       const subBar = makeElement('div', {
         style: {
-          padding: '5px 14px', background: '#0d1117', borderBottom: '1px solid #161e2b',
-          display: 'flex', alignItems: 'center', gap: '14px', fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace'
+          padding: '6px 14px', background: '#0d1117', borderBottom: '1px solid #161e2b',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px'
         }
-      }, [
-        makeElement('label', { style: { display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' } }, [
-          'Curvature: ',
-          makeElement('input', {
-            id: 'curve-slider-curv', type: 'range', min: '0.1', max: '2.5', step: '0.05', value: '1.0',
-            style: { width: '70px', accentColor: '#38bdf8' },
-            oninput: (e) => { state.currentCurvature = parseFloat(e.target.value); updateSpline(); }
-          })
-        ]),
-        makeElement('label', { style: { display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' } }, [
-          'Balance: ',
-          makeElement('input', {
-            id: 'curve-slider-bal', type: 'range', min: '0.1', max: '1.9', step: '0.05', value: '1.0',
-            style: { width: '70px', accentColor: '#f59e0b' },
-            oninput: (e) => { state.currentBalance = parseFloat(e.target.value); updateSpline(); }
-          })
-        ]),
-        hintEl
-      ]);
+      });
+
+      const slidersHolder = makeElement('div', {
+        style: { display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }
+      });
+
+      const curvMount = makeElement('div', { style: { width: '170px' } });
+      new SliderControl({
+        label: 'Curvature', min: 0.1, max: 2.5, initialValue: 1.0, showValue: true, directEntry: true,
+        callback: (v) => { state.currentCurvature = v; updateSpline(); }
+      }).appendTo(curvMount);
+      slidersHolder.appendChild(curvMount);
+
+      const balMount = makeElement('div', { style: { width: '170px' } });
+      new SliderControl({
+        label: 'Balance', min: 0.1, max: 1.9, initialValue: 1.0, showValue: true, directEntry: true,
+        callback: (v) => { state.currentBalance = v; updateSpline(); }
+      }).appendTo(balMount);
+      slidersHolder.appendChild(balMount);
+
+      subBar.appendChild(slidersHolder);
+      subBar.appendChild(hintEl);
       wrap.appendChild(subBar);
 
       const W = 800;
-      const H = 480;
+      const H = 460;
 
       const svg = makeElement('svg:svg', {
         viewBox: `0 0 ${W} ${H}`,
         width: '100%',
-        height: '480px',
+        height: '460px',
         style: { display: 'block', background: '#090d16', cursor: 'crosshair' }
       });
 
@@ -166,8 +175,7 @@ class CurveDrawerLabComponent {
 
         if (state.vertices.length < 2) return;
 
-        const solver = (typeof UpdateControlPoints !== 'undefined') ? UpdateControlPoints : globalThis.UpdateControlPoints;
-        solver.run(state.vertices, 8);
+        UpdateControlPoints.run(state.vertices, 8);
 
         let d = `M ${state.vertices[0].point[0]} ${state.vertices[0].point[1]}`;
         for (let i = 0; i < state.vertices.length - 1; i++) {
@@ -196,14 +204,28 @@ class CurveDrawerLabComponent {
         });
       }
 
+      function exportSplineToOutbox() {
+        if (state.vertices.length < 2) {
+          alert('Place at least 2 through-points before exporting spline.');
+          return;
+        }
+        let dxf = "0\nSECTION\n2\nENTITIES\n0\nSPLINE\n8\nON_CURVE_SPLINES\n";
+        state.vertices.forEach(v => {
+          dxf += `10\n${v.point[0].toFixed(3)}\n20\n${v.point[1].toFixed(3)}\n30\n0.0\n`;
+        });
+        dxf += "0\nENDSEC\n0\nEOF\n";
+
+        CadPlanItemNotes.dispatchToOutbox(`On-Curve Spline DXF (${state.vertices.length} vertices)`, dxf);
+        alert('✓ Queued Spline DXF directly into Luno Outbox!');
+      }
+
       svg.addEventListener('pointerdown', (e) => {
         if (e.button !== 0) return;
         const rect = svg.getBoundingClientRect();
         const x = Math.round((e.clientX - rect.left) * (W / rect.width));
         const y = Math.round((e.clientY - rect.top) * (H / rect.height));
 
-        const vertexClass = (typeof BezierVertex !== 'undefined') ? BezierVertex : globalThis.BezierVertex;
-        const v = new vertexClass([x, y]);
+        const v = new BezierVertex([x, y]);
         v.curvature = state.currentCurvature;
         v.balance = state.currentBalance;
         state.vertices.push(v);
@@ -240,14 +262,11 @@ class CurveDrawerLabComponent {
 
             state.tetherStream.push([state.curveTip[0], state.curveTip[1]]);
 
-            tetherLayer.appendChild(makeElement('svg:line', {
-              x1: state.curveTip[0], y1: state.curveTip[1], x2: x, y2: y,
-              stroke: '#38bdf8', 'stroke-width': '1.5', 'stroke-dasharray': '3,3'
-            }));
+            const lastVertex = state.vertices[state.vertices.length - 1];
+            const distToLast = lastVertex ? Math.hypot(state.curveTip[0] - lastVertex.point[0], state.curveTip[1] - lastVertex.point[1]) : Infinity;
 
-            if (state.vertices.length === 0 || Math.hypot(state.curveTip[0] - state.vertices[state.vertices.length - 1].point[0], state.curveTip[1] - state.vertices[state.vertices.length - 1].point[1]) > 45) {
-              const vertexClass = (typeof BezierVertex !== 'undefined') ? BezierVertex : globalThis.BezierVertex;
-              const v = new vertexClass([state.curveTip[0], state.curveTip[1]]);
+            if (distToLast > 40) {
+              const v = new BezierVertex([state.curveTip[0], state.curveTip[1]]);
               v.curvature = state.currentCurvature;
               v.balance = state.currentBalance;
               state.vertices.push(v);

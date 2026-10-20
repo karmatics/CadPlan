@@ -1,0 +1,149 @@
+<article data-page="interview" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">The Inventor's Agenda • Direct Interview</span>
+    <h1 class="dossier-title">11. Vision, Strategy & The Open CAD Horizon</h1>
+    <p class="dossier-subtitle">Rob Brown's direct perspective on CADCraft integration, graphics engine tradeoffs, two-handed ergonomics, and autonomous agent drafting.</p>
+  </header>
+
+  <section data-section="roundtrip_superpower_top">
+    <h2 class="section-title">The 2D-to-3D Round-Trip: The Superpower Plugin Layer</h2>
+    <div data-block="comp_roundtrip_superpower" data-type="component" data-component="Cad2Dto3DRoundTripGraphic"></div>
+  </section>
+
+  <section data-section="audience_migration_section">
+    <h2 class="section-title">The Audience Capture & Vibe-Coding Flywheel</h2>
+    <div data-block="comp_audience_migration" data-type="component" data-component="CadAudienceMigrationGraphic"></div>
+  </section>
+
+  <section data-section="vision_hero_top">
+    <h2 class="section-title">The Expandable Dual-Mode Tool Architecture</h2>
+    <div data-block="comp_vision_hero" data-type="component" data-component="CadVisionHeroGraphic"></div>
+  </section>
+
+  <section data-section="strategy_vehicle">
+    <h2 class="section-title">The Host Platform: CADCraft vs. Standalone Web</h2>
+
+    <p data-block="p_interview_strategy_1">
+      I want to be completely clear about my positioning: I am not bringing another AutoCAD clone to market. Clones already exist, and people have done solid work building them. What I am creating is the <strong>superpower plugin on top of existing tools</strong> that makes them super powerful in 3D. As demonstrated in our interactive round-trip test bench above, a user can go straight from 2D AutoCAD drafting to this 3D spatial environment, construct with single-keystroke construction planes and on-curve relaxation, and then save it right back into standard 3D and 2D DXF/DWG format so that standard AutoCAD opens it seamlessly. People who already know AutoCAD can use this immediately without retraining. I don't need to know the intricacies of how AutoCAD works—the AI and open-source engines handle the AutoCAD syntax, while I supply the proprietary 3D spatial interaction engine.
+    </p>
+
+    <p data-block="p_interview_strategy_2">
+      Starting from an established AutoCAD foundation solves the biggest adoption problem in CAD: where do you get your users from? If you start completely from scratch with a foreign interface, user adoption is an uphill battle. But legacy CAD companies are terrified of losing their audience, and what I am doing is grabbing the audience that was already ready to leave anyway. Users are eager to escape $10,000/seat subscriptions, but they need familiarity. We give them a tool that drops into AutoCAD mode if they want it, but then we say: "Hey, look at this stuff too: here is AccuDraw and SmartLine as an open-source giveaway from the original inventor." That gives us immense power over legacy vendors because it's not just another clone—it's an evolutionary leap gifted freely by the person who created it. Furthermore, when you use modern "vibe coding" backed by an exhaustive specification like CadPlan, the build velocity is staggering. Sure, a vibe-coded system might initially miss some obscure dialog box or legacy edge case that took a 100-person team twenty years to bloat into a desktop installer. But it gains an overwhelming amount of speed, openness, and capability because it's built cleanly on the web—and because vibe coding with a hyper-detailed specification like this actually works.
+    </p>
+
+    <aside data-block="sidebar_host_strategy" data-type="sidebar">
+      <span class="sidebar-kicker">Platform Strategy</span>
+      <strong class="sidebar-title">Zero-Fork Upstream Bridge vs. Independent Horizon</strong>
+      <ul>
+        <li><strong>Capture Fleeing Drafters:</strong> Grab the audience that was already looking to leave expensive $10k/seat subscriptions.</li>
+        <li><strong>Zero Workflow Shock:</strong> AutoCAD clone baseline gives users an immediate, comfortable landing pad.</li>
+        <li><strong>The Inventor's Gift:</strong> AccuDraw and SmartLine open-sourced freely by Rob Brown, creating immense leverage over legacy monopolies.</li>
+        <li><strong>The Vibe-Coding Advantage:</strong> Minor legacy edge cases are dwarfed by massive gains in speed, openness, and modern ergonomics, driven by an executable master specification.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="engine_tradeoffs">
+    <h2 class="section-title">Graphics Engine: Three.js PBR vs. Pure Rust wgpu</h2>
+
+    <p data-block="p_interview_engine_1">
+      For the engine and presentation, we are going web-first with Three.js. For our hero demo, we will use our existing 3D primitives and GLB importer, but with a critical upgrade: adding tentative coordinate and normal snapping directly to loaded GLB meshes. Currently, imported GLB geometry does not support tentative point latching. By enabling raycasted vertex, edge, and surface-normal snapping on GLB models, users will be able to load any complex 3D assembly, snap the squircle compass onto any face, and draw precision geometry directly off it with realistic PBR materials, clearcoats, and studio lighting.
+    </p>
+
+    <p data-block="p_interview_engine_2">
+      At the same time, we will architect the system cleanly so it can bypass the browser and Three.js down the road if we want to run purely inside native Rust and wgpu. We don't have to build that native bypass first—we will focus on making the web experience extraordinary, while keeping the mathematical kernel modular so it integrates cleanly with native Rust builds whenever we are ready.
+    </p>
+
+    <aside data-block="sidebar_render_verdict" data-type="sidebar">
+      <span class="sidebar-kicker">Visual Fidelity</span>
+      <strong class="sidebar-title">Thick Line Antialiasing & PBR Material Strategy</strong>
+      <ul>
+        <li><strong>Phase 1 (Web-First Shock & Awe):</strong> Three.js WebGL/WebGPU viewport with PBR physical materials, environment lighting, and Line2 antialiased wireframes.</li>
+        <li><strong>Presentation Standard:</strong> Studio-lit 3D assemblies that stand in sharp aesthetic contrast to legacy monochrome CAD.</li>
+        <li><strong>Phase 2 (Engine Decoupling):</strong> Pure mathematical kernel in Rust/Wasm capable of feeding either browser WebGL or native desktop wgpu vertex buffers.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="smartline_evolution">
+    <h2 class="section-title">SmartLine 3D Evolution & Continuous Curvature</h2>
+
+    <p data-block="p_interview_smartline_1">
+      A crucial rule for this project: do not get carried away trying to reinvent SmartLine or the curve drawer from high-level summaries. SmartLine is something I put an immense amount of thought and labor into at Bentley, and it is far more than standard polyline bulge math.
+    </p>
+
+    <p data-block="p_interview_smartline_2">
+      The authentic Curve Drawer lives in my DrawingApp codebase at <code>/Users/rob/source/recursi copy/web/DrawingApp/js/CurveDraw.js</code> and its dedicated <code>curve/</code> directory. It is not an off-the-shelf Catmull-Rom spline or generic polynomial fit. It is my proprietary iterative solver that calculates the exact control points and continuous tangencies while the user defines through-points directly along the curve. The result is fluid, natural, and gives the designer full interactive control without having to wrestle with clumsy off-curve Bezier handles. We will incorporate that exact architecture directly into our shared geometry layer.
+    </p>
+
+    <aside data-block="sidebar_smartline_spec" data-type="sidebar">
+      <span class="sidebar-kicker">Geometric Continuity</span>
+      <strong class="sidebar-title">G1/G2 Tangency & Dynamic Corner Fillet Radii</strong>
+      <ul>
+        <li><strong>Source Location:</strong> <code>/Users/rob/source/recursi copy/web/DrawingApp/js/CurveDraw.js</code> &amp; <code>curve/</code></li>
+        <li><strong>Proprietary Iterative Engine:</strong> Derives exact Bezier control points and $G^1$/$G^2$ tangencies iteratively through on-curve user points.</li>
+        <li><strong>No Guesswork:</strong> Bypasses naive Catmull-Rom or generic polyline bulges in favor of Rob Brown's proven interactive curve solver.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="workstation_ergonomics">
+    <h2 class="section-title">Two-Handed CAD & The Wireless TouchController</h2>
+
+    <p data-block="p_interview_touch_1">
+      The TouchController is a central pillar of the public presentation. Being able to hold a phone in your left hand and fluidly scrub curve tension, line weights, or 3D camera depth while placing points with the mouse is a game-changing demonstration of two-handed CAD. While GitHub Pages is ideal for static hosting, we will set up a minimal-cost (or free serverless) signaling relay so pairing the phone takes a single QR code scan with zero manual IP setup.
+    </p>
+
+    <p data-block="p_interview_touch_2">
+      When you hold the phone in your left hand while your right hand holds the mouse, drafting becomes a continuous rhythmic dialogue. Your right hand has the fine motor precision of a pen: it snaps to vertices, aligns to axes, and clicks data points. Your left hand on the glass controls the continuous variables: with a thumb swipe you scrub curve tension, dial a corner fillet radius, or nudge the Z-elevation wheel. In traditional CAD, changing a parameter forces you to move your mouse away from the drawing, click an input field, type a number, and return to find where you were. With two hands operating concurrently, you dial the dimension as you're looking at the curve, and click the data point the exact split-second the shape looks right. You never look away from the model.
+    </p>
+
+    <aside data-block="sidebar_touch_ergonomics" data-type="sidebar">
+      <span class="sidebar-kicker">Ergonomics Blueprint</span>
+      <strong class="sidebar-title">Single-Stroke Key Home Row vs. Mobile Glass Surface</strong>
+      <ul>
+        <li><strong>Frictionless Pairing:</strong> Desktop viewport displays a dynamic QR code; phone camera scan opens the WebRTC trackpad instantly.</li>
+        <li><strong>Minimal Infrastructure Cost:</strong> Static frontend on GitHub Pages backed by a free Cloudflare Worker / tiny Node relay for WebRTC signaling.</li>
+        <li><strong>Two-Handed Cadence:</strong> Right hand drives mouse snapping; left hand modulates continuous geometric tension and 3D camera rotation.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="agentic_future">
+    <h2 class="section-title">Agentic AI Drafting & Model Context Protocol</h2>
+
+    <p data-block="p_interview_agents_1">
+      Regarding autonomous agent drafting: Current LLMs struggle with absolute trigonometry. When an AI tries to generate CAD models using raw coordinates, tiny floating-point rounding errors create microscopic gaps at vertices, ruining manifold geometry and breaking 3D solids.
+    </p>
+
+    <p data-block="p_interview_agents_2">
+      With AccuDraw and the Model Context Protocol, the AI agent doesn't need to do fuzzy absolute coordinate math in its neural weights. Instead of prompting an LLM to calculate "the coordinate of an arc tangent to point (12.435, 9.871) with a radius of 2.5," the agent issues relative AccuDraw directives: <code>origin_at(v1)</code>, <code>lock_axis('X', 10.0)</code>, <code>smartline_arc(radius=2.5, tangent=true)</code>. AccuDraw's spatial constraint engine does what it was born to do: it enforces exact millimeter tangencies and planar geometry deterministically. The AI provides high-level architectural intent and topology, while CompassDraw guarantees mathematical precision.
+    </p>
+
+    <aside data-block="sidebar_agent_mcp" data-type="sidebar">
+      <span class="sidebar-kicker">Agent Protocol</span>
+      <strong class="sidebar-title">Relative Vector Constraint Navigation for LLMs</strong>
+      <ul>
+        <li><strong>Eliminates Trigonometric Hallucinations:</strong> Agents issue relative displacement vectors rather than computing absolute coordinates.</li>
+        <li><strong>Perfect Snapping:</strong> The compass anchors the origin directly to reference vertices.</li>
+        <li><strong>Natural Language to Precision Geometry:</strong> Human intent converts cleanly into AccuDraw hints.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="endgame_perspective">
+    <h2 class="section-title">The 30-Year Arc: From Exton to Open Source</h2>
+
+    <p data-block="p_interview_endgame_1">
+      Regarding the adoption roadmap: right now, the primary goal is <strong>convincing the CAD world and open-source toolmakers that the hooks have to be put in</strong>. I would love for the ArtCraft people (Brandon Thomas and the CADCraft community) to add these three lightweight hooks so this can be distributed as a drop-in plugin that unlocks 3D superpowers. As for whether this stays an independent companion project or becomes the official 3D engine for ArtCraft: I am open to whichever path works best for me. If Brandon and the ArtCraft team say "yes, let's make this the official 3D spatial drafting engine of ArtCraft" and I get to just run with it—leading that spatial roadmap with full creative freedom—that would be an amazing partnership. And because this specification is so thorough, mathematically rigorous, and explicit, <strong>this is the exact kind of project that a modern AI agent can implement overnight</strong>. The agent writes the hook traits and event pump interception cleanly, and all it takes is a little testing to verify. Once those hooks exist, the floodgates open.
+    </p>
+
+    <p data-block="p_interview_endgame_2">
+      People often talk about CAD in terms of abstract mathematics—spline algorithms, transformation matrices, and boundary solvers. But I don't think of these as mathematical modules; I think of them as <strong>human interactive instruments</strong>. Precision isn't the primary thing to concentrate on, even though it was called AccuDraw. Obviously, you have to have precision—snapping to vertices, hard numbers, and locked axes are table stakes for any serious CAD tool. The real breakthrough is <strong>giving the creator the freedom to hook the system together in whatever way works best for them</strong>. Bentley Systems took AccuDraw and locked it inside their monolithic MicroStation executable for thirty years, freezing it in place. By deconstructing the compass, the two-handed phone surface, and the on-curve spline engine into composable interactive instruments, we give creators a flexible freedom that is fundamentally more powerful than anything Bentley has ever built.
+    </p>
+
+    <blockquote data-block="quote_interview_summary">
+      <p>"I'm open to whichever path works best. But if this becomes the official 3D spatial drafting engine for ArtCraft and I get to just run with it—leading the spatial roadmap for a whole new generation—that would be amazing."</p>
+    </blockquote>
+  </section>
+</article>

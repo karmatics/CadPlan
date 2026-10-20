@@ -1,0 +1,94 @@
+<article data-page="philosophy" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Design Heritage & Interaction Philosophy</span>
+    <h1 class="dossier-title">The AccuDraw Philosophy & The Squircle</h1>
+    <p class="dossier-subtitle">How precision married intuition, why rectangular meets polar, and the real reason behind the animated squircle compass.</p>
+  </header>
+
+  <section data-section="isolated_compass_top">
+    <h2 class="section-title">Isolated 3D AccuDraw Compass (Zoomed Viewport)</h2>
+    <div data-block="comp_isolated_compass_3d" data-type="component" data-component="CadIsolatedCompass3DComponent"></div>
+  </section>
+
+  <section data-section="freedom_graphic_section">
+    <h2 class="section-title">Freedom Over Monoliths: Composable Interactive Instruments</h2>
+    <div data-block="comp_freedom_graphic" data-type="component" data-component="CadErgonomicFreedomGraphic"></div>
+  </section>
+
+  <section data-section="animated_svg_compass">
+    <h2 class="section-title">Animated SVG Compass: Superellipse Morphing & Mini-Jack</h2>
+    <div data-block="comp_animated_svg_compass" data-type="component" data-component="CadAnimatedSvgCompassLab"></div>
+  </section>
+
+  <section data-section="compass_anatomy_deconstruction">
+    <h2 class="section-title">The Squircle Compass: Visual Language & Geometry</h2>
+    <div data-block="comp_compass_anatomy" data-type="component" data-component="CompassAnatomyComponent"></div>
+  </section>
+
+  <section data-section="challenge">
+    <h2 class="section-title">The Challenge of Drawing on a Computer</h2>
+
+    <p data-block="p_phil_challenge_1">
+      When I sat down to write "A PowerDraft Highlight: AccuDraw" for the February 1995 issue of <em>MicroStation Manager</em>, I started with the fundamental challenge of our medium. On paper, precision drafting had centuries of physical tools: T-squares, triangles, scales, and drafting machines. In early CAD systems, there was no direct equivalent. We had a keyboard and a mouse, and they were fighting each other.
+    </p>
+
+    <p data-block="p_phil_challenge_2">
+      The mouse gave you dynamic rubber-banding and visual intuition, but was inherently imprecise and limited to two dimensions on a flat screen. The keyboard gave you exact coordinates, but having to type <code>DX=12.5</code>, <code>DL=4.25&lt;45</code>, or active depth commands completely broke the creative flow. I realized that forcing users to type numbers into rigid command lines wasn't drawing—it was glorified bookkeeping.
+    </p>
+
+    <aside data-block="sidebar_1995_reprint" data-type="sidebar">
+      <span class="sidebar-kicker">February 1995 MicroStation Manager</span>
+      <strong class="sidebar-title">From My Original Article: A PowerDraft Highlight</strong>
+      <p>
+        "At the heart of the interface to any CAD system is precision data point input—the main point of drafting being to draw geometry precisely... On computers, the physical interface is typically a keyboard and a mouse. Traditionally, CAD systems use the keyboard for precision input, and the mouse for freehand work. Using the mouse is certainly easier and more intuitive... The problem is it's not very useful for 'real work,' which has to be precise. Working in 3D, the mouse has another limitation: it is inherently a 2D input device. Most input, therefore, comes from the keyboard... But 'drawing' by keyboard input is hardly drawing at all; it is simply not as interactive and visual as drawing with the mouse. So the need is for a comprehensive tool allowing keyboard and mouse to work together, without sacrificing the precision, speed, and 3D capabilities of keyboard input, or the intuitive nature, interactivity, and feedback of mouse drawing."
+      </p>
+    </aside>
+  </section>
+
+  <section data-section="solution">
+    <h2 class="section-title">Marrying Keyboard Precision and Mouse Intuition</h2>
+
+    <p data-block="p_phil_synthesis_1">
+      My solution was AccuDraw. It consolidated and effectively replaced dozens of separate dialog boxes: precision input prompts, unit locks, axis locks, active depth, and auxiliary coordinate planes. Most importantly, it eliminated construction lines: drafters no longer had to draw temporary lines across their drawings just to find an intersection and delete them later. The compass anticipated what you were doing, indexed axes automatically, and let you lock dimensions with single keystrokes.
+    </p>
+
+    <p data-block="p_phil_synthesis_2">
+      In December 1996, Scott Williams published "AccuDraw: The 3D Thinking Tool" in <em>MicroStation Manager</em>, featuring a profile on my work called "AccuDreamer." Scott described how AccuDraw's 3D compass allowed designers to navigate 3D space with the ease of 2D: tapping <code>T</code> for Top, <code>F</code> for Front, or <code>S</code> for Side rotated the drawing plane instantly, while <code>O</code> moved the origin anywhere in 3D space. The compass dealt with all the navigation and data input, allowing users to think directly in geometry.
+    </p>
+
+    <aside data-block="sidebar_scott_williams" data-type="sidebar">
+      <span class="sidebar-kicker">December 1996 MicroStation Manager</span>
+      <strong class="sidebar-title">Scott Williams: The 3D Thinking Tool & AccuDreamer</strong>
+      <p>
+        "Brown was frustrated with the complexity that has always plagued 3D. And so, inevitably, he had that inspiring thought that has brought us many wonderful inventions: There must be an easier way to do this! Intrigued, Brown went about learning MDL programming—and emerged on the other end of the process with AccuDraw... AccuDraw represents a new drafting philosophy. It eliminates the mathematical frustration of 3D space, letting designers think directly in geometry."
+      </p>
+    </aside>
+  </section>
+
+  <section data-section="squircle_story">
+    <h2 class="section-title">The Story of the Squircle Compass</h2>
+
+    <p data-block="p_squircle_1">
+      Now, let's talk about the compass itself and why it looks the way it does. People often ask me about the squircle—the rounded geometric frame that floats at the cursor. In original AccuDraw, rectangular coordinates were naturally represented by a rectangle, and polar coordinates (distance and angle) were represented by a circle. It was an immediate visual shorthand: glance at the screen, and you instantly knew whether you were working in orthogonal X/Y offsets or radial vectors.
+    </p>
+
+    <p data-block="p_squircle_2">
+      Sometimes there is an overlap between them—what I call "mixed mode," where you might lock an X or Y distance while simultaneously reading an angle, or vice versa. But if I'm being completely honest, that wasn't the main reason I built the squircle. The real reason is simpler: I wanted it to animate beautifully between them.
+    </p>
+
+    <aside data-block="sidebar_squircle_math" data-type="sidebar">
+      <span class="sidebar-kicker">Geometry & Math</span>
+      <strong class="sidebar-title">Squircle3D, ArcSquircleCalc, and BezierSquircleCalc</strong>
+      <ul>
+        <li>In <code>accuCad</code>, I wrote two dedicated mathematical calculators: <code>ArcSquircleCalc.js</code> and <code>BezierSquircleCalc.js</code>.</li>
+        <li>When you hit Space to toggle between rectangular and polar modes, or when <code>setSquircleAnimated(t, duration)</code> runs, the parameter <code>t</code> smoothly interpolates from 0.0 (pure square) to 1.0 (pure circle), with 0.5 representing a perfect superellipse (squircle).</li>
+        <li><code>ArcSquircleCalc</code> divides the boundary into 8 segments: 4 straight edges that expand into arcs, and 4 corner fillets whose sweep angle morphs from 90° down to 45° with non-linear blend distortion.</li>
+        <li>The result is an organic, tactile transformation: the compass breathes and morphs in 3D space without jarring visual cuts.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_squircle_3">
+      When an interface responds to user intent with smooth, continuous motion rather than abrupt state changes, it enters the realm of muscle memory. The squircle compass doesn't feel like software ticking off boolean flags; it feels like an elastic physical instrument resting lightly on your drawing plane.
+    </p>
+  </section>
+</article>

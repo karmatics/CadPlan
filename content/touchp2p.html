@@ -1,0 +1,64 @@
+<article data-page="touchp2p" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Two-Handed CAD & Wireless Ergonomics</span>
+    <h1 class="dossier-title">6. Wireless TouchController: Dual-Trackpad P2P Modulation</h1>
+    <p class="dossier-subtitle">Freeing the left hand from passive keyboard hovering: low-latency WebRTC data channels, analog parameter scrubbing, and mobile glass ergonomics.</p>
+  </header>
+
+  <section data-section="touch_hero_top">
+    <h2 class="section-title">Two-Handed CAD: Precision Mouse + Mobile Glass Deck</h2>
+    <div data-block="comp_touch_graphic" data-type="component" data-component="CadTouchP2PGraphicComponent"></div>
+  </section>
+
+  <section data-section="two_handed_cad">
+    <h2 class="section-title">Two-Handed CAD: Pen Precision Meets Analog Modulation</h2>
+
+    <p data-block="p_p2p_ergonomics_1">
+      In modern desktop computing, your left hand is usually idle or hovering over a keyboard while your right hand does 95% of the physical work on the mouse. In CAD, this is an enormous waste of human bandwidth. To adjust a curve tension, line thickness, or 3D camera depth, traditional software forces you to stop drawing, move your mouse away from the geometry, click an input field, type a number, and return to find where you were.
+    </p>
+
+    <p data-block="p_p2p_ergonomics_2">
+      With <code>TouchController</code>, your phone connects over a low-latency WebRTC data channel and becomes a wireless analog modulation deck for your left hand. While your right hand uses the mouse with the fine motor precision of a pen (clicking points, locking axes, and snapping geometry), your left hand rests on the glass, fluidly scrubbing continuous parameters—curve curvature, corner fillet radius, or 3D elevation Z—without ever taking your eyes off the drawing.
+    </p>
+
+    <aside data-block="sidebar_two_handed_cad" data-type="sidebar">
+      <span class="sidebar-kicker">Physical Workflow</span>
+      <strong class="sidebar-title">The Two-Handed Bandwidth Multiplier</strong>
+      <ul>
+        <li><strong>Right Hand (Mouse / Stylus):</strong> Discrete, precision spatial operations: vertex picking, tentative chord snapping, axis alignment.</li>
+        <li><strong>Left Hand (Mobile Glass Trackpad):</strong> Continuous analog variables: curve tension, fillet radius, infinite Z-elevation wheel.</li>
+        <li><strong>Zero Friction:</strong> No stopping to select numerical textboxes; adjust parameters while the rubber-band line is live.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="trackpad_schema">
+    <h2 class="section-title">Dual-Trackpad Protocol: Navigation & Encoders</h2>
+
+    <p data-block="p_trackpad_schema_1">
+      The mobile interface is partitioned into two specialized zones: the Left Trackpad for 3D Camera Navigation, and the Right Trackpad for Parameter Modulation. The Left Trackpad supports multi-touch gestures: 1-finger orbit, 2-finger pan, pinch-zoom, 3-finger FOV lens perspective, and 4-finger vertical swipe for infinite AccuDraw Z-elevation translation.
+    </p>
+
+    <p data-block="p_trackpad_schema_2">
+      The Right Trackpad acts as an array of virtual rotary encoders: vertical swiping selects which active tool slider to modulate (showing a glowing green dashed guide line across the desktop screen), horizontal scrubbing dials the value, and a quick tap toggles booleans or opens direct entry.
+    </p>
+
+    <aside data-block="sidebar_trackpad_mapping" data-type="sidebar">
+      <span class="sidebar-kicker">WebRTC Protocol</span>
+      <strong class="sidebar-title">Left vs. Right Trackpad Event Mapping</strong>
+      <ul>
+        <li><code>drag</code>: View orbit (spin/tilt) or pan translation.</li>
+        <li><code>zoom</code>: Focal ratio scaling.</li>
+        <li><code>perspective</code>: Camera FOV lens distortion.</li>
+        <li><code>accudrawZ</code>: 4-finger vertical swipe rolling the infinite elevation wheel.</li>
+        <li><code>sliderDragStart</code> / <code>sliderDragMove</code>: Vertical slider selection with desktop on-screen indicator line.</li>
+        <li><code>sliderAdjust</code>: Real-time analog parameter scrubbing.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="video_touch_clip">
+    <h2 class="section-title">Video Demonstration: Real-Time Mobile Modulation</h2>
+    <div data-block="video_touch_demo" data-type="component" data-component="CadVideoClipComponent" data-video-id="touch_controller_pairing"></div>
+  </section>
+</article>

@@ -120,73 +120,67 @@ class AccuDrawDemoComponent {
   }
 
   _setupSvgCompass() {
-    this.svgStage.innerHTML = '';
+      this.svgStage.innerHTML = '';
 
-    // Background Grid
-    for (let i = -140; i <= 140; i += 28) {
-      this.svgStage.appendChild(makeElement('svg:line', {
-        x1: -160, y1: i, x2: 160, y2: i, stroke: '#1e293b', 'stroke-width': 0.75
-      }));
-      this.svgStage.appendChild(makeElement('svg:line', {
-        x1: i, y1: -160, x2: i, y2: 160, stroke: '#1e293b', 'stroke-width': 0.75
-      }));
-    }
-
-    // Dynamic Squircle Path Element
-    this.squirclePath = makeElement('svg:path', {
-      d: '',
-      fill: 'rgba(56, 189, 248, 0.08)',
-      stroke: '#38bdf8',
-      'stroke-width': 2.5
-    });
-    this.svgStage.appendChild(this.squirclePath);
-
-    // Axis Lines & Pulsing Ticks
-    this.axisLineX = makeElement('svg:line', {
-      x1: -120, y1: 0, x2: 120, y2: 0, stroke: 'rgba(239, 68, 68, 0.4)', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'
-    });
-    this.axisLineY = makeElement('svg:line', {
-      x1: 0, y1: -120, x2: 0, y2: 120, stroke: 'rgba(34, 197, 94, 0.4)', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'
-    });
-    this.svgStage.appendChild(this.axisLineX);
-    this.svgStage.appendChild(this.axisLineY);
-
-    // Index Indicator Line (thick white line)
-    this.indexIndicator = makeElement('svg:line', {
-      x1: 0, y1: 0, x2: 0, y2: 0, stroke: '#ffffff', 'stroke-width': 3.5, opacity: 0
-    });
-    this.svgStage.appendChild(this.indexIndicator);
-
-    // Mini-Jack Cursor
-    this.miniJackGroup = makeElement('svg:g', { style: { pointerEvents: 'none' } });
-    this.miniJackGroup.appendChild(makeElement('svg:circle', { cx: 0, cy: 0, r: 4, fill: '#f59e0b' }));
-    this.miniJackGroup.appendChild(makeElement('svg:line', { x1: -8, y1: 0, x2: 8, y2: 0, stroke: '#f59e0b', 'stroke-width': 1.5 }));
-    this.miniJackGroup.appendChild(makeElement('svg:line', { x1: 0, y1: -8, x2: 0, y2: 8, stroke: '#f59e0b', 'stroke-width': 1.5 }));
-    this.svgStage.appendChild(this.miniJackGroup);
-
-    // Center Origin Dot
-    this.svgStage.appendChild(makeElement('svg:circle', { cx: 0, cy: 0, r: 3.5, fill: '#ffffff' }));
-
-    // Interactive Mouse Tracking
-    this.svgStage.addEventListener('mousemove', (e) => {
-      if (this.isAutoPlaying) return;
-      const rect = this.svgStage.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 320 - 160;
-      const y = ((e.clientY - rect.top) / rect.height) * 320 - 160;
-      this._updateManualPoint(x, y);
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (!this.container.isConnected) return;
-      if (e.key === ' ') {
-        e.preventDefault();
-        this.switchMode();
-      } else if (e.key === 'l' || e.key === 'L') {
-        this.smartLock();
+      for (let i = -140; i <= 140; i += 28) {
+        this.svgStage.appendChild(makeElement('svg:line', {
+          x1: -160, y1: i, x2: 160, y2: i, stroke: '#1e293b', 'stroke-width': 0.75
+        }));
+        this.svgStage.appendChild(makeElement('svg:line', {
+          x1: i, y1: -160, x2: i, y2: 160, stroke: '#1e293b', 'stroke-width': 0.75
+        }));
       }
-    });
-  }
 
+      this.squirclePath = makeElement('svg:path', {
+        d: '',
+        fill: 'rgba(56, 189, 248, 0.08)',
+        stroke: '#38bdf8',
+        'stroke-width': 2.5
+      });
+      this.svgStage.appendChild(this.squirclePath);
+
+      this.axisLineX = makeElement('svg:line', {
+        x1: -120, y1: 0, x2: 120, y2: 0, stroke: 'rgba(239, 68, 68, 0.4)', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'
+      });
+      this.axisLineY = makeElement('svg:line', {
+        x1: 0, y1: -120, x2: 0, y2: 120, stroke: 'rgba(34, 197, 94, 0.4)', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'
+      });
+      this.svgStage.appendChild(this.axisLineX);
+      this.svgStage.appendChild(this.axisLineY);
+
+      this.indexIndicator = makeElement('svg:line', {
+        x1: 0, y1: 0, x2: 0, y2: 0, stroke: '#ffffff', 'stroke-width': 3.5, opacity: 0
+      });
+      this.svgStage.appendChild(this.indexIndicator);
+
+      this.miniJackGroup = makeElement('svg:g', { style: { pointerEvents: 'none' } });
+      this.miniJackGroup.appendChild(makeElement('svg:circle', { cx: 0, cy: 0, r: 4, fill: '#f59e0b' }));
+      this.miniJackGroup.appendChild(makeElement('svg:line', { x1: -8, y1: 0, x2: 8, y2: 0, stroke: '#f59e0b', 'stroke-width': 1.5 }));
+      this.miniJackGroup.appendChild(makeElement('svg:line', { x1: 0, y1: -8, x2: 0, y2: 8, stroke: '#f59e0b', 'stroke-width': 1.5 }));
+      this.svgStage.appendChild(this.miniJackGroup);
+
+      this.svgStage.appendChild(makeElement('svg:circle', { cx: 0, cy: 0, r: 3.5, fill: '#ffffff' }));
+
+      this.svgStage.addEventListener('mousemove', (e) => {
+        if (this.isAutoPlaying) return;
+        const rect = this.svgStage.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 320 - 160;
+        const y = ((e.clientY - rect.top) / rect.height) * 320 - 160;
+        this._updateManualPoint(x, y);
+      });
+
+      this.container.tabIndex = 0;
+      this.container.style.outline = 'none';
+
+      this.container.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+          e.preventDefault();
+          this.switchMode();
+        } else if (e.key === 'l' || e.key === 'L') {
+          this.smartLock();
+        }
+      });
+    }
   _startDemoLoop() {
     const loop = (time) => {
       if (!this.container.isConnected) return;

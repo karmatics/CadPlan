@@ -1,27 +1,27 @@
 class TentativeSnappingLab {
 
-  static render(container) {
+  static async render(container) {
       container.innerHTML = '';
 
       const wrap = makeElement('div', {
         style: {
+          width: '100%',
+          minHeight: '620px',
           background: '#070a13',
-          border: '1.5px solid #21262d',
           borderRadius: '12px',
+          border: '1.5px solid #21262d',
           overflow: 'hidden',
           boxShadow: '0 16px 40px rgba(0,0,0,0.65)',
           display: 'flex',
-          flexDirection: 'column'
-        }
+          flexDirection: 'column',
+          position: 'relative',
+          outline: 'none'
+        },
+        tabIndex: 0
       });
 
-      const statusBadge = makeElement('span', {
-        id: 'snap-lab-status',
-        style: { fontSize: '11px', color: '#10b981', fontFamily: 'monospace' }
-      }, 'Hover near geometry • Click Chord button or tap both mouse buttons');
-
       // 1. Header Toolbar
-      const header = makeElement('div', {
+      const topBar = makeElement('div', {
         style: {
           padding: '10px 16px',
           background: 'rgba(15, 23, 42, 0.95)',
@@ -30,277 +30,264 @@ class TentativeSnappingLab {
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '8px'
+          gap: '8px',
+          zIndex: 10
         }
       }, [
         makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
           makeElement('span', { style: { fontSize: '15px' } }, '🎯'),
-          makeElement('strong', { style: { fontSize: '13px', color: '#38bdf8', fontFamily: 'monospace' } }, 'TentativePointHandler: 50ms Chord & Thick Picking Lab'),
-          makeElement('span', { style: { fontSize: '10px', background: '#0284c7', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, 'Thick Picking Fallback')
+          makeElement('strong', { style: { fontSize: '13px', color: '#00f2fe', fontFamily: 'monospace' } }, 'accuCad [Sub-View: Snapping & Tentative Kinematics]'),
+          makeElement('span', { id: 'snap-chord-badge', style: { fontSize: '10px', background: '#10b981', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, '○ Free Cursor')
         ]),
-        statusBadge
+        makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
+          makeElement('button', {
+            className: 'dr-nav-btn primary',
+            style: { padding: '3px 8px', fontSize: '10px' },
+            onclick: () => triggerSimulatedChord()
+          }, '⚡ 50ms Chord Snap'),
+          makeElement('button', {
+            className: 'dr-nav-btn',
+            style: { padding: '3px 8px', fontSize: '10px', color: '#ef4444' },
+            onclick: () => clearSnap()
+          }, 'Clear Snap')
+        ])
       ]);
-      wrap.appendChild(header);
+      wrap.appendChild(topBar);
 
-      const btnSimulateChord = makeElement('button', {
-        className: 'dr-nav-btn primary',
-        id: 'btn-simulate-chord',
-        style: { padding: '3px 10px', fontSize: '11px' }
-      }, '⚡ Simulate 50ms Chord Snap');
-
-      const btnResetSnap = makeElement('button', {
-        className: 'dr-nav-btn',
-        id: 'btn-reset-snap',
-        style: { padding: '3px 8px', fontSize: '10px' }
-      }, 'Release Anchor [Right Click / Esc]');
-
-      const snapReadout = makeElement('div', {
-        id: 'snap-readout',
-        style: { fontFamily: 'monospace', color: '#f59e0b' }
-      }, 'Anchor: None');
-
-      // 2. Sub-Toolbar with Chord Simulator
-      const subBar = makeElement('div', {
+      // 2. Stage Grid
+      const stageGrid = makeElement('div', {
         style: {
-          padding: '6px 14px',
-          background: '#0d1117',
-          borderBottom: '1px solid #161e2b',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)',
+          flex: 1,
+          minHeight: '560px',
+          background: '#21262d',
+          gap: '1px'
+        }
+      });
+
+      const canvasMount = makeElement('div', {
+        id: 'accucad-mount-snapping-gym',
+        style: { width: '100%', height: '100%', minHeight: '560px', position: 'relative', background: '#050811' }
+      });
+      stageGrid.appendChild(canvasMount);
+
+      // Right Column: Live Parameters & Mathematical Inspection
+      const rightCol = makeElement('div', {
+        style: {
+          background: '#0a0e1a',
+          padding: '14px',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: 'column',
+          gap: '12px',
+          fontFamily: 'monospace',
           fontSize: '11px',
-          color: '#94a3b8'
+          color: '#cbd5e1'
+        }
+      });
+
+      // Interactive Tuning Deck (directly adjusting app.baseController in real time)
+      const controlsCard = makeElement('div', {
+        style: {
+          background: '#070a13', border: '1px solid #1e293b', borderRadius: '8px', padding: '10px',
+          display: 'flex', flexDirection: 'column', gap: '8px'
         }
       }, [
-        makeElement('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, [
-          makeElement('span', { style: { fontWeight: 'bold', color: '#e2e8f0' } }, 'Actions:'),
-          btnSimulateChord,
-          btnResetSnap
+        makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+          makeElement('strong', { style: { color: '#00f2fe' } }, 'LIVE SNAPPING CONTROLS'),
+          makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, 'Direct BaseController Link')
         ]),
-        snapReadout
+        makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+          makeElement('span', {}, 'Chord Window:'),
+          makeElement('label', { style: { display: 'flex', alignItems: 'center', gap: '4px' } }, [
+            makeElement('input', {
+              type: 'range', min: '20', max: '150', value: '50',
+              style: { width: '80px', accentColor: '#00f2fe' },
+              oninput: (e) => {
+                if (app?.baseController) {
+                  app.baseController.chordThreshold = parseInt(e.target.value);
+                  chordVal.textContent = `${e.target.value}ms`;
+                }
+              }
+            }),
+            chordVal = makeElement('span', { style: { color: '#00f2fe', width: '36px' } }, '50ms')
+          ])
+        ]),
+        makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+          makeElement('span', {}, 'Snap Aperture:'),
+          makeElement('label', { style: { display: 'flex', alignItems: 'center', gap: '4px' } }, [
+            makeElement('input', {
+              type: 'range', min: '5', max: '35', value: '14',
+              style: { width: '80px', accentColor: '#10b981' },
+              oninput: (e) => {
+                snapApertureVal = parseInt(e.target.value);
+                apertureVal.textContent = `${e.target.value}px`;
+              }
+            }),
+            apertureVal = makeElement('span', { style: { color: '#10b981', width: '36px' } }, '14px')
+          ])
+        ]),
+        makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+          makeElement('span', {}, 'Z-Plane Lock:'),
+          makeElement('button', {
+            className: 'dr-nav-btn',
+            id: 'btn-toggle-zlock',
+            style: { padding: '2px 8px', fontSize: '10px' },
+            onclick: () => toggleZLock()
+          }, 'Z-Lock: OFF')
+        ]),
+        makeElement('div', {
+          id: 'snap-coords-readout',
+          style: {
+            marginTop: '4px', padding: '6px', background: 'rgba(0, 242, 254, 0.08)',
+            border: '1px solid rgba(0, 242, 254, 0.25)', borderRadius: '4px', color: '#00f2fe',
+            fontSize: '11px'
+          }
+        }, 'Snapped Vertex: None')
       ]);
-      wrap.appendChild(subBar);
+      rightCol.appendChild(controlsCard);
 
-      // 3. SVG Canvas Stage
-      const stage = makeElement('div', {
+      // Live Math Inspection Box
+      const codeBox = makeElement('div', {
         style: {
-          width: '100%',
-          height: '420px',
-          position: 'relative',
-          background: '#090d16',
-          overflow: 'hidden'
+          flex: 1, minHeight: '200px', background: '#070a13', border: '1px solid #1e293b',
+          borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px'
         }
-      });
-      wrap.appendChild(stage);
+      }, [
+        makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+          makeElement('strong', { style: { color: '#10b981' } }, '🦀 Model-Space Projection Math'),
+          makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, 'Zero Viewport Skew')
+        ]),
+        makeElement('pre', {
+          style: {
+            flex: 1, margin: 0, padding: '8px', background: '#050811', border: '1px solid #161e2b',
+            borderRadius: '4px', color: '#7ee787', fontSize: '10.5px', lineHeight: '1.45',
+            overflowY: 'auto', whiteSpace: 'pre'
+          }
+        }, `// Perpendicular Projection onto Active Drawing Plane:
+  // Ignores camera view angles, preserving true 3D planar alignment
+  const toPoint = [
+    point[0] - planeOrigin[0],
+    point[1] - planeOrigin[1],
+    point[2] - planeOrigin[2],
+  ];
+  const dist = toPoint[0]*normal[0] + toPoint[1]*normal[1] + toPoint[2]*normal[2];
 
-      const W = 760;
-      const H = 420;
+  const projectedPoint = [
+    point[0] - dist * normal[0],
+    point[1] - dist * normal[1],
+    point[2] - dist * normal[2],
+  ];`)
+      ]);
+      rightCol.appendChild(codeBox);
 
-      const svg = makeElement('svg:svg', {
-        viewBox: `0 0 ${W} ${H}`,
-        width: '100%',
-        height: '100%',
-        style: { display: 'block', cursor: 'crosshair' }
-      });
+      stageGrid.appendChild(rightCol);
+      wrap.appendChild(stageGrid);
+      container.appendChild(wrap);
 
-      // Grid
-      const defs = makeElement('svg:defs', {},
-        makeElement('svg:pattern', { id: 'snap-grid', width: '20', height: '20', patternUnits: 'userSpaceOnUse' },
-          makeElement('svg:path', { d: 'M 20 0 L 0 0 0 20', fill: 'none', stroke: 'rgba(255,255,255,0.04)', 'stroke-width': '1' })
-        )
-      );
-      svg.appendChild(defs);
-      svg.appendChild(makeElement('svg:rect', { width: '100%', height: '100%', fill: 'url(#snap-grid)' }));
+      let app = null;
+      let instId = null;
+      let chordVal, apertureVal;
+      let snapApertureVal = 14;
 
-      // Layers
-      const geometryLayer = makeElement('svg:g', { id: 'snap-geom-layer' });
-      const dynamicGuidesLayer = makeElement('svg:g', { id: 'snap-guides-layer' });
-      const tentativeLayer = makeElement('svg:g', { id: 'snap-tentative-layer' });
+      const boot = async () => {
+        if (typeof CadStudioDemoComponent !== 'undefined') {
+          await CadStudioDemoComponent.ensureAccuCadLoaded();
+        }
 
-      svg.appendChild(geometryLayer);
-      svg.appendChild(dynamicGuidesLayer);
-      svg.appendChild(tentativeLayer);
-      stage.appendChild(svg);
+        if (globalThis.Main) {
+          app = new globalThis.Main();
+          await app.run({
+            container: canvasMount,
+            showSidePanel: false,
+            showCompassUi: false,
+            presetGeometry: 'bracket',
+            cameraPos: { x: 3.8, y: 3.2, z: 4.8 },
+            target: [0, 0, 0],
+            background: 0x050811,
+            initialPlane: 'top'
+          });
 
-      // Test Elements (Thin wireframe geometries to prove 10px thick pick)
-      const elements = [
-        { id: 'box', type: 'polygon', points: [[140, 100], [320, 100], [320, 260], [140, 260]] },
-        { id: 'line', type: 'line', points: [[380, 120], [600, 280]] },
-        { id: 'arc', type: 'arc', center: [480, 180], radius: 80, startAngle: 0, endAngle: Math.PI }
-      ];
-
-      let state = {
-        hoveredElement: null,
-        candidateVertex: null,
-        tentativeAnchor: null,
-        cursorPos: [200, 200],
-        axisLock: 'x'
+          if (typeof CadStudioDemoComponent !== 'undefined') {
+            instId = CadStudioDemoComponent.registerInstance(app, canvasMount, 'Snapping Lab');
+          }
+        }
       };
 
-      function renderGeometry() {
-        geometryLayer.innerHTML = '';
+      boot();
 
-        // Box
-        const boxPts = elements[0].points.map(p => p.join(',')).join(' ');
-        const isBoxHov = state.hoveredElement === elements[0];
-        geometryLayer.appendChild(makeElement('svg:polygon', {
-          points: boxPts, fill: 'none', stroke: isBoxHov ? '#38bdf8' : '#10b981', 'stroke-width': isBoxHov ? '3' : '1.5'
-        }));
-
-        // Line
-        const p1 = elements[1].points[0];
-        const p2 = elements[1].points[1];
-        const isLineHov = state.hoveredElement === elements[1];
-        geometryLayer.appendChild(makeElement('svg:line', {
-          x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1],
-          stroke: isLineHov ? '#38bdf8' : '#10b981', 'stroke-width': isLineHov ? '3' : '1.5'
-        }));
-
-        // Arc
-        const arc = elements[2];
-        const isArcHov = state.hoveredElement === elements[2];
-        const sx = arc.center[0] + arc.radius;
-        const sy = arc.center[1];
-        const ex = arc.center[0] - arc.radius;
-        const ey = arc.center[1];
-        const arcPath = `M ${sx} ${sy} A ${arc.radius} ${arc.radius} 0 0 1 ${ex} ${ey}`;
-        geometryLayer.appendChild(makeElement('svg:path', {
-          d: arcPath, fill: 'none', stroke: isArcHov ? '#38bdf8' : '#10b981', 'stroke-width': isArcHov ? '3' : '1.5'
-        }));
-
-        // Render vertex dots
-        elements[0].points.concat(elements[1].points).forEach(pt => {
-          geometryLayer.appendChild(makeElement('svg:circle', {
-            cx: pt[0], cy: pt[1], r: '3.5', fill: '#334155', stroke: '#10b981', 'stroke-width': '1'
-          }));
-        });
+      function toggleZLock() {
+        if (!app?.baseController) return;
+        app.baseController.zPlaneLocked = !app.baseController.zPlaneLocked;
+        const btn = document.getElementById('btn-toggle-zlock');
+        if (btn) {
+          btn.textContent = `Z-Lock: ${app.baseController.zPlaneLocked ? 'ON' : 'OFF'}`;
+          btn.style.color = app.baseController.zPlaneLocked ? '#00f2fe' : '#94a3b8';
+          btn.style.borderColor = app.baseController.zPlaneLocked ? '#00f2fe' : '#21262d';
+        }
+        app.baseController.refreshMousePosition();
       }
 
-      // Dynamic Guides & Mini-Jack
-      function updateDynamics() {
-        dynamicGuidesLayer.innerHTML = '';
-        tentativeLayer.innerHTML = '';
+      function triggerSimulatedChord() {
+        if (!app?.baseController) return;
+        const fakeEvent = {
+          clientX: canvasMount.getBoundingClientRect().left + canvasMount.clientWidth * 0.45,
+          clientY: canvasMount.getBoundingClientRect().top + canvasMount.clientHeight * 0.45,
+          button: 0,
+          preventDefault: () => {}
+        };
+        TentativePointHandler.handleTentativePoint(app.baseController, fakeEvent);
+        updateTelemetry();
+      }
 
-        if (!state.tentativeAnchor) {
-          // Show candidate snap halo if hovering near a vertex
-          if (state.candidateVertex) {
-            const cv = state.candidateVertex;
-            dynamicGuidesLayer.appendChild(makeElement('svg:circle', {
-              cx: cv[0], cy: cv[1], r: '12', fill: 'none', stroke: '#38bdf8', 'stroke-width': '1.5', 'stroke-dasharray': '3,3'
-            }));
+      function clearSnap() {
+        if (!app?.baseController) return;
+        TentativePointHandler._clearTentativePoint(app.baseController);
+        updateTelemetry();
+      }
+
+      function updateTelemetry() {
+        const badge = document.getElementById('snap-chord-badge');
+        const coords = document.getElementById('snap-coords-readout');
+        if (!app?.baseController || !coords) return;
+
+        if (app.baseController._tentativeOriginalPoint) {
+          const pt = app.baseController._tentativeOriginalPoint;
+          if (badge) {
+            badge.textContent = '● Latched (Chord Snap)';
+            badge.style.color = '#00f2fe';
+            badge.style.background = 'rgba(0, 242, 254, 0.15)';
           }
-          return;
-        }
-
-        const anc = state.tentativeAnchor;
-        const cur = state.cursorPos;
-
-        // 1. Constrained Projection Line along locked X-axis
-        const constrainedPt = [cur[0], anc[1]];
-
-        dynamicGuidesLayer.appendChild(makeElement('svg:line', {
-          x1: anc[0] - 80, y1: anc[1], x2: cur[0] + 80, y2: anc[1],
-          stroke: '#ffffff', 'stroke-width': '2', 'stroke-dasharray': '5,4'
-        }));
-
-        // 2. Dashed displacement connector between locked point and cursor
-        const dx = cur[0] - constrainedPt[0];
-        const dy = cur[1] - constrainedPt[1];
-        const pulledAway = Math.hypot(dx, dy) > 8;
-
-        if (pulledAway) {
-          dynamicGuidesLayer.appendChild(makeElement('svg:line', {
-            x1: constrainedPt[0], y1: constrainedPt[1], x2: cur[0], y2: cur[1],
-            stroke: '#f59e0b', 'stroke-width': '1.5', 'stroke-dasharray': '3,3', opacity: '0.7'
-          }));
-
-          // Render 3-Axis Mini-Jack Cursor at the constrained coordinate
-          const jArm = 10;
-          const miniJack = makeElement('svg:g', { stroke: '#ffffff', 'stroke-width': '2', 'stroke-linecap': 'round' },
-            makeElement('svg:line', { x1: constrainedPt[0] - jArm, y1: constrainedPt[1], x2: constrainedPt[0] + jArm, y2: constrainedPt[1], stroke: '#ef4444' }),
-            makeElement('svg:line', { x1: constrainedPt[0], y1: constrainedPt[1] - jArm, x2: constrainedPt[0], y2: constrainedPt[1] + jArm, stroke: '#10b981' }),
-            makeElement('svg:circle', { cx: constrainedPt[0], cy: constrainedPt[1], r: '2.5', fill: '#ffffff' })
-          );
-          tentativeLayer.appendChild(miniJack);
-        }
-
-        // 3. Pulsing Tentative Anchor Crosshair on the Snapped Element
-        const aSize = 8;
-        const tentCross = makeElement('svg:g', { stroke: '#00e676', 'stroke-width': '2' },
-          makeElement('svg:line', { x1: anc[0] - aSize, y1: anc[1] - aSize, x2: anc[0] + aSize, y2: anc[1] + aSize }),
-          makeElement('svg:line', { x1: anc[0] + aSize, y1: anc[1] - aSize, x2: anc[0] - aSize, y2: anc[1] + aSize }),
-          makeElement('svg:circle', { cx: anc[0], cy: anc[1], r: '6', fill: 'none', stroke: '#00e676', 'stroke-dasharray': '3,2' })
-        );
-        tentativeLayer.appendChild(tentCross);
-      }
-
-      // Thick Pick Distance Calculation (14px Screen-Space Segment Threshold)
-      function findThickPick(x, y) {
-        let closestDist = 14;
-        let candidate = null;
-        let elMatch = null;
-
-        const allVerts = elements[0].points.concat(elements[1].points);
-        allVerts.forEach(pt => {
-          const d = Math.hypot(pt[0] - x, pt[1] - y);
-          if (d < closestDist) {
-            closestDist = d;
-            candidate = pt;
-            elMatch = elements[0].points.includes(pt) ? elements[0] : elements[1];
-          }
-        });
-
-        return { candidate, elMatch };
-      }
-
-      // Pointer Events
-      stage.addEventListener('pointermove', (e) => {
-        const rect = svg.getBoundingClientRect();
-        const x = Math.round((e.clientX - rect.left) * (W / rect.width));
-        const y = Math.round((e.clientY - rect.top) * (H / rect.height));
-        state.cursorPos = [x, y];
-
-        if (!state.tentativeAnchor) {
-          const { candidate, elMatch } = findThickPick(x, y);
-          state.candidateVertex = candidate;
-          state.hoveredElement = elMatch;
-          renderGeometry();
-        }
-
-        updateDynamics();
-      });
-
-      function triggerChordSnap() {
-        if (state.candidateVertex) {
-          state.tentativeAnchor = state.candidateVertex.slice();
+          coords.textContent = `Snapped Vertex: [${pt.map(n => n.toFixed(3)).join(', ')}]`;
+          coords.style.borderColor = '#00f2fe';
         } else {
-          state.tentativeAnchor = elements[0].points[1].slice();
+          if (badge) {
+            badge.textContent = '○ Free Cursor';
+            badge.style.color = '#64748b';
+            badge.style.background = 'rgba(255, 255, 255, 0.05)';
+          }
+          coords.textContent = 'Snapped Vertex: None (Hold Ctrl / Chord Click to Latch)';
+          coords.style.borderColor = 'rgba(0, 242, 254, 0.25)';
         }
-        snapReadout.textContent = `Anchor Locked: [${state.tentativeAnchor.join(', ')}]`;
-        statusBadge.textContent = '✓ Anchor captured! Pull cursor away to see Mini-Jack projection';
-        updateDynamics();
       }
 
-      function releaseAnchor() {
-        state.tentativeAnchor = null;
-        snapReadout.textContent = 'Anchor: None';
-        statusBadge.textContent = 'Anchor released • Free cursor motion restored';
-        updateDynamics();
-      }
-
-      // Direct event binding on created elements eliminates premature getElementById null checks
-      btnSimulateChord.onclick = triggerChordSnap;
-      btnResetSnap.onclick = releaseAnchor;
-
-      stage.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        releaseAnchor();
+      canvasMount.addEventListener('pointerup', () => {
+        setTimeout(updateTelemetry, 40);
       });
 
-      container.appendChild(wrap);
-      renderGeometry();
-      updateDynamics();
-    }
+      const observer = new MutationObserver(() => {
+        if (!document.body.contains(wrap)) {
+          if (instId && typeof CadStudioDemoComponent !== 'undefined') {
+            CadStudioDemoComponent.unregisterInstance(instId);
+          }
+          if (app && typeof app.destroy === 'function') {
+            app.destroy();
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(wrap.parentNode || document.body, { childList: true });
+  }
 }
 
 globalThis.TentativeSnappingLab = TentativeSnappingLab;

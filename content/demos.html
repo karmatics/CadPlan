@@ -1,0 +1,59 @@
+<article data-page="demos" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Production Component Inspection</span>
+    <h1 class="dossier-title">7. Production Components (AccuDraw & Continuous Curves)</h1>
+    <p class="dossier-subtitle">Inspecting our actual accuCad production classes: AccuDraw.js, Squircle3D.js, RoundingUtils3D.js, and DrawPathCommand.js.</p>
+  </header>
+
+  <section data-section="interactive_studio">
+    <h2 class="section-title">Live 3D Viewport: CompassDraw & On-Curve Splines</h2>
+    <div data-block="comp_cad_studio_demo" data-type="component" data-component="CadStudioDemoComponent"></div>
+
+    <p data-block="p_real_accudraw_1">
+      Rather than running an isolated, simplified toy mock-up, our studio laboratory directly runs the authentic production engine from <code>accuCad</code>. The live viewport above embeds the actual <code>accuCad</code> environment: its full direction-cosine matrix basis (<code>BaseController.js</code>), dynamic coordinate constraint engine (<code>AccuDrawLogic.js</code>), animated squircle compass (<code>Squircle3D.js</code>), side panel tool settings, and the complete single-stroke keyboard command dispatch tree (<code>T</code>, <code>F</code>, <code>S</code>, <code>L</code>, <code>Space</code>, <code>O</code>).
+    </p>
+
+    <p data-block="p_real_accudraw_2">
+      A fundamental distinction in our graphics engine is the difference between turntable rotation and <strong>motion parallax oscillation</strong>. Turntable rotation is a display gimmick that spins the object away from the draftsman, destroying spatial drafting context. In our engine (implemented in <code>CameraOrbitAnimator.js</code>), true oscillation wiggles the eye position in a small disk (3–5% of the viewing distance) strictly perpendicular to the current line of sight. The user controls the general direction they are looking from, and the subtle parallax oscillation lets the human visual cortex perceive genuine 3D spatial depth through natural motion parallax without stereoscopic glasses.
+    </p>
+
+    <aside data-block="sidebar_real_accudraw_math" data-type="sidebar">
+      <span class="sidebar-kicker">accuCad Classes</span>
+      <strong class="sidebar-title">AccuDraw.js & Squircle3D.js Internals</strong>
+      <ul>
+        <li><strong>Line of Sight Vector:</strong> $\vec{D} = \vec{CamPos} - \vec{TargetPos}$ with unit normal $\hat{N} = \vec{D} / \|\vec{D}\|$.</li>
+        <li><strong>Perpendicular Basis:</strong> Derives tangent $\vec{U}$ and bitangent $\vec{V}$ orthonormal to $\hat{N}$.</li>
+        <li><strong>Motion Parallax Offset:</strong> $\vec{Offset} = \vec{U} \cos(\theta) R + \vec{V} \sin(\theta) R$ where $R = \|\vec{D}\| \cdot 0.045$.</li>
+        <li><strong>Cognitive Benefit:</strong> Maintains the user's selected viewing perspective while continuously revealing 3D spatial relationships via monocular depth cues.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="model_studio_section">
+    <h2 class="section-title">3D Model Studio: PBR Materials & AccuDraw Dimensions</h2>
+    <div data-block="comp_model_studio" data-type="component" data-component="CadModelStudioComponent"></div>
+  </section>
+
+  <section data-section="curve_real">
+    <h2 class="section-title">Iterative G1 Relaxation Solver & On-Curve Math</h2>
+
+    <p data-block="p_real_curve_1">
+      For curve and line drafting, our architecture eliminates traditional Bezier tangent handles through <code>DrawPathCommand.js</code> and <code>RoundingUtils3D.js</code>. When a user clicks points, they place anchors strictly <em>on the curve itself</em>. Each vertex carries an optional dynamic radius property (<code>v.radius</code>), allowing sharp polylines to be rounded into true circular arcs on the fly.
+    </p>
+
+    <p data-block="p_real_curve_2">
+      In the Dynamic On-Curve Spline Lab tab, the curve does not calculate blindly on point commits alone. As the draftsman moves the cursor, the spline rubber-bands dynamically at 60 FPS, with <code>UpdateControlPoints.run</code> continuously deriving G1 tangent vectors through the floating candidate point. When you adjust the Curvature (tension) or Balance (tangency weighting) sliders, the entire spline morphs smoothly in real time without manual handle wrestling, matching the authentic behavior of Rob Brown's <code>DrawingApp</code>.
+    </p>
+
+    <aside data-block="sidebar_real_curve_math" data-type="sidebar">
+      <span class="sidebar-kicker">accuCad Classes</span>
+      <strong class="sidebar-title">RoundingUtils3D & UpdateControlPoints Internals</strong>
+      <ul>
+        <li><code>BezierVertex.js</code>: Stores on-curve through-points, control points [CP0, CP1], curvature, and balance.</li>
+        <li><code>UpdateControlPoints.js</code>: 8-iteration relaxation solver deriving exact cubic Bezier tangents and arc fractions.</li>
+        <li><code>RoundingUtils3D.js</code>: Closed-form 3D vector bisector math for sharp corner fillets.</li>
+        <li><code>DrawPathCommand.js</code>: Continuous line chaining, auto-close snapping, and dynamic preview geometry.</li>
+      </ul>
+    </aside>
+  </section>
+</article>

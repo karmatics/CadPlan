@@ -1,14 +1,17 @@
 class CadTouchPairingDialog {
 
   static open(options = {}) {
-    const roomId = 'cad_' + Math.random().toString(36).substring(2, 8);
-    // Use verified local LAN IP (10.0.0.226) or fallback to window.location.hostname
-    const lanIp = options.lanIp || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '10.0.0.226' : window.location.hostname);
-    const port = options.port || window.location.port || 3000;
+    // Use existing active P2P connector or boot a clean one
+    let p2p = globalThis.P2PConnector?.instance;
+    const activeController = globalThis.BaseController?.getActiveController() || globalThis.baseController;
 
-    // Mobile URL targeting TouchController with room token
-    const touchUrl = `http://${lanIp}:${port}/TouchController/?room=${roomId}`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(touchUrl)}`;
+    if (!p2p && typeof P2PConnector !== 'undefined') {
+      p2p = new P2PConnector(activeController);
+    }
+
+    const roomCode = p2p ? p2p.roomCode : Math.floor(1000 + Math.random() * 9000).toString();
+    const mobileUrl = p2p ? p2p.getMobileUrl() : `${window.location.origin}/TouchController/?room=${roomCode}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(mobileUrl)}`;
 
     const content = makeElement('div', {
       style: {
@@ -22,38 +25,37 @@ class CadTouchPairingDialog {
       }
     }, [
       makeElement('div', {
-        style: {
-          fontSize: '11px',
-          color: '#94a3b8',
-          textAlign: 'center',
-          lineHeight: '1.4'
-        }
-      }, 'Scan with your iPhone/Android camera on the same Wi-Fi to engage wireless two-handed CAD control:'),
+        style: { fontSize: '11.5px', color: '#94a3b8', textAlign: 'center', lineHeight: '1.45' }
+      }, 'Scan with your iPhone/Android camera to pair directly via WebRTC data channel (works across Wi-Fi or cellular):'),
 
-      // Dynamic QR Code Container
+      // Dynamic High-Contrast QR Code Card
       makeElement('div', {
         style: {
           background: '#ffffff',
           padding: '12px',
           borderRadius: '12px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '6px'
         }
       }, [
         makeElement('img', {
           src: qrApiUrl,
           alt: 'Scan QR to Connect Phone',
-          style: { width: '190px', height: '190px', display: 'block' }
-        })
+          style: { width: '170px', height: '170px', display: 'block' }
+        }),
+        makeElement('div', {
+          style: { color: '#090d16', fontWeight: '800', fontSize: '15px', letterSpacing: '2px' }
+        }, `ROOM: ${roomCode}`)
       ]),
 
-      // Direct Link / Room Info
+      // Direct Room Token & Link
       makeElement('div', {
         style: {
           fontSize: '11px',
-          background: 'rgba(255,255,255,0.05)',
+          background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.1)',
           padding: '8px 12px',
           borderRadius: '8px',
@@ -62,34 +64,71 @@ class CadTouchPairingDialog {
           boxSizing: 'border-box'
         }
       }, [
-        makeElement('div', { style: { color: '#38bdf8', fontWeight: 'bold' } }, `Room Token: ${roomId}`),
-        makeElement('div', { style: { color: '#94a3b8', fontSize: '10px', marginTop: '3px', wordBreak: 'break-all' } }, touchUrl)
+        makeElement('div', { style: { color: '#38bdf8', fontWeight: 'bold' } }, `Room Code: ${roomCode}`),
+        makeElement('div', {
+          style: { color: '#64748b', fontSize: '10px', marginTop: '3px', wordBreak: 'break-all' }
+        }, mobileUrl)
       ]),
 
-      // Connection Status Pill
+      // Live Connection Status Pill
       makeElement('div', {
         id: 'cp-touch-dialog-status',
         style: {
           fontSize: '11px',
-          padding: '5px 14px',
+          padding: '6px 16px',
           borderRadius: '14px',
-          background: '#1e293b',
+          background: '#161e2b',
           color: '#f59e0b',
           border: '1px solid #f59e0b',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          transition: 'all 0.2s ease'
         }
-      }, '⚪ Waiting for phone camera scan...')
+      }, '🟡 Initializing PeerJS broker...')
     ]);
 
     const dlg = UITools.makeDialog({
       title: '📱 Wireless TouchController Pairing',
-      size: [360, 440],
-      position: [Math.max(20, (window.innerWidth - 360) / 2), Math.max(20, (window.innerHeight - 440) / 2)],
+      size: [360, 470],
+      position: [Math.max(20, (window.innerWidth - 360) / 2), Math.max(20, (window.innerHeight - 470) / 2)],
       contentElement: content,
       appendTo: document.body
     });
 
-    return { dlg, roomId, touchUrl };
+    // Listen to live connection status changes
+    if (p2p) {
+      const unsub = p2p.onStatusChange((status) => {
+        const pill = document.getElementById('cp-touch-dialog-status');
+        if (!pill) return;
+
+        if (status === 'connected') {
+          pill.textContent = '🟢 Phone Connected! Two-Handed CAD Active';
+          pill.style.color = '#10b981';
+          pill.style.borderColor = '#10b981';
+          pill.style.background = 'rgba(16, 185, 129, 0.15)';
+        } else if (status === 'ready') {
+          pill.textContent = '○ Waiting for camera scan...';
+          pill.style.color = '#38bdf8';
+          pill.style.borderColor = '#38bdf8';
+          pill.style.background = 'rgba(56, 189, 248, 0.1)';
+        } else if (status === 'connecting') {
+          pill.textContent = '🟡 Connecting broker...';
+          pill.style.color = '#f59e0b';
+          pill.style.borderColor = '#f59e0b';
+        } else {
+          pill.textContent = '✕ Offline';
+          pill.style.color = '#ef4444';
+          pill.style.borderColor = '#ef4444';
+        }
+      });
+
+      const origClose = dlg.options.onClose;
+      dlg.options.onClose = () => {
+        unsub();
+        if (typeof origClose === 'function') origClose();
+      };
+    }
+
+    return { dlg, roomId: roomCode, touchUrl: mobileUrl };
   }
 }
 

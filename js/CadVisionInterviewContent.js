@@ -11,7 +11,7 @@ class CadVisionInterviewContent {
       return [
         {
           section: "roundtrip_superpower_top",
-          partLabel: "Chapter 11 • The Plugin Superpower",
+          partLabel: "Chapter 12 • The Plugin Superpower",
           title: "The 2D-to-3D Round-Trip: The Superpower Plugin Layer",
           blocks: [
             { id: "comp_roundtrip_superpower", type: "component", component: "Cad2Dto3DRoundTripGraphic" }
@@ -19,7 +19,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "audience_migration_section",
-          partLabel: "Chapter 11 • Strategic Leverage",
+          partLabel: "Chapter 12 • Strategic Leverage",
           title: "The Audience Capture & Vibe-Coding Flywheel",
           blocks: [
             { id: "comp_audience_migration", type: "component", component: "CadAudienceMigrationGraphic" }
@@ -27,7 +27,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "vision_hero_top",
-          partLabel: "Chapter 11 • The Strategic Horizon",
+          partLabel: "Chapter 12 • The Strategic Horizon",
           title: "The Expandable Dual-Mode Tool Architecture",
           blocks: [
             { id: "comp_vision_hero", type: "component", component: "CadVisionHeroGraphic" }
@@ -35,7 +35,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "strategy_vehicle",
-          partLabel: "Chapter 11 • Strategy",
+          partLabel: "Chapter 12 • Strategy",
           title: "The Host Platform: CADCraft vs. Standalone Web",
           blocks: [
             { id: "p_interview_strategy_1", type: "p" },
@@ -45,7 +45,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "engine_tradeoffs",
-          partLabel: "Chapter 11 • Rendering Stack",
+          partLabel: "Chapter 12 • Rendering Stack",
           title: "Graphics Engine: Three.js PBR vs. Pure Rust wgpu",
           blocks: [
             { id: "p_interview_engine_1", type: "p" },
@@ -55,7 +55,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "smartline_evolution",
-          partLabel: "Chapter 11 • Geometry & Continuity",
+          partLabel: "Chapter 12 • Geometry & Continuity",
           title: "SmartLine 3D Evolution & Continuous Curvature",
           blocks: [
             { id: "p_interview_smartline_1", type: "p" },
@@ -65,7 +65,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "workstation_ergonomics",
-          partLabel: "Chapter 11 • Physical Ergonomics",
+          partLabel: "Chapter 12 • Physical Ergonomics",
           title: "Two-Handed CAD & The Wireless TouchController",
           blocks: [
             { id: "p_interview_touch_1", type: "p" },
@@ -75,7 +75,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "agentic_future",
-          partLabel: "Chapter 11 • AI Collaboration",
+          partLabel: "Chapter 12 • AI Collaboration",
           title: "Agentic AI Drafting & Model Context Protocol",
           blocks: [
             { id: "p_interview_agents_1", type: "p" },
@@ -85,7 +85,7 @@ class CadVisionInterviewContent {
         },
         {
           section: "endgame_perspective",
-          partLabel: "Chapter 11 • Industry Verdict",
+          partLabel: "Chapter 12 • Industry Verdict",
           title: "The 30-Year Arc: From Exton to Open Source",
           blocks: [
             { id: "p_interview_endgame_1", type: "p" },
@@ -95,7 +95,6 @@ class CadVisionInterviewContent {
         }
       ];
     }
-
   static p_interview_strategy_1() {
       return [
         "I want to be completely clear about my positioning: I am not bringing another AutoCAD clone to market. Clones already exist, and people have done solid work building them. What I am creating is the **superpower plugin on top of existing tools** that makes them super powerful in 3D.",

@@ -32,8 +32,8 @@ class CadEcosystemGraphicComponent {
       }, [
         makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
           makeElement('span', { style: { fontSize: '15px' } }, '🧩'),
-          makeElement('strong', { style: { fontSize: '13px', color: '#38bdf8', fontFamily: 'monospace' } }, 'Federated Multi-App Architecture: Decomposing the Monolith'),
-          makeElement('span', { style: { fontSize: '10px', background: '#8257e5', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, '6 Standalone Sub-Apps')
+          makeElement('strong', { style: { fontSize: '13px', color: '#38bdf8', fontFamily: 'monospace' } }, 'Federated Multi-App Architecture: In-Process Sub-Views (Zero Iframes)'),
+          makeElement('span', { style: { fontSize: '10px', background: '#8257e5', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, 'Native Execution')
         ]),
         makeElement('span', { style: { fontSize: '11px', color: '#10b981', fontFamily: 'monospace' } }, 'The Document is the Living Orchestrator')
       ]);
@@ -58,10 +58,10 @@ class CadEcosystemGraphicComponent {
       const tabButtonsGroup = makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' } });
 
       const btnArchMap = makeElement('button', { className: 'dr-tab-btn active', id: 'eco-btn-map', onclick: () => showView('map') }, '🗺️ Ecosystem Map');
-      const btnCompass = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-compass', onclick: () => showView('compass') }, '🧭 CompassApp');
+      const btnCompass = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-compass', onclick: () => showView('compass') }, '🧭 CompassApp (Sub-View)');
       const btnKeyCmd = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-keycmd', onclick: () => showView('keycmd') }, '⌨️ KeyCommandApp');
-      const btnAccuCad = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-accucad', onclick: () => showView('accucad') }, '📐 accuCad (Full)');
-      const btnTouch = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-touch', onclick: () => showView('touch') }, '📱 TouchController');
+      const btnAccuCad = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-accucad', onclick: () => showView('accucad') }, '📐 accuCad (Full Workstation)');
+      const btnTouch = makeElement('button', { className: 'dr-tab-btn', id: 'eco-btn-touch', onclick: () => showView('touch') }, '📱 TouchController (P2P)');
 
       tabButtonsGroup.appendChild(btnArchMap);
       tabButtonsGroup.appendChild(btnCompass);
@@ -84,18 +84,32 @@ class CadEcosystemGraphicComponent {
         style: {
           flex: 1,
           width: '100%',
-          minHeight: '420px',
+          minHeight: '460px',
           position: 'relative',
           background: '#090d16',
           overflow: 'hidden'
         }
       });
       wrap.appendChild(stageArea);
-
       container.appendChild(wrap);
 
-      function showView(viewId) {
+      let activeSubApp = null;
+      let instId = null;
+
+      function cleanupActiveSubApp() {
+        if (instId && typeof CadStudioDemoComponent !== 'undefined') {
+          CadStudioDemoComponent.unregisterInstance(instId);
+          instId = null;
+        }
+        if (activeSubApp && typeof activeSubApp.destroy === 'function') {
+          activeSubApp.destroy();
+          activeSubApp = null;
+        }
         stageArea.innerHTML = '';
+      }
+
+      async function showView(viewId) {
+        cleanupActiveSubApp();
 
         document.querySelectorAll('#eco-btn-map, #eco-btn-compass, #eco-btn-keycmd, #eco-btn-accucad, #eco-btn-touch').forEach(b => b.classList.remove('active'));
         const activeBtn = document.getElementById(`eco-btn-${viewId}`);
@@ -107,42 +121,70 @@ class CadEcosystemGraphicComponent {
           if (badge) badge.textContent = 'Viewing: Ecosystem Topology Map';
           renderTopologyMap(stageArea);
         } else if (viewId === 'compass') {
-          if (badge) badge.textContent = 'Embedded App: CompassApp (Isolated Squircle Studio)';
-          renderIframeEmbed(stageArea, '../Luno/CompassApp/index.html', 'CompassApp Standalone Viewport');
+          if (badge) badge.textContent = 'Native Sub-View: AccuDraw Compass (In-Process WebGL)';
+          await renderInProcessCompass(stageArea);
         } else if (viewId === 'keycmd') {
-          if (badge) badge.textContent = 'Embedded App: KeyCommandApp (Single-Stroke Dispatch Engine)';
-          renderIframeEmbed(stageArea, '../Luno/KeyCommandApp/index.html', 'KeyCommandApp Standalone Harness');
+          if (badge) badge.textContent = 'Native Sub-App: KeyCommandEngine Sandbox';
+          renderInProcessKeyCommand(stageArea);
         } else if (viewId === 'accucad') {
-          if (badge) badge.textContent = 'Embedded App: accuCad (Full CAD Workstation)';
-          renderIframeEmbed(stageArea, '../accuCad/index.html', 'accuCad Full Production Workstation');
+          if (badge) badge.textContent = 'Native Sub-App: accuCad (Full Workstation with SidePanel)';
+          await renderInProcessAccuCad(stageArea);
         } else if (viewId === 'touch') {
-          if (badge) badge.textContent = 'Embedded App: TouchController (Two-Handed Glass Surface)';
+          if (badge) badge.textContent = 'Wireless Sub-App: TouchController P2P Mobile Pairing';
           renderTouchEmbed(stageArea);
         }
       }
 
-      function renderIframeEmbed(target, srcUrl, title) {
-        const topBar = makeElement('div', {
-          style: {
-            padding: '6px 14px', background: '#0a0e1a', borderBottom: '1px solid #1e293b',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', fontFamily: 'monospace'
-          }
-        }, [
-          makeElement('span', { style: { color: '#cbd5e1' } }, `📱 Live Sub-App Mount: ${srcUrl}`),
-          makeElement('a', {
-            href: srcUrl, target: '_blank',
-            style: { color: '#38bdf8', textDecoration: 'none', fontWeight: 'bold' }
-          }, '↗ Open Standalone Tab')
-        ]);
-
-        const iframe = makeElement('iframe', {
-          src: srcUrl,
-          style: { width: '100%', height: '420px', border: 'none', display: 'block', background: '#070a13' },
-          title: title
+      async function renderInProcessCompass(target) {
+        const mountEl = makeElement('div', {
+          style: { width: '100%', height: '460px', position: 'relative', background: '#050811' }
         });
+        target.appendChild(mountEl);
 
-        target.appendChild(topBar);
-        target.appendChild(iframe);
+        await CadStudioDemoComponent.ensureAccuCadLoaded();
+        if (globalThis.Main) {
+          activeSubApp = new globalThis.Main();
+          await activeSubApp.run({
+            container: mountEl,
+            showSidePanel: false,
+            showCompassUi: false,
+            compassSize: 1.1,
+            squircle: 0.5,
+            cameraPos: { x: 0, y: 1.4, z: 2.2 },
+            background: 0x050811,
+            initialPlane: 'top'
+          });
+          instId = CadStudioDemoComponent.registerInstance(activeSubApp, mountEl, 'Eco Compass Sub-View');
+        }
+      }
+
+      async function renderInProcessAccuCad(target) {
+        const mountEl = makeElement('div', {
+          style: { width: '100%', height: '460px', position: 'relative', background: '#0d1117' }
+        });
+        target.appendChild(mountEl);
+
+        await CadStudioDemoComponent.ensureAccuCadLoaded();
+        if (globalThis.Main) {
+          activeSubApp = new globalThis.Main();
+          await activeSubApp.run({
+            container: mountEl,
+            showSidePanel: true,
+            background: 0x0d1117
+          });
+          instId = CadStudioDemoComponent.registerInstance(activeSubApp, mountEl, 'Eco Full Workstation');
+        }
+      }
+
+      function renderInProcessKeyCommand(target) {
+        const mountEl = makeElement('div', {
+          style: { width: '100%', padding: '16px', boxSizing: 'border-box' }
+        });
+        target.appendChild(mountEl);
+
+        if (typeof KeyCommandInteractiveLab !== 'undefined') {
+          KeyCommandInteractiveLab.render(mountEl);
+        }
       }
 
       function renderTouchEmbed(target) {
@@ -154,16 +196,16 @@ class CadEcosystemGraphicComponent {
         const card = makeElement('div', {
           style: {
             padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', gap: '14px', color: '#e2e8f0', fontFamily: 'monospace'
+            justifyContent: 'center', gap: '14px', color: '#e2e8f0', fontFamily: 'monospace', height: '100%', boxSizing: 'border-box'
           }
         }, [
           makeElement('strong', { style: { color: '#f59e0b', fontSize: '13px' } }, '📱 Live TouchController P2P Pairing'),
-          makeElement('div', { style: { background: '#fff', padding: '10px', borderRadius: '10px' } }, [
+          makeElement('div', { style: { background: '#fff', padding: '10px', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' } }, [
             makeElement('img', { src: qrApiUrl, style: { width: '160px', height: '160px', display: 'block' } })
           ]),
-          makeElement('div', { style: { fontSize: '11px', color: '#94a3b8', textAlign: 'center' } }, [
+          makeElement('div', { style: { fontSize: '11px', color: '#94a3b8', textAlign: 'center', lineHeight: '1.5' } }, [
             'Scan with your phone camera on the same Wi-Fi to test the mobile trackpad surface live.<br>',
-            makeElement('a', { href: touchUrl, target: '_blank', style: { color: '#38bdf8' } }, 'Or open mobile simulator in new tab ↗')
+            makeElement('a', { href: touchUrl, target: '_blank', style: { color: '#38bdf8', textDecoration: 'none', fontWeight: 'bold' } }, 'Or open mobile simulator in new tab ↗')
           ])
         ]);
 
@@ -196,11 +238,11 @@ class CadEcosystemGraphicComponent {
         svg.appendChild(makeCard(270, 150, 220, 68, '📐', 'CadPlan (Document)', 'The Master Living Specification', 'CadPlan/ • DocumentReader', '#00f2fe'));
 
         // Sub-App 1: CompassApp
-        svg.appendChild(makeCard(30, 30, 210, 64, '🧭', 'CompassApp', 'Isolated 3D Squircle Studio', 'Luno/CompassApp/ • Three.js', '#38bdf8'));
+        svg.appendChild(makeCard(30, 30, 210, 64, '🧭', 'CompassApp', 'In-Process Squircle Studio', 'accuCad/ • Main.run()', '#38bdf8'));
         svg.appendChild(connect(240, 62, 270, 160, '#38bdf8'));
 
         // Sub-App 2: KeyCommandApp
-        svg.appendChild(makeCard(275, 30, 210, 64, '⌨️', 'KeyCommandApp', 'Single-Stroke Key Engine', 'Luno/KeyCommandApp/ • & Syntax', '#f59e0b'));
+        svg.appendChild(makeCard(275, 30, 210, 64, '⌨️', 'KeyCommandApp', 'Single-Stroke Key Engine', 'KeyCommandHandler.js • & Syntax', '#f59e0b'));
         svg.appendChild(connect(380, 94, 380, 150, '#f59e0b'));
 
         // Sub-App 3: TouchController
@@ -219,7 +261,15 @@ class CadEcosystemGraphicComponent {
       }
 
       showView('map');
-    }
+
+      const observer = new MutationObserver(() => {
+        if (!document.body.contains(wrap)) {
+          cleanupActiveSubApp();
+          observer.disconnect();
+        }
+      });
+      observer.observe(wrap.parentNode || document.body, { childList: true });
+  }
 }
 
 globalThis.CadEcosystemGraphicComponent = CadEcosystemGraphicComponent;

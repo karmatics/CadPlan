@@ -82,10 +82,10 @@ class CadPlanItemNotes {
   }
 
   static async getNotesForBlock(pageId, blockId, dossierId = 'CadPlan') {
-    const blockKey = `${pageId}:${blockId}`;
-    const all = await this.getAllNotes(dossierId);
-    return all.filter(n => n.blockKey === blockKey && (!n.dossierId || n.dossierId === dossierId));
-  }
+      const key = `${dossierId}:${pageId}:${blockId}`;
+      const all = await this.getAllNotes(dossierId);
+      return all.filter(n => n.key === key || (n.pageId === pageId && n.blockId === blockId));
+    }
   static async getAnnotatedBlocks() {
     const all = await this.getAllNotes();
     const active = all.filter(n => n.status !== 'resolved');
@@ -105,96 +105,102 @@ class CadPlanItemNotes {
   }
 
   static async addNote(pageId, blockId, text, options = {}) {
-    if (!text || !text.trim()) return null;
-    const dossierId = options.dossierId || 'CadPlan';
-    const blockKey = `${pageId}:${blockId}`;
-    const id = 'note_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+      if (!text || !text.trim()) return null;
+      const dossierId = options.dossierId || 'CadPlan';
+      const key = `${dossierId}:${pageId}:${blockId}`;
+      const id = 'note_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
 
-    const entry = {
-      id,
-      blockKey,
-      pageId,
-      blockId,
-      dossierId,
-      text: text.trim(),
-      timestamp: Date.now(),
-      status: options.status || 'active', // 'active' | 'pending_cleanup' | 'accepted' | 'resolved'
-      author: options.author || (options.isLLM ? 'LLM' : 'Author / Drafter'),
-      isLLM: Boolean(options.isLLM || options.author === 'LLM'),
-      type: options.type || (options.isLLM ? 'proposal' : 'note'), // 'note' | 'proposal' | 'patch' | 'critique'
-      proposedPatch: options.proposedPatch || null,
-      proposedText: options.proposedText || null,
-      videoLink: options.videoLink || null,
-      blockPreview: options.blockPreview || ''
-    };
+      const entry = {
+        id,
+        key,
+        blockKey: `${pageId}:${blockId}`,
+        pageId,
+        blockId,
+        dossierId,
+        text: text.trim(),
+        timestamp: Date.now(),
+        status: options.status || 'active',
+        author: options.author || (options.isLLM ? 'LLM' : 'Author'),
+        isLLM: Boolean(options.isLLM || options.author === 'LLM'),
+        type: options.type || (options.isLLM ? 'proposal' : 'note'),
+        proposedPatch: options.proposedPatch || null,
+        proposedText: options.proposedText || null,
+        videoLink: options.videoLink || null,
+        blockPreview: options.blockPreview || '',
+        xpath: options.xpath || null,
+        cssPath: options.cssPath || null,
+        tagName: options.tagName || null,
+        isUniversalElement: Boolean(options.xpath || options.isUniversalElement)
+      };
 
-    const map = this.getLocalMap();
-    const storageCompositeKey = `${dossierId}:${blockKey}`;
-    map[storageCompositeKey] = map[storageCompositeKey] || [];
-    map[storageCompositeKey].push(entry);
-    this.saveLocalMap(map);
-
-    const db = await this.getDB();
-    if (db) {
-      try {
-        const tx = db.transaction(this.STORE_NAME, 'readwrite');
-        tx.objectStore(this.STORE_NAME).put(entry);
-      } catch (err) {}
-    }
-
-    this._notify();
-    return entry;
-  }
-  static async updateNote(noteId, updates) {
-    const all = await this.getAllNotes();
-    const note = all.find(n => n.id === noteId);
-    if (!note) return null;
-
-    Object.assign(note, updates, { updatedTimestamp: Date.now() });
-
-    const map = this.getLocalMap();
-    if (map[note.blockKey]) {
-      const idx = map[note.blockKey].findIndex(n => n.id === noteId);
-      if (idx !== -1) map[note.blockKey][idx] = note;
+      const map = this.getLocalMap();
+      map[key] = map[key] || [];
+      map[key].push(entry);
       this.saveLocalMap(map);
+
+      const db = await this.getDB();
+      if (db) {
+        try {
+          const tx = db.transaction(this.STORE_NAME, 'readwrite');
+          tx.objectStore(this.STORE_NAME).put(entry);
+        } catch (err) {}
+      }
+
+      this._notify();
+      return entry;
     }
 
-    const db = await this.getDB();
-    if (db) {
-      try {
-        const tx = db.transaction(this.STORE_NAME, 'readwrite');
-        tx.objectStore(this.STORE_NAME).put(note);
-      } catch (err) {}
-    }
+  static async updateNote(noteId, updates) {
+      const all = await this.getAllNotes();
+      const note = all.find(n => n.id === noteId);
+      if (!note) return null;
 
-    this._notify();
-    return note;
-  }
+      Object.assign(note, updates, { updatedTimestamp: Date.now() });
+
+      const map = this.getLocalMap();
+      const storageKey = note.key || `${note.dossierId || 'CadPlan'}:${note.pageId}:${note.blockId}`;
+      if (map[storageKey]) {
+        const idx = map[storageKey].findIndex(n => n.id === noteId);
+        if (idx !== -1) map[storageKey][idx] = note;
+        this.saveLocalMap(map);
+      }
+
+      const db = await this.getDB();
+      if (db) {
+        try {
+          const tx = db.transaction(this.STORE_NAME, 'readwrite');
+          tx.objectStore(this.STORE_NAME).put(note);
+        } catch (err) {}
+      }
+
+      this._notify();
+      return note;
+    }
 
   static async deleteNote(noteId) {
-    const all = await this.getAllNotes();
-    const note = all.find(n => n.id === noteId);
-    if (!note) return false;
+      const all = await this.getAllNotes();
+      const note = all.find(n => n.id === noteId);
+      if (!note) return false;
 
-    const map = this.getLocalMap();
-    if (map[note.blockKey]) {
-      map[note.blockKey] = map[note.blockKey].filter(n => n.id !== noteId);
-      if (map[note.blockKey].length === 0) delete map[note.blockKey];
-      this.saveLocalMap(map);
+      const map = this.getLocalMap();
+      const storageKey = note.key || `${note.dossierId || 'CadPlan'}:${note.pageId}:${note.blockId}`;
+      if (map[storageKey]) {
+        map[storageKey] = map[storageKey].filter(n => n.id !== noteId);
+        if (map[storageKey].length === 0) delete map[storageKey];
+        this.saveLocalMap(map);
+      }
+
+      const db = await this.getDB();
+      if (db) {
+        try {
+          const tx = db.transaction(this.STORE_NAME, 'readwrite');
+          tx.objectStore(this.STORE_NAME).delete(noteId);
+        } catch (err) {}
+      }
+
+      this._notify();
+      return true;
     }
-
-    const db = await this.getDB();
-    if (db) {
-      try {
-        const tx = db.transaction(this.STORE_NAME, 'readwrite');
-        tx.objectStore(this.STORE_NAME).delete(noteId);
-      } catch (err) {}
-    }
-
-    this._notify();
-    return true;
-  }
-
   static subscribe(fn) {
     this._subscribers.add(fn);
     return () => this._subscribers.delete(fn);
@@ -214,7 +220,7 @@ class CadPlanItemNotes {
         return `# NO ACTIVE LIVING SPEC DIRECTIVES\nThere are currently no active author notes or revision directives attached in the living dossier [${dossierId}].`;
       }
 
-      let out = `# 🎯 LIVING SPECIFICATION EVOLUTION: AUTHOR DIRECTIVES & COMPONENT NOTES\n`;
+      let out = `# 🎯 LIVING SPECIFICATION EVOLUTION: AUTHOR DIRECTIVES & UNIVERSAL ANNOTATIONS\n`;
       out += `**Dossier:** ${dossierId} • **Generated:** ${new Date().toISOString()} • **Author/Inventor:** Rob Brown\n`;
       out += `**Active Directives:** ${active.length} notes across ${new Set(active.map(n => n.blockKey)).size} locations\n`;
       out += '**Execution Directive:** Incorporate the following author directives directly into the specified source files and class methods. Keep all existing verified mathematics, direction cosines, and repository connections fully intact.\n\n';
@@ -226,18 +232,17 @@ class CadPlanItemNotes {
         grouped[n.blockKey].push(n);
       });
 
-      // Component Registry: Maps interactive blocks to their real standalone classes & files
       const componentClassMap = {
         comp_tentative_snapping_lab: { cls: 'TentativeSnappingLab', file: 'CadPlan/js/TentativeSnappingLab.js', desc: 'Interactive Snapping Lab (50ms chorded clicks & thick picking)' },
         comp_model_studio: { cls: 'CadModelStudioComponent', file: 'CadPlan/js/CadModelStudioComponent.js', desc: '3D Model Studio (PBR materials, GLB loading & face snapping [Q])' },
         comp_cad_studio_demo: { cls: 'CadStudioDemoComponent', file: 'CadPlan/js/CadStudioDemoComponent.js', desc: 'Production Studio (Live accuCad iframe & 3D parallax curves)' },
-        comp_code_viewer: { cls: 'CadCodeViewerComponent', file: 'CadPlan/js/CadCodeViewerComponent.js', desc: 'Code Viewer & Rust Crate Hooks (PointInterceptor, wgpu_overlay, pointmod)' },
+        comp_code_viewer: { cls: 'CadCodeViewerComponent', file: 'CadPlan/js/CadCodeViewerComponent.js', desc: 'Code Viewer & Rust Crate Hooks' },
         comp_svg_smartline_lab: { cls: 'SvgSmartLineLab', file: 'CadPlan/js/SvgSmartLineLab.js', desc: 'Pure SVG SmartLine Lab (Continuous chaining, tangent arcs & DXF bulges)' },
         comp_animated_svg_compass: { cls: 'CadAnimatedSvgCompassLab', file: 'CadPlan/js/CadAnimatedSvgCompassLab.js', desc: 'Animated SVG Compass Lab (Superellipse morphing & Mini-Jack)' },
         comp_isolated_compass_3d: { cls: 'CadIsolatedCompass3DComponent', file: 'CadPlan/js/CadIsolatedCompass3DComponent.js', desc: 'Isolated 3D Compass Viewport (High-contrast direction cosines)' },
         comp_agent_telemetry_lab: { cls: 'CadAgentTelemetryLab', file: 'CadPlan/js/CadAgentTelemetryLab.js', desc: 'Autonomous AI Drafting Lab (MCP stream & relative vectors)' },
         comp_roundtrip_superpower: { cls: 'Cad2Dto3DRoundTripGraphic', file: 'CadPlan/js/Cad2Dto3DRoundTripGraphic.js', desc: '2D OCS to 3D WCS Round-Trip Engine (AutoCAD compatibility)' },
-        comp_kch_interactive_lab: { cls: 'KeyCommandInteractiveLab', file: 'CadPlan/js/KeyCommandInteractiveLab.js', desc: 'Single-Stroke Key Command Engine Sandbox (No Enter key)' },
+        comp_kch_interactive_lab: { cls: 'KeyCommandInteractiveLab', file: 'CadPlan/js/KeyCommandInteractiveLab.js', desc: 'Single-Stroke Key Command Engine Sandbox' },
         comp_curve_drawer_lab: { cls: 'CurveDrawerLabComponent', file: 'CadPlan/js/CurveDrawerLabComponent.js', desc: 'On-Curve Spline Relaxation & Kinetic Tether Lab' },
         comp_number_stream_lab: { cls: 'AccuDrawNumberStreamLab', file: 'CadPlan/js/AccuDrawNumberStreamLab.js', desc: 'Numerical Command Stream & Decimal Parser' },
         comp_compass_anatomy: { cls: 'CompassAnatomyComponent', file: 'CadPlan/js/CompassAnatomyComponent.js', desc: 'The Squircle Compass Anatomical Deconstruction' },
@@ -254,7 +259,6 @@ class CadPlanItemNotes {
         comp_origins_graphic: { cls: 'CadOriginsGraphicComponent', file: 'CadPlan/js/CadOriginsGraphicComponent.js', desc: '1995 Milestone & 3D Design Cube Graphic' }
       };
 
-      // Chapter Document Class Map (for text paragraphs and sidebars)
       const pageClassMap = {
         meta: { cls: 'CadPlanMetaContent', file: 'CadPlan/js/CadPlanMetaContent.js' },
         origins: { cls: 'CadOriginsContent', file: 'CadPlan/js/CadOriginsContent.js' },
@@ -276,6 +280,7 @@ class CadPlanItemNotes {
       for (const [key, notes] of Object.entries(grouped)) {
         const [pageId, blockId] = key.split(':');
         const isComponent = Boolean(componentClassMap[blockId] || blockId.startsWith('comp_'));
+        const isUniversal = Boolean(notes[0]?.isUniversalElement || notes[0]?.xpath);
 
         let targetCls = '';
         let targetFile = '';
@@ -308,14 +313,19 @@ class CadPlanItemNotes {
         out += `## ${itemNumber++}. Target: \`${targetCls}${isComponent ? '' : '.' + blockId}\`\n`;
         out += `**Target File:** \`${targetFile}\`\n`;
         if (targetDesc) out += `**Component Role:** *${targetDesc}*\n`;
+
+        if (isUniversal && notes[0]?.xpath) {
+          out += `**DOM XPath Locator:** \`${notes[0].xpath}\`\n`;
+          if (notes[0].cssPath) out += `**CSS Selector:** \`${notes[0].cssPath}\`\n`;
+        }
         out += '\n';
 
         if (previewText) {
-          out += '### Existing Context / Code Reference:\n';
+          out += '### Context / Code Excerpt:\n';
           out += '> ' + previewText.replace(/\n+/g, '\n> ') + '\n\n';
         }
 
-        out += '### Author Directives & Ideas (Attached During Document Review):\n';
+        out += '### Author Directives & Living Annotations:\n';
         notes.sort((a, b) => a.timestamp - b.timestamp).forEach((note, idx) => {
           const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
           const cleanTag = note.status === 'pending_cleanup' ? ' `[🧹 MARKED FOR ARCHIVE]`' : '';
@@ -335,474 +345,530 @@ class CadPlanItemNotes {
 
       return out.trim();
     }
+
   static async openPromptBuilderDialog(docReader = null) {
-    const hostContainer = document.body;
-    const promptText = await this.buildNotesDirectivePrompt(docReader);
-    const dossierId = docReader?.options?.dossierId || docReader?.brandTitle || 'CadPlan';
-    const allNotes = await this.getAllNotes(dossierId);
-    const activeNotes = allNotes.filter(n => n.status !== 'resolved');
+      const hostContainer = document.body;
+      const promptText = await this.buildNotesDirectivePrompt(docReader);
+      const dossierId = docReader?.options?.dossierId || docReader?.brandTitle || 'CadPlan';
+      const allNotes = await this.getAllNotes(dossierId);
+      const activeNotes = allNotes.filter(n => n.status !== 'resolved');
 
-    const wrap = makeElement('div', {
-      style: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        height: '100%',
-        color: '#e2e8f0',
-        fontFamily: 'var(--dr-font-sans, system-ui, sans-serif)'
-      }
-    });
+      const wrap = makeElement('div', {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          height: '100%',
+          color: '#e2e8f0',
+          fontFamily: 'var(--dr-font-sans, system-ui, sans-serif)'
+        }
+      });
 
-    const topBar = makeElement('div', {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '6px 4px',
-        borderBottom: '1px solid #232d3f',
-        fontSize: '11.5px',
-        fontFamily: 'monospace'
-      }
-    }, [
-      makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, `⚡ Active Living Directives [${dossierId}]: ${activeNotes.length}`),
-      makeElement('span', { style: { color: '#10b981' } }, 'Ready for Multi-Channel Compilation')
-    ]);
-    wrap.appendChild(topBar);
+      const topBar = makeElement('div', {
+        style: {
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '6px 4px',
+          borderBottom: '1px solid #232d3f',
+          fontSize: '11.5px',
+          fontFamily: 'monospace'
+        }
+      }, [
+        makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, `⚡ Active Living Directives [${dossierId}]: ${activeNotes.length}`),
+        makeElement('span', { style: { color: '#10b981' } }, 'Connected to Luno Outbox')
+      ]);
+      wrap.appendChild(topBar);
 
-    const desc = makeElement('div', {
-      style: {
-        fontSize: '11px',
-        color: '#94a3b8',
-        lineHeight: '1.4',
-        background: 'rgba(0, 242, 254, 0.05)',
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid rgba(0, 242, 254, 0.2)'
-      }
-    }, 'Packages all dictated notes and block contexts into a compilable payload. Push to Luno Outbox, write to disk directly via Node.js server save, or copy to clipboard.');
-    wrap.appendChild(desc);
+      const desc = makeElement('div', {
+        style: {
+          fontSize: '11px',
+          color: '#94a3b8',
+          lineHeight: '1.4',
+          background: 'rgba(0, 242, 254, 0.05)',
+          padding: '8px 12px',
+          borderRadius: '6px',
+          border: '1px solid rgba(0, 242, 254, 0.2)'
+        }
+      }, 'Packages all notes, universal element XPath locators, and code contexts into a compilable payload. Dispatches directly to Luno Outbox, saves to disk via Node.js server save, or copies to clipboard.');
+      wrap.appendChild(desc);
 
-    const codeArea = makeElement('textarea', {
-      style: {
-        flex: 1,
-        minHeight: '320px',
-        background: '#090d16',
-        color: '#7ee787',
-        border: '1.5px solid #232d3f',
-        borderRadius: '8px',
-        padding: '12px',
-        fontFamily: 'var(--dr-font-mono, monospace)',
-        fontSize: '12px',
-        lineHeight: '1.5',
-        resize: 'vertical',
-        outline: 'none',
-        whiteSpace: 'pre'
-      },
-      readonly: true,
-      spellcheck: false
-    });
-    codeArea.value = promptText;
-    wrap.appendChild(codeArea);
+      const codeArea = makeElement('textarea', {
+        style: {
+          flex: 1,
+          minHeight: '320px',
+          background: '#090d16',
+          color: '#7ee787',
+          border: '1.5px solid #232d3f',
+          borderRadius: '8px',
+          padding: '12px',
+          fontFamily: 'var(--dr-font-mono, monospace)',
+          fontSize: '12px',
+          lineHeight: '1.5',
+          resize: 'vertical',
+          outline: 'none',
+          whiteSpace: 'pre'
+        },
+        readonly: true,
+        spellcheck: false
+      });
+      codeArea.value = promptText;
+      wrap.appendChild(codeArea);
 
-    const footer = makeElement('div', {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: '8px',
-        borderTop: '1px solid #232d3f',
-        gap: '8px',
-        flexWrap: 'wrap'
-      }
-    });
+      const footer = makeElement('div', {
+        style: {
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: '8px',
+          borderTop: '1px solid #232d3f',
+          gap: '8px',
+          flexWrap: 'wrap'
+        }
+      });
 
-    const leftButtons = makeElement('div', { style: { display: 'flex', gap: '8px' } }, [
-      makeElement('button', {
-        className: 'dr-nav-btn',
-        style: { color: '#f59e0b', borderColor: '#f59e0b66', fontSize: '11px' },
-        onclick: async () => {
-          if (confirm(`Archive/mark all ${activeNotes.length} active notes in [${dossierId}] as incorporated?`)) {
-            for (const n of activeNotes) {
-              await CadPlanItemNotes.updateNote(n.id, { status: 'resolved' });
-            }
-            alert(`✓ Directives for [${dossierId}] archived.`);
-            dlg.close();
-            if (docReader && typeof docReader._updateBlockNoteBadges === 'function') {
-              docReader._updateBlockNoteBadges();
+      const leftButtons = makeElement('div', { style: { display: 'flex', gap: '8px' } }, [
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { color: '#f59e0b', borderColor: '#f59e0b66', fontSize: '11px' },
+          onclick: async () => {
+            if (confirm(`Archive/mark all ${activeNotes.length} active notes in [${dossierId}] as incorporated?`)) {
+              for (const n of activeNotes) {
+                await CadPlanItemNotes.updateNote(n.id, { status: 'resolved' });
+              }
+              alert(`✓ Directives for [${dossierId}] archived.`);
+              dlg.close();
+              if (docReader && typeof docReader._updateBlockNoteBadges === 'function') {
+                docReader._updateBlockNoteBadges();
+              }
             }
           }
-        }
-      }, '🧹 Mark Incorporated')
-    ]);
+        }, '🧹 Mark Incorporated')
+      ]);
 
-    const rightButtons = makeElement('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, [
-      // 1. Push to Luno Outbox
-      makeElement('button', {
-        className: 'dr-nav-btn',
-        style: { background: '#271052', color: '#d2a8ff', borderColor: '#8257e5', fontSize: '11px' },
-        onclick: () => {
-          if (typeof OutboxQueue !== 'undefined' && OutboxQueue.addBundle) {
-            OutboxQueue.addBundle(`${dossierId} Living Spec Directives`, promptText, { priority: 'high' });
-            alert(`✓ Dispatched evolution prompt to Luno Outbox for [${dossierId}]!`);
-            dlg.close();
-          } else {
-            navigator.clipboard.writeText(promptText);
-            alert('✓ Copied evolution prompt to clipboard!');
+      const rightButtons = makeElement('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, [
+        // 1. Push to Real Luno Outbox
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { background: '#271052', color: '#d2a8ff', borderColor: '#8257e5', fontSize: '11px', fontWeight: 'bold' },
+          onclick: () => {
+            const res = CadPlanItemNotes.dispatchToOutbox(`${dossierId} Living Spec Directives`, promptText);
+            if (res.channel === 'clipboard-fallback') {
+              alert('✓ Copied evolution prompt to clipboard (OutboxQueue not mounted in parent).');
+            } else {
+              alert(`✓ Dispatched evolution prompt directly to Luno Outbox via [${res.channel}]!`);
+            }
             dlg.close();
           }
-        }
-      }, '📤 Push to Outbox'),
+        }, '📤 Push to Outbox'),
 
-      // 2. Direct In-Page / Server Save
-      makeElement('button', {
-        className: 'dr-nav-btn',
-        style: { background: '#0a233a', color: '#38bdf8', borderColor: '#0284c7', fontSize: '11px' },
-        onclick: async () => {
-          const dumpPath = `PromptDumps/${dossierId}_EvolutionDirectives.md`;
-          let savedSuccessfully = false;
+        // 2. Direct In-Page / Server Save
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { background: '#0a233a', color: '#38bdf8', borderColor: '#0284c7', fontSize: '11px' },
+          onclick: async () => {
+            const dumpPath = `PromptDumps/${dossierId}_EvolutionDirectives.md`;
+            let savedSuccessfully = false;
 
-          // Try direct Luno server save endpoint first
-          try {
-            const res = await fetch(`/api/save?project=${encodeURIComponent(dossierId)}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                files: [{ path: dumpPath, content: promptText }]
-              })
-            });
-            const data = await res.json();
-            if (data && data.success) {
-              savedSuccessfully = true;
-            }
-          } catch (e) {}
-
-          // Fallback to RunOnServerTools if available
-          if (!savedSuccessfully && typeof RunOnServerTools !== 'undefined') {
             try {
-              const rost = new RunOnServerTools();
-              const serverCode = `
-                const fs = require('fs');
-                const path = require('path');
-                const dumpDir = path.join(process.cwd(), 'PromptDumps');
-                if (!fs.existsSync(dumpDir)) fs.mkdirSync(dumpDir, { recursive: true });
-                fs.writeFileSync(path.join(process.cwd(), '${dumpPath}'), ${JSON.stringify(promptText)}, 'utf8');
-                return { success: true };
-              `;
-              const rRes = await rost.executeServerScript(serverCode, dossierId);
-              if (rRes && rRes.success) savedSuccessfully = true;
+              const res = await fetch(`/api/save?project=${encodeURIComponent(dossierId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  files: [{ path: dumpPath, content: promptText }]
+                })
+              });
+              const data = await res.json();
+              if (data && data.success) savedSuccessfully = true;
             } catch (e) {}
+
+            if (savedSuccessfully) {
+              alert(`✓ Written directly to local disk at ${dumpPath}!`);
+              dlg.close();
+            } else {
+              const blob = new Blob([promptText], { type: 'text/markdown' });
+              const url = URL.createObjectURL(blob);
+              const a = makeElement('a', { href: url, download: `${dossierId}_Directives_${Date.now()}.md` });
+              a.click();
+              URL.revokeObjectURL(url);
+              dlg.close();
+            }
           }
+        }, '⚡ Save to Disk'),
 
-          if (savedSuccessfully) {
-            alert(`✓ Written directly to local disk at ${dumpPath}!`);
-            dlg.close();
-          } else {
-            // Client-side file download fallback
-            const blob = new Blob([promptText], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = makeElement('a', { href: url, download: `${dossierId}_Directives_${Date.now()}.md` });
-            a.click();
-            URL.revokeObjectURL(url);
-            dlg.close();
+        // 3. Copy to Clipboard
+        makeElement('button', {
+          className: 'dr-nav-btn primary',
+          style: { fontWeight: 'bold' },
+          onclick: (e) => {
+            const btn = e.currentTarget;
+            navigator.clipboard.writeText(promptText).then(() => {
+              btn.textContent = '✓ Copied!';
+              setTimeout(() => { btn.textContent = '📋 Copy Evolution Prompt'; }, 1800);
+            });
           }
-        }
-      }, '⚡ Execute In-Page / Save Disk'),
+        }, '📋 Copy Prompt')
+      ]);
 
-      // 3. Copy to Clipboard
-      makeElement('button', {
-        className: 'dr-nav-btn primary',
-        style: { fontWeight: 'bold' },
-        onclick: (e) => {
-          const btn = e.currentTarget;
-          navigator.clipboard.writeText(promptText).then(() => {
-            btn.textContent = '✓ Copied!';
-            setTimeout(() => { btn.textContent = '📋 Copy Evolution Prompt'; }, 1800);
-          });
-        }
-      }, '📋 Copy Evolution Prompt')
-    ]);
+      footer.appendChild(leftButtons);
+      footer.appendChild(rightButtons);
+      wrap.appendChild(footer);
 
-    footer.appendChild(leftButtons);
-    footer.appendChild(rightButtons);
-    wrap.appendChild(footer);
+      const dlg = UITools.makeDialog({
+        title: `⚡ Living Specification Evolution Deck [${dossierId}]`,
+        size: [660, 580],
+        position: [Math.max(20, (window.innerWidth - 660) / 2), 50],
+        contentElement: wrap,
+        appendTo: hostContainer
+      });
 
-    const dlg = UITools.makeDialog({
-      title: `⚡ Living Specification Evolution Deck [${dossierId}]`,
-      size: [660, 580],
-      position: [Math.max(20, (window.innerWidth - 660) / 2), 50],
-      contentElement: wrap,
-      appendTo: hostContainer
-    });
-
-    return dlg;
-  }
-
-  static async openBlockNotesDialog(pageId, blockId, currentDoc, onUpdated, hostReader = null) {
-    const dossierId = hostReader?.options?.dossierId || currentDoc?.name || 'CadPlan';
-    const blockKey = `${pageId}:${blockId}`;
-    const docName = currentDoc?.name || (typeof currentDoc === 'function' ? currentDoc.name : 'DocumentContent');
-    const existing = await this.getNotesForBlock(pageId, blockId, dossierId);
-
-    let excerpt = '';
-    if (currentDoc && typeof currentDoc[blockId] === 'function') {
-      const val = currentDoc[blockId]();
-      excerpt = Array.isArray(val) ? val.join(' ') : String(val);
+      return dlg;
     }
-    if (!excerpt && existing[0]?.blockPreview) {
-      excerpt = existing[0].blockPreview;
-    }
-    if (excerpt.length > 160) excerpt = excerpt.substring(0, 160) + '...';
 
-    const wrap = makeElement('div', {
-      style: {
-        display: 'flex', flexDirection: 'column', height: '100%',
-        color: '#e2e8f0', fontFamily: 'var(--dr-font-sans, system-ui, sans-serif)', gap: '10px'
+  static async openBlockNotesDialog(pageId, blockId, currentDoc, onUpdated, hostReader = null, extraOptions = {}) {
+      CadPlanItemNotes.playHapticSound('click');
+      const dossierId = hostReader?.options?.dossierId || currentDoc?.name || 'CadPlan';
+      const docName = currentDoc?.name || (typeof currentDoc === 'function' ? currentDoc.name : 'DocumentContent');
+      const existing = await this.getNotesForBlock(pageId, blockId, dossierId);
+
+      // Resolve target element: prioritize explicitly passed element, then DOM lookups
+      let targetEl = extraOptions?.targetElement ||
+                     document.querySelector(`[data-block-id="${blockId}"]`) ||
+                     document.querySelector(`[data-block="${blockId}"]`) ||
+                     document.getElementById(`block-${blockId}`) ||
+                     document.getElementById(blockId);
+
+      // If target element is not found by ID, attempt XPath resolution from existing note
+      if (!targetEl && existing.length > 0 && existing[0].xpath) {
+        try {
+          const res = document.evaluate(existing[0].xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+          if (res.singleNodeValue) targetEl = res.singleNodeValue;
+        } catch (e) {}
       }
-    });
 
-    // Top Navigation Bar
-    const humanCount = existing.filter(n => !n.isLLM).length;
-    const aiCount = existing.filter(n => n.isLLM).length;
+      const locator = extraOptions?.locator || (targetEl ? CadPlanItemNotes.generateElementLocator(targetEl) : { key: blockId, isOfficial: true, xpath: '' });
 
-    const topBar = makeElement('div', {
-      style: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        paddingBottom: '8px', borderBottom: '1px solid #232d3f', fontSize: '11px', fontFamily: 'monospace'
+      let excerpt = '';
+      if (currentDoc && typeof currentDoc[blockId] === 'function') {
+        const val = currentDoc[blockId]();
+        excerpt = Array.isArray(val) ? val.join(' ') : String(val);
       }
-    }, [
-      makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' } }, [
-        makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, `Target: ${docName}.${blockId}`),
-        makeElement('span', { 
-          style: { color: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)', padding: '1px 6px', borderRadius: '10px' } 
-        }, `👤 ${humanCount} Note${humanCount === 1 ? '' : 's'}`),
-        aiCount > 0 ? makeElement('span', { 
-          style: { color: '#c084fc', background: 'rgba(168, 85, 247, 0.2)', padding: '1px 6px', borderRadius: '10px', border: '1px solid #c084fc66' } 
-        }, `🤖 ${aiCount} AI Proposal${aiCount === 1 ? '' : 's'}`) : null
-      ]),
-      makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, `[${dossierId}]`)
-    ]);
-    wrap.appendChild(topBar);
+      if (!excerpt && targetEl) {
+        excerpt = targetEl.textContent.trim();
+      }
+      if (!excerpt && existing[0]?.blockPreview) {
+        excerpt = existing[0].blockPreview;
+      }
+      if (excerpt.length > 150) excerpt = excerpt.substring(0, 150) + '...';
 
-    if (excerpt) {
-      wrap.appendChild(makeElement('div', {
+      const wrap = makeElement('div', {
         style: {
-          background: 'rgba(0, 242, 254, 0.04)', borderLeft: '3px solid #00f2fe',
-          padding: '6px 10px', fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', borderRadius: '4px'
+          display: 'flex', flexDirection: 'column', height: '100%',
+          color: '#f8fafc', fontFamily: 'var(--cp-font-sans, system-ui, sans-serif)', gap: '10px',
+          background: 'linear-gradient(180deg, rgba(12, 18, 32, 0.98) 0%, rgba(7, 10, 19, 0.98) 100%)',
+          padding: '12px',
+          boxSizing: 'border-box'
         }
-      }, `"${excerpt}"`));
-    }
+      });
 
-    // Conversation Thread List
-    const threadList = makeElement('div', {
-      id: 'item-notes-thread-list',
-      style: {
-        flex: 1, minHeight: '160px', maxHeight: '240px', overflowY: 'auto',
-        display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px'
+      const humanCount = existing.filter(n => !n.isLLM).length;
+      const aiCount = existing.filter(n => n.isLLM).length;
+
+      // Header Toolbar
+      const topBar = makeElement('div', {
+        style: {
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '8px 12px', borderBottom: '1.5px solid rgba(0, 242, 254, 0.35)',
+          background: 'rgba(0, 242, 254, 0.06)', borderRadius: '8px',
+          fontSize: '11px', fontFamily: 'var(--cp-font-mono, monospace)'
+        }
+      }, [
+        makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }, [
+          makeElement('span', { style: { color: '#00f2fe', fontWeight: '800' } }, `🎯 ${locator.isOfficial ? `${docName}.${blockId}` : locator.key}`),
+          makeElement('span', {
+            style: { color: '#38bdf8', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid #38bdf866', padding: '1px 8px', borderRadius: '12px' }
+          }, `👤 ${humanCount}`),
+          aiCount > 0 ? makeElement('span', {
+            style: { color: '#c084fc', background: 'rgba(192, 132, 252, 0.22)', padding: '1px 8px', borderRadius: '12px', border: '1px solid #c084fc88' }
+          }, `🤖 ${aiCount} Proposal${aiCount === 1 ? '' : 's'}`) : null
+        ]),
+        makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, `[${dossierId}]`)
+      ]);
+      wrap.appendChild(topBar);
+
+      if (locator.xpath && !locator.isOfficial) {
+        wrap.appendChild(makeElement('div', {
+          style: { fontSize: '10px', color: '#64748b', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+        }, `XPath: ${locator.xpath}`));
       }
-    });
-    wrap.appendChild(threadList);
 
-    const renderThread = async () => {
-      threadList.innerHTML = '';
-      const notes = await CadPlanItemNotes.getNotesForBlock(pageId, blockId, dossierId);
-
-      if (notes.length === 0) {
-        threadList.appendChild(makeElement('div', {
-          style: { padding: '20px 10px', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontSize: '11.5px' }
-        }, 'No notes attached to this block yet. Dictate a thought below, or request an AI revision proposal.'));
-        return;
-      }
-
-      notes.forEach((note, idx) => {
-        const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const isLLM = Boolean(note.isLLM || note.author === 'LLM');
-        const isCleanup = note.status === 'pending_cleanup';
-
-        const borderCol = isLLM ? '#a855f7' : (isCleanup ? '#f59e0b' : '#1e293b');
-        const bgCol = isLLM ? 'rgba(168, 85, 247, 0.08)' : (isCleanup ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255, 255, 255, 0.03)');
-
-        const itemBox = makeElement('div', {
+      if (excerpt) {
+        wrap.appendChild(makeElement('div', {
           style: {
-            background: bgCol,
-            border: `1px solid ${borderCol}`,
-            borderLeft: `4px solid ${isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#38bdf8')}`,
-            borderRadius: '6px', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '4px'
+            background: 'rgba(0, 242, 254, 0.05)', borderLeft: '3.5px solid #00f2fe',
+            padding: '8px 12px', fontSize: '11.5px', color: '#cbd5e1', fontStyle: 'italic', borderRadius: '4px',
+            boxShadow: 'inset 0 0 12px rgba(0, 242, 254, 0.06)'
           }
-        }, [
-          makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
-            makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
-              makeElement('span', { 
-                style: { 
-                  fontSize: '9.5px', fontWeight: 'bold', textTransform: 'uppercase',
-                  color: isLLM ? '#c084fc' : '#38bdf8' 
-                } 
-              }, isLLM ? '🤖 AI Staged Proposal' : `👤 ${note.author}`),
-              makeElement('span', { style: { fontSize: '9px', color: '#64748b' } }, `• ${timeStr}`)
-            ]),
-            makeElement('div', { style: { display: 'flex', gap: '4px', alignItems: 'center' } }, [
-              // If proposal has text/patch, allow live testing in memory
-              isLLM ? makeElement('button', {
-                className: 'dr-nav-btn',
-                style: { padding: '1px 6px', fontSize: '9.5px', color: '#38bdf8', borderColor: '#38bdf866' },
-                title: 'Test this proposal live in browser memory right now',
-                onclick: () => {
-                  if (typeof CadPlanDocumentEditor !== 'undefined' && CadPlanDocumentEditor.saveOverride) {
-                    CadPlanDocumentEditor.saveOverride(pageId, blockId, note.text, docName, dossierId);
-                    if (onUpdated) onUpdated();
-                    alert(`✓ Staged proposal applied live in browser memory! Check block #${blockId}.`);
-                  }
-                }
-              }, '👁️ Test In-Memory') : null,
+        }, `"${excerpt}"`));
+      }
 
-              makeElement('button', {
-                className: 'dr-nav-btn',
-                style: { padding: '1px 5px', fontSize: '9.5px', color: '#ef4444' },
-                title: 'Delete note from IndexedDB',
-                onclick: async () => {
-                  if (confirm('Delete this note?')) {
-                    await CadPlanItemNotes.deleteNote(note.id);
-                    renderThread();
-                    if (onUpdated) onUpdated();
-                  }
-                }
-              }, '✕')
-            ])
-          ]),
-          makeElement('div', { style: { fontSize: '11.5px', color: '#f8fafc', lineHeight: '1.45', whiteSpace: 'pre-wrap' } }, note.text)
-        ]);
-
-        if (note.videoLink) {
-          itemBox.appendChild(makeElement('div', {
-            style: { fontSize: '10px', color: '#38bdf8', marginTop: '2px' }
-          }, `📹 Anchor: ${note.videoLink.label || note.videoLink.videoId} @ ${note.videoLink.time}s`));
-        }
-
-        threadList.appendChild(itemBox);
-      });
-    };
-
-    await renderThread();
-
-    // Bottom Input Area (DictationWidget or Text Input)
-    const dictationMount = makeElement('div', {
-      style: { minHeight: '110px', display: 'flex', flexDirection: 'column' }
-    });
-    wrap.appendChild(dictationMount);
-
-    let dictationWidget = null;
-    if (typeof DictationWidget !== 'undefined') {
-      dictationWidget = new DictationWidget({
-        compact: true,
-        placeholder: '🎙️ Dictate directive, or type instruction for this block...'
-      });
-      dictationMount.appendChild(dictationWidget.getElement());
-    } else {
-      const textarea = makeElement('textarea', {
-        id: 'append-item-note-textarea',
-        placeholder: 'Type directive or staging note for this block...',
+      // Directives & Staged Thread List
+      const threadList = makeElement('div', {
+        id: 'item-notes-thread-list',
         style: {
-          width: '100%', minHeight: '90px', background: '#090d16', color: '#f8fafc',
-          border: '1px solid #232d3f', borderRadius: '6px', padding: '8px',
-          fontFamily: 'var(--dr-font-sans)', fontSize: '12px', outline: 'none'
+          flex: 1, minHeight: '160px', maxHeight: '240px', overflowY: 'auto',
+          display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px'
         }
       });
-      dictationMount.appendChild(textarea);
+      wrap.appendChild(threadList);
+
+      const renderThread = async () => {
+        threadList.innerHTML = '';
+        const notes = await CadPlanItemNotes.getNotesForBlock(pageId, blockId, dossierId);
+
+        if (notes.length === 0) {
+          threadList.appendChild(makeElement('div', {
+            style: { padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', fontSize: '11.5px' }
+          }, 'No directives on this element. Dictate thoughts below, select an intent tag, or tap "Ask AI".'));
+          return;
+        }
+
+        notes.forEach((note) => {
+          const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const isLLM = Boolean(note.isLLM || note.author === 'LLM');
+          const isCleanup = note.status === 'pending_cleanup';
+
+          const borderCol = isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#00f2fe');
+          const bgCol = isLLM ? 'rgba(192, 132, 252, 0.1)' : (isCleanup ? 'rgba(245, 158, 11, 0.08)' : 'rgba(0, 242, 254, 0.06)');
+
+          const itemBox = makeElement('div', {
+            style: {
+              background: bgCol,
+              border: `1.5px solid ${borderCol}`,
+              borderLeft: `4.5px solid ${isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#00f2fe')}`,
+              borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+            }
+          }, [
+            makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+              makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
+                makeElement('span', {
+                  style: {
+                    fontSize: '10px', fontWeight: '800', textTransform: 'uppercase',
+                    color: isLLM ? '#c084fc' : '#00f2fe', fontFamily: 'var(--cp-font-mono, monospace)'
+                  }
+                }, isLLM ? '🤖 AI Staged Proposal' : `👤 ${note.author}`),
+                makeElement('span', { style: { fontSize: '9px', color: '#64748b' } }, `• ${timeStr}`)
+              ]),
+              makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
+                makeElement('button', {
+                  className: 'dr-nav-btn',
+                  style: { padding: '2px 6px', fontSize: '10px', color: '#ef4444' },
+                  title: 'Delete note',
+                  onclick: async () => {
+                    if (confirm('Delete this directive?')) {
+                      CadPlanItemNotes.playHapticSound('delete');
+                      await CadPlanItemNotes.deleteNote(note.id);
+                      renderThread();
+                      if (onUpdated) onUpdated();
+                    }
+                  }
+                }, '✕')
+              ])
+            ]),
+            makeElement('div', { style: { fontSize: '12px', color: '#f8fafc', lineHeight: '1.55', whiteSpace: 'pre-wrap' } }, note.text)
+          ]);
+
+          threadList.appendChild(itemBox);
+        });
+      };
+
+      await renderThread();
+
+      // Intent Tag Chips Deck
+      const tagDeck = makeElement('div', {
+        style: { display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', padding: '2px 0' }
+      });
+
+      const addTagPrefix = (tagPrefix) => {
+        if (dictationWidget) {
+          const cur = dictationWidget.getText().trim();
+          dictationWidget.setText(`${tagPrefix} ${cur}`);
+          dictationWidget.focus();
+        } else {
+          const ta = document.getElementById('append-item-note-textarea');
+          if (ta) {
+            ta.value = `${tagPrefix} ${ta.value.trim()}`;
+            ta.focus();
+          }
+        }
+      };
+
+      tagDeck.appendChild(makeElement('span', { style: { fontSize: '9.5px', color: '#64748b', fontWeight: 'bold' } }, 'TAG:'));
+      ['💡 Idea', '📐 Math', '⚡ Prompt', '🐛 Fix', '🎨 Style'].forEach(t => {
+        tagDeck.appendChild(makeElement('button', {
+          className: 'cp-tag-chip',
+          onclick: () => addTagPrefix(`[${t}]`)
+        }, t));
+      });
+      wrap.appendChild(tagDeck);
+
+      // DictationWidget Mount
+      const dictationMount = makeElement('div', {
+        style: { minHeight: '110px', display: 'flex', flexDirection: 'column', position: 'relative' }
+      });
+      wrap.appendChild(dictationMount);
+
+      let dictationWidget = null;
+      if (typeof DictationWidget !== 'undefined') {
+        dictationWidget = new DictationWidget({
+          compact: true,
+          placeholder: '🎙️ Dictate directive, or type note for this element...'
+        });
+        dictationMount.appendChild(dictationWidget.getElement());
+      } else {
+        const textarea = makeElement('textarea', {
+          id: 'append-item-note-textarea',
+          placeholder: 'Type directive or staging note for this element...',
+          style: {
+            width: '100%', minHeight: '90px', background: '#090d16', color: '#f8fafc',
+            border: '1px solid #232d3f', borderRadius: '6px', padding: '8px',
+            fontFamily: 'var(--dr-font-sans)', fontSize: '12px', outline: 'none'
+          }
+        });
+        dictationMount.appendChild(textarea);
+      }
+
+      // Segmented Pill Toggle (Author vs LLM)
+      let selectedAuthorMode = 'Author';
+
+      const toggleAuthorBtn = makeElement('button', {
+        className: 'cp-segmented-btn active author',
+        onclick: () => setAuthorMode('Author')
+      }, '👤 Author Note');
+
+      const toggleLlmBtn = makeElement('button', {
+        className: 'cp-segmented-btn',
+        onclick: () => setAuthorMode('LLM')
+      }, '🤖 AI Proposal');
+
+      const segmentedDeck = makeElement('div', { className: 'cp-segmented-deck' }, [
+        toggleAuthorBtn,
+        toggleLlmBtn
+      ]);
+
+      function setAuthorMode(mode) {
+        selectedAuthorMode = mode;
+        toggleAuthorBtn.className = `cp-segmented-btn ${mode === 'Author' ? 'active author' : ''}`;
+        toggleLlmBtn.className = `cp-segmented-btn ${mode === 'LLM' ? 'active llm' : ''}`;
+        CadPlanItemNotes.playHapticSound('click');
+      }
+
+      // Footer Controls Bar
+      const footer = makeElement('div', {
+        style: {
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', gap: '8px', flexWrap: 'wrap'
+        }
+      });
+
+      const leftControls = makeElement('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, [
+        segmentedDeck
+      ]);
+
+      let clearTether = null;
+
+      const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          onclick: () => dlg.close()
+        }, 'Close'),
+
+        makeElement('button', {
+          className: 'dr-nav-btn primary',
+          style: { fontWeight: '800' },
+          onclick: async () => {
+            let txt = '';
+            if (dictationWidget) {
+              txt = dictationWidget.getText().trim();
+            } else {
+              const ta = document.getElementById('append-item-note-textarea');
+              txt = ta ? ta.value.trim() : '';
+            }
+
+            if (!txt) {
+              alert('Please dictate or type a note before appending.');
+              return;
+            }
+
+            const isLLM = selectedAuthorMode === 'LLM';
+            await CadPlanItemNotes.addNote(pageId, blockId, txt, {
+              dossierId,
+              isLLM,
+              author: isLLM ? 'LLM' : 'Author',
+              type: isLLM ? 'proposal' : 'note',
+              blockPreview: excerpt,
+              xpath: locator.xpath,
+              cssPath: locator.cssPath,
+              tagName: locator.tagName,
+              isUniversalElement: !locator.isOfficial
+            });
+
+            CadPlanItemNotes.playHapticSound('snap');
+
+            if (dictationWidget) dictationWidget.clearContent();
+            else {
+              const ta = document.getElementById('append-item-note-textarea');
+              if (ta) ta.value = '';
+            }
+
+            await renderThread();
+            if (onUpdated) onUpdated();
+          }
+        }, '💾 + Append')
+      ]);
+
+      footer.appendChild(leftControls);
+      footer.appendChild(rightControls);
+      wrap.appendChild(footer);
+
+      let posX = Math.max(20, (window.innerWidth - 600) / 2);
+      let posY = 60;
+      if (targetEl) {
+        const r = targetEl.getBoundingClientRect();
+        if (r.right + 620 < window.innerWidth) {
+          posX = r.right + 16;
+          posY = Math.max(50, r.top);
+        } else if (r.left > 620) {
+          posX = r.left - 616;
+          posY = Math.max(50, r.top);
+        }
+      }
+
+      const dlg = UITools.makeDialog({
+        title: `📝 Directives [${locator.isOfficial ? blockId : locator.key}]`,
+        size: [600, 580],
+        position: [posX, posY],
+        contentElement: wrap,
+        appendTo: document.body,
+        onClose: () => {
+          if (clearTether) clearTether();
+          if (dictationWidget && typeof dictationWidget.destroy === 'function') {
+            dictationWidget.destroy();
+          }
+        }
+      });
+
+      if (dlg.element) {
+        dlg.element.style.border = '2px solid #00f2fe';
+        dlg.element.style.boxShadow = '0 20px 60px rgba(0,0,0,0.9), 0 0 28px rgba(0,242,254,0.4)';
+        if (targetEl) {
+          clearTether = CadPlanItemNotes._drawTetherToBlock(dlg.element, targetEl);
+        }
+      }
+
+      return dlg;
     }
-
-    // Footer Actions Bar
-    const footer = makeElement('div', {
-      style: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        paddingTop: '6px', borderTop: '1px solid #232d3f', gap: '8px', flexWrap: 'wrap'
-      }
-    });
-
-    const authorSelect = makeElement('select', {
-      style: { background: '#070a13', color: '#e2e8f0', border: '1px solid #30363d', borderRadius: '4px', padding: '3px 6px', fontSize: '10.5px' }
-    }, [
-      makeElement('option', { value: 'Author' }, '👤 Author Note'),
-      makeElement('option', { value: 'LLM' }, '🤖 AI Staged Proposal')
-    ]);
-
-    const leftControls = makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
-      authorSelect,
-      makeElement('button', {
-        className: 'dr-nav-btn',
-        style: { padding: '3px 8px', fontSize: '10px', color: '#a855f7', borderColor: '#a855f766' },
-        title: 'Queue a prompt asking AI to draft an improvement for this block',
-        onclick: () => {
-          const promptForAI = `Please review paragraph #${blockId} in [${dossierId}]:\n\n"${excerpt}"\n\nDraft an improved, more articulate version and provide it as an AI proposal.`;
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(promptForAI);
-            alert('✓ Copied block revision prompt to clipboard! Paste it to your LLM.');
-          }
-        }
-      }, '🤖 Ask AI')
-    ]);
-
-    const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
-      makeElement('button', {
-        className: 'dr-nav-btn',
-        onclick: () => dlg.close()
-      }, 'Close'),
-
-      makeElement('button', {
-        className: 'dr-nav-btn primary',
-        style: { fontWeight: 'bold' },
-        onclick: async () => {
-          let txt = '';
-          if (dictationWidget) {
-            txt = dictationWidget.getText().trim();
-          } else {
-            const ta = document.getElementById('append-item-note-textarea');
-            txt = ta ? ta.value.trim() : '';
-          }
-
-          if (!txt) {
-            alert('Please dictate or type a note before appending.');
-            return;
-          }
-
-          const isLLM = authorSelect.value === 'LLM';
-          await CadPlanItemNotes.addNote(pageId, blockId, txt, {
-            dossierId,
-            isLLM,
-            author: isLLM ? 'LLM' : 'Author',
-            type: isLLM ? 'proposal' : 'note',
-            blockPreview: excerpt
-          });
-
-          if (dictationWidget) dictationWidget.clearContent();
-          else {
-            const ta = document.getElementById('append-item-note-textarea');
-            if (ta) ta.value = '';
-          }
-
-          await renderThread();
-          if (onUpdated) onUpdated();
-        }
-      }, '💾 + Append')
-    ]);
-
-    footer.appendChild(leftControls);
-    footer.appendChild(rightControls);
-    wrap.appendChild(footer);
-
-    const dlg = UITools.makeDialog({
-      title: `📝 Block Directives & Staged Memory [${dossierId}]`,
-      size: [580, 560],
-      position: [Math.max(20, (window.innerWidth - 580) / 2), 50],
-      contentElement: wrap,
-      appendTo: document.body,
-      onClose: () => {
-        if (dictationWidget && typeof dictationWidget.destroy === 'function') {
-          dictationWidget.destroy();
-        }
-      }
-    });
-
-    return dlg;
-  }
   static async addAIProposal(pageId, blockId, proposalText, options = {}) {
     return await this.addNote(pageId, blockId, proposalText, {
       ...options,
@@ -877,6 +943,204 @@ class CadPlanItemNotes {
       };
 
       return btn;
+    }
+
+  static _drawTetherToBlock(dialogElement, targetElement) {
+      if (globalThis._cadPlanInstance?.aardvark) {
+        return globalThis._cadPlanInstance.aardvark._drawOuterCornerConnectors(targetElement, dialogElement);
+      }
+      return () => {};
+    }
+  static playHapticSound(type = 'click') {
+      try {
+        if (typeof window === 'undefined') return;
+        if (localStorage.getItem('cp_sound_enabled') === 'false') return;
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+
+        if (!this._audioCtx) {
+          this._audioCtx = new AudioCtx();
+        }
+        if (this._audioCtx.state === 'suspended') {
+          this._audioCtx.resume();
+        }
+
+        const ctx = this._audioCtx;
+        const now = ctx.currentTime;
+
+        if (type === 'snap' || type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(110, now + 0.04);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.045);
+        } else if (type === 'accept' || type === 'chime') {
+          [523.25, 659.25, 783.99].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.06);
+            gain.gain.setValueAtTime(0.08, now + i * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.06);
+            osc.stop(now + i * 0.06 + 0.45);
+          });
+        } else if (type === 'delete') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        }
+      } catch (e) {}
+  }
+
+  static generateElementLocator(element) {
+      if (!element || !(element instanceof Element)) {
+        return { key: 'unknown', xpath: '', cssPath: '', textSnippet: '', isOfficial: false };
+      }
+
+      // 1. Check for official data-block or ID
+      const explicitId = element.getAttribute('data-block') ||
+                         element.getAttribute('data-block-id') ||
+                         element.getAttribute('data-id') ||
+                         (element.id && !element.id.startsWith('uw') && !element.id.startsWith('comp-') ? element.id : null);
+
+      // 2. Compute full XPath from body
+      const getXPath = (el) => {
+        if (!el || el.nodeType !== Node.ELEMENT_NODE) return '';
+        if (el === document.body) return '/html/body';
+        let index = 1;
+        let sibling = el.previousElementSibling;
+        while (sibling) {
+          if (sibling.tagName === el.tagName) index++;
+          sibling = sibling.previousElementSibling;
+        }
+        return `${getXPath(el.parentElement)}/${el.tagName.toLowerCase()}[${index}]`;
+      };
+
+      // 3. Compute CSS selector path
+      const getCssPath = (el) => {
+        if (!el || el === document.body) return 'body';
+        const tag = el.tagName.toLowerCase();
+        let selector = tag;
+        if (el.id && !el.id.startsWith('uw')) {
+          selector += `#${el.id}`;
+          return selector;
+        }
+        if (el.className && typeof el.className === 'string') {
+          const firstClass = el.className.trim().split(/\s+/).filter(c => !c.startsWith('block-') && !c.startsWith('has-'))[0];
+          if (firstClass) selector += `.${firstClass}`;
+        }
+        return `${getCssPath(el.parentElement)} > ${selector}`;
+      };
+
+      const xpath = getXPath(element);
+      const cssPath = getCssPath(element);
+      const textSnippet = (element.textContent || '').replace(/\s+/g, ' ').trim().substring(0, 100);
+
+      // Compute simple 32-bit hash of XPath for compact addressing
+      let hash = 0;
+      for (let i = 0; i < xpath.length; i++) {
+        hash = ((hash << 5) - hash) + xpath.charCodeAt(i);
+        hash |= 0;
+      }
+      const cleanHash = Math.abs(hash).toString(36);
+
+      const key = explicitId ? explicitId : `elem_${element.tagName.toLowerCase()}_${cleanHash}`;
+
+      return {
+        key,
+        isOfficial: Boolean(explicitId),
+        xpath,
+        cssPath,
+        tagName: element.tagName.toLowerCase(),
+        textSnippet,
+        nearestContainer: explicitId || element.closest('[data-block], [data-block-id], section, article')?.tagName?.toLowerCase() || 'body'
+      };
+    }
+
+  static dispatchToOutbox(title, payloadText, options = {}) {
+      const text = payloadText || '';
+      const bundleTitle = title || 'CadPlan Living Directives';
+
+      // 1. Direct In-Memory Luno OutboxQueue
+      if (typeof globalThis.OutboxQueue !== 'undefined' && typeof globalThis.OutboxQueue.addBundle === 'function') {
+        globalThis.OutboxQueue.addBundle(bundleTitle, text, { priority: 'high', ...options });
+        return { success: true, channel: 'in-memory-outbox' };
+      }
+
+      // 2. Parent Window Outbox (when embedded in Luno preview iframe)
+      try {
+        if (window.parent && window.parent !== window && window.parent.OutboxQueue && typeof window.parent.OutboxQueue.addBundle === 'function') {
+          window.parent.OutboxQueue.addBundle(bundleTitle, text, { priority: 'high', ...options });
+          return { success: true, channel: 'parent-outbox' };
+        }
+      } catch (e) {}
+
+      // 3. Opener Window Outbox (when popped out in standalone window)
+      try {
+        if (window.opener && window.opener.OutboxQueue && typeof window.opener.OutboxQueue.addBundle === 'function') {
+          window.opener.OutboxQueue.addBundle(bundleTitle, text, { priority: 'high', ...options });
+          return { success: true, channel: 'opener-outbox' };
+        }
+      } catch (e) {}
+
+      // 4. Cross-Domain postMessage to Luno Host
+      try {
+        const msg = {
+          type: 'LUNO_ADD_OUTBOX_BUNDLE',
+          title: bundleTitle,
+          payload: text,
+          priority: 'high'
+        };
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(msg, '*');
+        }
+        if (window.opener) {
+          window.opener.postMessage(msg, '*');
+        }
+      } catch (e) {}
+
+      // 5. Fallback to System Clipboard
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
+        return { success: true, channel: 'clipboard-fallback' };
+      }
+
+      return { success: false, channel: 'none' };
+    }
+
+  static async getNotesForElement(element, pageId = 'meta', dossierId = 'CadPlan') {
+      if (!element) return [];
+      const loc = this.generateElementLocator(element);
+      const all = await this.getAllNotes(dossierId);
+
+      return all.filter(n => {
+        if (n.dossierId && n.dossierId !== dossierId) return false;
+        // Match by explicit key
+        if (n.blockKey === `${pageId}:${loc.key}`) return true;
+        // Match by exact XPath if present
+        if (loc.xpath && n.xpath && n.xpath === loc.xpath) return true;
+        // Match by CSS path
+        if (loc.cssPath && n.cssPath && n.cssPath === loc.cssPath) return true;
+        return false;
+      });
     }
 }
 

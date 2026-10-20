@@ -9,10 +9,10 @@ class CadCodeViewerComponent {
       const wrap = makeElement('div', {
         style: {
           background: '#070a13',
-          border: '1.5px solid #21262d',
+          border: '1.5px solid rgba(0, 242, 254, 0.3)',
           borderRadius: '10px',
           overflow: 'hidden',
-          boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+          boxShadow: '0 16px 40px rgba(0,0,0,0.7), 0 0 16px rgba(0,242,254,0.15)',
           display: 'flex',
           flexDirection: 'column'
         }
@@ -20,7 +20,7 @@ class CadCodeViewerComponent {
 
       const header = makeElement('div', {
         style: {
-          padding: '8px 14px',
+          padding: '10px 14px',
           background: '#0d1117',
           borderBottom: '1px solid #21262d',
           display: 'flex',
@@ -35,10 +35,10 @@ class CadCodeViewerComponent {
         id: 'code-viewer-snippet-select',
         style: {
           background: '#070a13',
-          color: '#38bdf8',
-          border: '1px solid #38bdf866',
+          color: '#00f2fe',
+          border: '1px solid rgba(0, 242, 254, 0.4)',
           borderRadius: '6px',
-          padding: '3px 8px',
+          padding: '4px 10px',
           fontFamily: 'monospace',
           fontSize: '11px',
           fontWeight: 'bold',
@@ -60,21 +60,22 @@ class CadCodeViewerComponent {
         makeElement('span', {
           id: 'code-viewer-lang-badge',
           style: {
-            padding: '2px 6px',
+            padding: '2px 8px',
             borderRadius: '4px',
-            background: '#92400e',
-            color: '#fff',
+            background: 'rgba(245, 158, 11, 0.2)',
+            border: '1px solid rgba(245, 158, 11, 0.4)',
+            color: '#f59e0b',
             fontFamily: 'monospace',
             fontSize: '10px',
             fontWeight: 'bold'
           }
-        }, '🦀 Rust'),
+        }, '🦀 Rust Engine'),
         snippetSelect
       ]);
 
       const copyBtn = makeElement('button', {
-        className: 'dr-nav-btn',
-        style: { padding: '4px 10px', fontSize: '10px' },
+        className: 'dr-nav-btn primary',
+        style: { padding: '4px 12px', fontSize: '10px', fontWeight: '800' },
         onclick: (e) => {
           const active = snippets[activeKey];
           navigator.clipboard.writeText(active.code).then(() => {
@@ -94,7 +95,7 @@ class CadCodeViewerComponent {
 
       const pathBar = makeElement('div', {
         style: {
-          padding: '4px 14px',
+          padding: '6px 14px',
           background: '#090d16',
           borderBottom: '1px solid #161e2b',
           fontFamily: 'monospace',
@@ -114,32 +115,47 @@ class CadCodeViewerComponent {
       const desc = makeElement('div', {
         style: {
           padding: '8px 14px',
-          fontSize: '11px',
-          color: '#94a3b8',
-          background: 'rgba(15, 23, 42, 0.4)',
+          fontSize: '11.5px',
+          color: '#cbd5e1',
+          background: 'rgba(15, 23, 42, 0.45)',
           borderBottom: '1px solid #161e2b',
-          lineHeight: '1.4'
+          lineHeight: '1.45'
         }
       }, active.explanation);
       wrap.appendChild(desc);
 
-      const codeWrap = makeElement('pre', {
-        style: {
-          margin: '0',
-          padding: '12px 14px',
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-          fontSize: '11.5px',
-          lineHeight: '1.5',
-          color: '#7ee787',
-          overflowX: 'auto',
-          background: '#070a13'
-        }
-      }, active.code);
-      wrap.appendChild(codeWrap);
+      const editorMount = makeElement('div', {
+        style: { height: '320px', minHeight: '320px', width: '100%' }
+      });
+      wrap.appendChild(editorMount);
 
       container.appendChild(wrap);
-    }
 
+      // Mount CodeMirror with Syntax Highlighting if available, fallback to pre
+      if (typeof CodeMirrorWidget !== 'undefined') {
+        new CodeMirrorWidget({
+          host: editorMount,
+          content: active.code,
+          mode: 'javascript',
+          readOnly: true,
+          wrap: false
+        });
+      } else {
+        const codeWrap = makeElement('pre', {
+          style: {
+            margin: '0',
+            padding: '12px 14px',
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+            fontSize: '11.5px',
+            lineHeight: '1.5',
+            color: '#7ee787',
+            overflowX: 'auto',
+            background: '#070a13'
+          }
+        }, active.code);
+        editorMount.appendChild(codeWrap);
+      }
+  }
   static getSnippets() {
       return {
         interceptor_hook: {

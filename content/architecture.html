@@ -1,0 +1,106 @@
+<article data-page="architecture" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Production Roadmap & Fresh-Thread Handoff</span>
+    <h1 class="dossier-title">Production Architecture & Handoff</h1>
+    <p class="dossier-subtitle">The master handoff blueprint: decoupling the headless kernel, integrating open-source tools, and next-thread discovery agenda.</p>
+  </header>
+
+  <section data-section="decoupling">
+    <h2 class="section-title">The 4-Layer Headless Geometric Kernel</h2>
+    <div data-block="comp_architecture_graphic" data-type="component" data-component="CadArchitectureGraphicComponent"></div>
+
+    <p data-block="p_arch_layers_1">
+      Our working <code>accuCad</code> prototype proved the interaction ergonomics, but coupled the mathematics directly to Three.js scene objects. For the production engine, the most important architectural mandate is decoupling: the geometric and constraint kernel must have zero rendering dependencies.
+    </p>
+
+    <aside data-block="sidebar_layered_kernel" data-type="sidebar">
+      <span class="sidebar-kicker">System Boundary</span>
+      <strong class="sidebar-title">The Clean 4-Layer Boundary</strong>
+      <ul>
+        <li><strong>Layer 1: Pure Geometry & Constraint Kernel (<code>compassdraw-core</code>):</strong> Headless, pure mathematical functions operating on raw numbers or typed Float64Arrays (<code>[x, y, z]</code>). Manages AccuDraw direction cosines, floating origin translation, and ray-plane intersections with zero WebGL/DOM dependencies in WebAssembly or native Rust CLI.</li>
+        <li><strong>Layer 2: Command & Tool Pipeline:</strong> Manages active drawing commands, single-stroke hierarchical shortcuts (<code>KeyCommandHandler</code> without Enter), SmartLine multi-segment continuous chaining (lines, arcs, fillets), and 50ms chorded tentative snapping.</li>
+        <li><strong>Layer 3: Render Adapter:</strong> Browser uses Three.js WebGL with <code>Line2</code> thick anti-aliased wireframes; native desktop connects to <code>cadcraft-render</code> and <code>wgpu</code> vertex/index buffers.</li>
+        <li><strong>Layer 4: UI & Ergonomics Shell:</strong> Morphing squircle compass, glowing cursor caret, coordinate readouts, and P2P dual-trackpad <code>TouchController</code> over low-latency WebRTC.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_arch_layers_2">
+      By establishing this 4-layer boundary, our core drafting, constraint, and SmartLine mathematics can run anywhere with 100% interoperability:
+      <br><br>
+      <strong>1. CADCraft Direct Entity Mapping:</strong> A continuous path drawn in accuCad maps 1:1 into CADCraft's <code>LwPolyline</code> with <code>PolyVertex { point, bulge: tan(θ/4) }</code> through <code>RoundingUtils3D.arcToBulge</code>.
+      <br><br>
+      <strong>2. Bentley iTwin Parity:</strong> AccuDraw's 3D orientation matrices translate directly into <code>ThreeAxes</code>, while <code>SmartKeyin</code> eliminates 100% of negative coordinate typing across viewports.
+      <br><br>
+      <strong>3. Zero UI / DOM Pollution:</strong> The geometric solver runs headless in WebAssembly, background Web Workers, or Node.js server scripts without touching Three.js objects or browser DOM elements.
+    </p>
+  </section>
+
+  <section data-section="windowing_pipeline">
+    <h2 class="section-title">Cross-Platform Windowing: Native wgpu & The 2D/3D Unified Viewport</h2>
+
+    <p data-block="p_windowing_1">
+      A critical decision in this architecture is resolving the relationship between 2D drafting and 3D modeling. The foundational mistake CAD vendors made in the 1980s was maintaining separate 2D drafting engines and 3D solid modelers. In our architecture, <strong>2D is not a separate engine, nor is it an SVG viewport—it is simply a 3D orthographic camera locked to a 3D construction plane at $Z = 0$</strong>. When a drafter works in "Classic 2D Mode", the camera is locked into top orthographic alignment. The AccuDraw compass sits on the Top plane basis, emitting standard 2D coordinates (<code>Vec2(x, y)</code>) directly into CADCraft commands (<code>LINE</code>, <code>CIRCLE</code>, <code>OFFSET</code>, <code>TRIM</code>). When the user engages 3D, the camera transitions to perspective orbit, the compass tilts to Front (<code>F</code>), Side (<code>S</code>), or Surface Normal (<code>Q</code>), and CADCraft's <code>Mat4::ocs</code> maps the planar polyline vertices (<code>PolyVertex { point, bulge }</code>) into 3D world space. There is only one mathematical pipeline.
+    </p>
+
+    <aside data-block="sidebar_windowing_matrix" data-type="sidebar">
+      <span class="sidebar-kicker">Windowing & Pipeline Matrix</span>
+      <strong class="sidebar-title">The Desktop wgpu & Web Wasm Windowing Stack</strong>
+      <ul>
+        <li><strong>1. Native Desktop Binaries (macOS, Windows, Linux):</strong> Windowing & event loop via <code>winit</code>; UI chrome via <code>cadcraft-ui-egui</code>; GPU renderer via native <code>wgpu</code> (Metal/DX12/Vulkan); custom 3D AccuDraw pass in <code>cadcraft-render</code> drawing squircle boundary and Mini-Jack.</li>
+        <li><strong>2. Browser WebAssembly:</strong> Canvas runner via <code>eframe</code> WebGPU with WebGL2 fallback (<code>?webgl</code>); kernel execution via <code>compassdraw-core</code> compiled directly to Wasm in-process.</li>
+        <li><strong>3. WebViews, Electron & Three.js Studio Mode:</strong> Embedded host bridge using CADCraft's <code>apps/cadcraft-web/src/host.rs</code> with <code>?host=parent&webgl</code>; Three.js overlay rendering PBR clearcoats and studio lighting.</li>
+        <li><strong>4. Headless SVG Export:</strong> SVG is reserved exclusively for vector plotting and UI badges, never as the interactive viewport engine.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_windowing_2">
+      By decoupling windowing and rendering through this matrix, AI coding agents can develop and maintain both native and web targets without branching business logic. The <code>compassdraw-core</code> crate remains completely headless (<code>no_std</code> compatible pure Rust). On native desktop systems, <code>winit</code> and <code>wgpu</code> deliver high-frame-rate, sub-millisecond drawing response with minimal memory footprint. In browser and Electron environments, the same coordinate constraint logic drives WebGL/Three.js viewports and pairs seamlessly with our WebRTC mobile <code>TouchController</code> over local Wi-Fi. The draftsperson gets identical single-stroke ergonomics on any machine.
+    </p>
+  </section>
+
+  <section data-section="open_source">
+    <h2 class="section-title">Tapping into Solid Open-Source CAD Engines</h2>
+
+    <p data-block="p_open_source_1">
+      We do not need to reinvent basic low-level geometry algorithms from scratch. A major part of our strategy is evaluating and tapping into existing high-quality open-source CAD and geometric kernels (such as OpenCascade.js, ManifoldCAD, or modern WebAssembly boundary-representation libraries).
+    </p>
+
+    <p data-block="p_open_source_2">
+      Our unique competitive advantage is the interaction engine: the AccuDraw floating compass, the chorded tentative snapping, the on-curve pen replacement, and the multi-touch phone controller. By layering my proven interaction paradigm on top of solid open-source geometric backends, we can achieve high-end CAD capability in record time.
+    </p>
+  </section>
+
+  <section data-section="handoff">
+    <h2 class="section-title">The Master Architectural Specification</h2>
+
+    <p data-block="p_handoff_1">
+      This concludes our architectural survey across the CadPlan dossier. You are equipped with the complete foundation: the invention of AccuDraw, the subtle Bentley playbook, the accuCad code audit, the live interactive WebGL test bench, the CADCraft Rust crate topology, and the 4-layer headless production architecture. Because CadPlan is a self-contained, living repository, starting a new thread or collaborating with an AI coding partner requires no token fragmentation. The entire specification—or a chosen granularity—can be bundled directly from the Outbox dialog to provide instant, uncompromised context.
+    </p>
+
+    <aside data-block="sidebar_next_thread_checklist" data-type="sidebar">
+      <span class="sidebar-kicker">Checklist for Next Thread</span>
+      <strong class="sidebar-title">Starting Lean: Key Interview Topics</strong>
+      <ul>
+        <li><strong>1. Workstation File Paths (Always request full files):</strong>
+          <ul>
+            <li>Original Aardvark: <code>AardvarkExtension/features/Aardvark.js</code> &amp; <code>AardvarkOverlay.js</code></li>
+            <li>CADCraft Rust (v0.7.0): <code>/Users/rob/bin/cadcraft_repo</code> (all 12 crates)</li>
+            <li>Bentley iTwin: <code>/Users/rob/bin/itwin_reference/</code> (AccuDraw.ts, AccuSnap.ts)</li>
+            <li>DrawingApp Curves: <code>/Users/rob/source/recursi copy/web/DrawingApp/</code> (CurveDraw.js)</li>
+            <li>accuCad: <code>accuCad/</code> (Main.js, BaseController.js, AccuDrawLogic.js, EventHandlers.js)</li>
+            <li>TouchController: <code>TouchController/</code> (TouchController.js, signal-server.js)</li>
+            <li>Luno Core: <code>Luno/</code> (ClientApp.js, OutboxQueue.js, LunoClassPatcher.js)</li>
+          </ul>
+        </li>
+        <li><strong>2. Immediate Engineering Priorities:</strong>
+          <ul>
+            <li>Deep Luno Integration: Connect in-situ comments directly to OutboxQueue for instant 1-tap patching.</li>
+            <li>Revert Aardvark to authentic legacy visual behavior (yellow tag, red outline, original key-ins).</li>
+            <li>Expand native embedded <code>accuCad</code> instances with unified keyboard focus and off-screen suspension.</li>
+            <li>Decouple toolbars and dialog boxes so canvases and settings can dock independently in the layout.</li>
+          </ul>
+        </li>
+      </ul>
+    </aside>
+  </section>
+</article>

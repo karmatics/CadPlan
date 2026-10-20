@@ -1,0 +1,91 @@
+<article data-page="curvedrawer" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Proprietary Curve Mathematics</span>
+    <h1 class="dossier-title">5. The Curve Drawer: On-Curve Anchors & The Kinetic Tether</h1>
+    <p class="dossier-subtitle">Replacing 40 years of Bézier handle frustration: on-curve through-point relaxation, vertex-targeted modulation, and the low-pass kinetic string drag.</p>
+  </header>
+
+  <section data-section="curve_laboratory">
+    <h2 class="section-title">Live Curve Laboratory: On-Curve Relaxation & Kinetic Tether</h2>
+    <div data-block="comp_curve_drawer_lab" data-type="component" data-component="CurveDrawerLabComponent"></div>
+  </section>
+
+  <section data-section="two_modalities">
+    <h2 class="section-title">Two Distinct Modalities of Curve Creation</h2>
+
+    <p data-block="p_curve_modalities_1">
+      For forty years, digital curve creation has been held hostage by the standard Bézier "pen tool" found in Illustrator, Photoshop, AutoCAD, and CorelDRAW. To draw a curve, you click an anchor, hold the mouse down, drag an invisible off-curve tangent handle into empty space, release, click another point, drag another handle, and hope the resulting arc resembles what you had in your head. Nobody thinks in off-curve tangent handles. When an artist sketches on paper, their pencil follows the line itself.
+    </p>
+
+    <p data-block="p_curve_modalities_2">
+      In my software architecture, I solved this by developing two completely distinct, revolutionary curve modalities:
+      <br><br>
+      <strong>1. Modality 1: Interactive On-Curve Through-Points.</strong> Every click places an anchor strictly <em>on the curve itself</em>. An 8-iteration relaxation solver (<code>UpdateControlPoints.js</code>) evaluates adjacent through-points and derives the exact cubic Bézier control points and G1 tangencies in real time. Unlike legacy CAD tools where curvature settings applied globally, our engine allows <strong>vertex-targeted parameter modulation</strong>: you can select and tune curvature (fullness) and balance (chord weighting) for any specific vertex.
+      <br><br>
+      <strong>2. Modality 2: The Kinetic Tether ("String-Drag").</strong> Pressing <code>Ctrl</code> freezes the tip of the curve and extends an elastic dashed tether to the cursor. Releasing <code>Ctrl</code> pulls the curve tip forward as if towing it with a string: the longer the string, the smoother the curve, mechanically filtering micro-tremors while allowing sharp cusps by pulling at acute angles. Holding <code>Shift</code> lets you push backward along the path to interactively undo glitches, re-aim, and pull again.
+    </p>
+
+    <aside data-block="sidebar_curve_modalities" data-type="sidebar">
+      <span class="sidebar-kicker">Proprietary Math</span>
+      <strong class="sidebar-title">On-Curve Relaxation vs. The Kinetic Tether</strong>
+      <ul>
+        <li><strong>Modality 1 (On-Curve Relaxation):</strong>
+          <ul>
+            <li>Click through-points directly on the curve itself.</li>
+            <li>Iterative G1 tangent relaxation through adjacent chords.</li>
+            <li>Vertex-targeted curvature (pushing control points out) and balance (weighting incoming vs. outgoing segments).</li>
+          </ul>
+        </li>
+        <li><strong>Modality 2 (The Kinetic Tether / String Drag):</strong>
+          <ul>
+            <li>Hold <code>Ctrl</code>: Extends dashed elastic string from stationary curve tip.</li>
+            <li>Release <code>Ctrl</code>: Cursor pulls curve tip; string length acts as low-pass physical filter.</li>
+            <li>Hold <code>Shift</code>: Push backward along the trajectory to interactively undo samples.</li>
+            <li>Bézier Fitting: At release, the clean trajectory resolves into exact cubic Bézier curves.</li>
+          </ul>
+        </li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="string_drag">
+    <h2 class="section-title">The Kinetic String-Drag & Reverse-Undo Scrubbing</h2>
+
+    <p data-block="p_string_drag_1">
+      The kinetic tether modality solves the fundamental problem of freehand digital drawing: mouse and stylus hand jitter. When someone attempts to draw a smooth curve by freehand dragging, human micro-tremors introduce high-frequency wobbles that naive polynomial smoothers distort into muddy lumps.
+    </p>
+
+    <p data-block="p_string_drag_2">
+      With the kinetic string-drag, the string length establishes a mechanical low-pass filter: a 50-pixel string absorbs hand fluctuations while maintaining the overall sweeping arc. If you make a mistake, you don't hit <code>Ctrl+Z</code> to destroy the whole line; you simply press <code>Shift</code> and push the mouse backward. The tip backtracks along its trajectory, unwinding recent points. You re-orient the string in the direction you want, release <code>Shift</code>, and continue pulling.
+    </p>
+
+    <aside data-block="sidebar_string_mechanics" data-type="sidebar">
+      <span class="sidebar-kicker">Mechanical Filter</span>
+      <strong class="sidebar-title">Low-Pass Mechanical Filtering with Ctrl & Shift</strong>
+      <ul>
+        <li><strong>String Vector:</strong> $\vec{S} = \vec{P}_{\text{cursor}} - \vec{P}_{\text{tip}}$ with length $L = \|\vec{S}\|$.</li>
+        <li><strong>Towing Threshold:</strong> If $L &gt; L_{\text{string}}$, tip moves along unit vector $\hat{S}$ by $\Delta d = L - L_{\text{string}}$.</li>
+        <li><strong>Reverse Scrubbing (<code>Shift</code>):</strong> When moving opposite to $\hat{S}$, pops recorded points from trajectory queue.</li>
+        <li><strong>Cusp Creation:</strong> Back up, hold <code>Ctrl</code> to swivel string angle sharply, and pull in the new direction.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="endpoint_tangency">
+    <h2 class="section-title">Endpoint Tangencies & Natural Uncurled Exit Vectors</h2>
+
+    <p data-block="p_endpoints_1">
+      A classic weakness of on-curve through-point algorithms is the boundary condition at the endpoints. Because the first and last points lack an adjacent segment on one side, naive tangent solvers often calculate tangents that curl inward or push out awkwardly. In our engine, endpoints are given intelligent default exit vectors derived from natural curve curvature, while still allowing the draftsperson to explicitly lock or override the boundary tangent vector using AccuDraw.
+    </p>
+
+    <aside data-block="sidebar_endpoint_math" data-type="sidebar">
+      <span class="sidebar-kicker">Boundary Math</span>
+      <strong class="sidebar-title">Preventing Unwanted Curl on Boundary Vertices</strong>
+      <ul>
+        <li><strong>Start Point (Vertex 0):</strong> Tangent derived from forward chord $P_1 - P_0$ blended with curvature scale.</li>
+        <li><strong>End Point (Vertex N):</strong> Tangent projected along outgoing trajectory without inward curling.</li>
+        <li><strong>AccuDraw Tangent Handshake:</strong> When AccuDraw is active, boundary tangencies can be locked to standard planes (<code>T</code>, <code>F</code>, <code>S</code>, <code>V</code>) or surface normals (<code>Q</code>).</li>
+      </ul>
+    </aside>
+  </section>
+</article>

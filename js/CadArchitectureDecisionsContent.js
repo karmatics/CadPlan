@@ -61,28 +61,38 @@ class CadArchitectureDecisionsContent {
 
   ---
 
-  ## 1. THE UNIFIED DUAL-MODE PRODUCT ARCHITECTURE
-  1. **Best of Both Worlds:** The software is ONE coherent product. It will just drop into classic AutoCAD mode (commands, prompts, DWG/DXF fidelity, 2D drafting) if the user wants it to, but can expand into this really smart AccuDraw spatial mode (3D alignment, single-stroke shortcuts, floating squircle compass).
-  2. **AutoCAD as the Built-In Adoption Gateway:** We do not start with zero users. By matching AutoCAD capability and building on existing open-source work (like CADCraft v0.7.0), drafters adopt it immediately with zero workflow shock and discover AccuDraw on top.
-  3. **AI as the Engine Builder:** AI's primary mission here is not speculative autonomous drafting—it is empowering a solo inventor to rebuild, synthesize, and democratize a multi-billion-dollar CAD tool, making professional spatial drafting freely accessible to everyone.
-  4. **The Sophistication of the Living Specification:** CadPlan is so mathematically rigorous and complete that an LLM can consume this entire document as an immense prompt payload and build production software without hallucinating coordinate conventions or tool semantics.
+  ## 1. THE LIVING SPECIFICATION AS A TOTAL TECHNOLOGY SHOWCASE
+  1. **Showcase, Don't Just Tell:** The document itself is the premier deliverable and an active gallery of our entire technological stack:
+     - **Luno Workspace:** Client-side AST method patching, Outbox queuing, and local git checkpoints.
+     - **Aardvark:** Universal element inspection, high-saturation electric blue recognition, and in-situ commenting.
+     - **ColorPicker:** RYB hue ring and barycentric tint/shade triangle controlling live 3D PBR materials.
+     - **SliderControl:** Continuous variable scrubbing with direct numerical valuation popups and MIDI-CC mapping.
+     - **CurveDrawer:** On-curve G1 through-point relaxation and low-pass kinetic string dragging.
+     - **AccuDraw & SmartLine:** 3D direction cosines, closest-point tangent arc swings, and universal DXF bulge factors.
+  2. **Focused Sub-Application Demos (Zero Redundancy):** Instead of running the full heavy CAD suite everywhere, the document mounts lightweight, specialized views into the authentic code:
+     - *Animated Compass Choreography:* Automated plane turns, squircle morphs, and axis locks using authentic AccuDraw classes.
+     - *Deconstructed Squircle Lab:* Displays the radial projection lines to the 8 arc centers and tangency junction dots live from \`SquircleArc.js\`.
+     - *Extensible Steampunk Cursor Demo:* A custom brass-geared reticle demonstrating that cursor HUDs are 100% pluggable without touching the kernel.
+  3. **Total Control of Text & Code:** Because we control both the prose and the runtime, text is migrating from escaped JavaScript strings into clean, semantically addressable HTML templates (\`<article data-page="...">\`, \`<p data-block="...">\`).
 
   ---
 
-  ## 2. CROSS-PLATFORM WINDOWING & DUAL 2D/3D VIEWPORT ARCHITECTURE
-  1. **Unified Viewport Principle (2D is a Sub-State of 3D):**
-     - 2D is never a separate engine or SVG canvas. It is a 3D orthographic camera locked to a 3D construction plane at $Z=0$.
-     - 2D Mode: Orthographic camera, Top plane (\`[ [1,0,0], [0,1,0], [0,0,1] ]\`), outputting \`Vec2(x, y)\` into CADCraft commands (\`LINE\`, \`CIRCLE\`, \`OFFSET\`, \`TRIM\`).
-     - 3D Mode: Perspective orbit with motion parallax oscillation, floating origin, plane rotation (\`T\`, \`F\`, \`S\`, \`V\`, \`Q\`), and CADCraft \`Mat4::ocs\` 3D extrusion.
-  2. **The Multiplatform Windowing Matrix:**
-     - **Native Desktop (macOS, Windows, Linux):** \`winit\` event loop + \`wgpu\` graphics + \`cadcraft-ui-egui\` chrome. Viewport renders document entities plus native \`CompassDrawOverlayPass\` for the 3D squircle compass and Mini-Jack.
-     - **Browser WebAssembly (\`cadcraft-web\`):** Compiled via \`trunk\` to Wasm/WebGPU with WebGL2 fallback (\`?webgl\`). Runs identical \`compassdraw-core\` in-process.
-     - **WebViews / Electron / Three.js Studio:** Uses CADCraft's \`apps/cadcraft-web/src/host.rs\` bridge (\`?host=parent&webgl\`), overlaying Three.js PBR physical materials and WebRTC phone pairing via \`postMessage\`.
-  3. **Role of SVG:** Restricted to headless vector export and 2D UI instrument widgets. All 60 FPS viewport rendering is GPU-driven.
+  ## 2. RETHINKING PROMPT ENGINEERING: THE LIVING SPECIFICATION LOOP
+  1. **The Application IS the Prompt:** Prompt engineering is transformed into an interactive specification-building loop.
+  2. **Human-in-the-Loop Spec Drafting:** The author tours the document, uses Aardvark to attach living directives and voice notes to any DOM element, and dispatches them directly to Luno's Outbox.
+  3. **AI as the Specification Architect:** The LLM refines and updates the technical specification itself, resolving mathematical edge cases and updating chapters before writing production application code.
 
   ---
 
-  ## 3. MATHEMATICAL & GEOMETRIC GROUND TRUTH
+  ## 3. INVERTED LUNO INTEGRATION & ZERO-IFRAME ARCHITECTURE
+  1. **Container Inversion:** Instead of trapping CadPlan inside a Luno iframe, **CadPlan embeds Luno natively**.
+  2. **In-Process Cockpit Drawer:** Tapping \`🌙 Luno\` in the header slides out the Luno control panel as an in-process drawer directly within the active window.
+  3. **Zero Iframes Inside CadPlan:** All 3D viewports, labs, and documentation tools run natively in-process within the same DOM and WebGL memory context for peak performance and shared state.
+  4. **Decoupled Mobile Companion:** The desktop workspace remains consolidated, while smartphone trackpads connect over low-latency WebRTC P2P for two-handed CAD modulation.
+
+  ---
+
+  ## 4. MATHEMATICAL & GEOMETRIC GROUND TRUTH
   1. **SmartLine Tangent Arcs (Closest-Point Sweep Principle):**
      - Tangent arc orientation is governed by finding the candidate circle where the cursor is as close as possible to a point on the circumference.
      - Naturally sweeps from 0° to +5° or backs up across the tangent line to -6° with zero deadband jitter.
@@ -97,7 +107,7 @@ class CadArchitectureDecisionsContent {
 
   ---
 
-  ## 4. LOCAL CODEBASE & REPOSITORY TOPOLOGY
+  ## 5. LOCAL CODEBASE & REPOSITORY TOPOLOGY
   1. **CADCraft Pure-Rust Workspace (v0.7.0):** \`/Users/rob/bin/cadcraft_repo\` (crates: \`geom\`, \`engine\`, \`constraints\`, \`doc\`, \`render\`, \`mcp\`, \`apps/cadcraft-web\`).
   2. **Bentley Systems Production Reference:** \`/Users/rob/bin/itwin_reference/\` (\`AccuDraw.ts\` [3,862 lines], \`AccuSnap.ts\`, \`AccuDrawTool.ts\`).
   3. **AccuDraw Historical Archive:** \`accudraw/\` (Patents US #5,754,182, US #5,371,845, and 1995–1996 *MicroStation Manager* articles).
@@ -160,20 +170,22 @@ class CadArchitectureDecisionsContent {
 
   static sidebar_next_thread_checklist() {
       return [
-        "Checklist for Fresh Thread Kickoff:\n" +
-        "1. Ground Truth Verified on Local Workstation:\n" +
-        "   • CADCraft v0.7.0: `/Users/rob/bin/cadcraft_repo` (all 12 crates + apps/cadcraft-web).\n" +
-        "   • Bentley iTwin Production: `/Users/rob/bin/itwin_reference/` (AccuDraw.ts, AccuSnap.ts, AccuDrawTool.ts).\n" +
-        "   • accuCad Prototype: `accuCad/js/` (AccuDrawLogic, Squircle3D, RoundingUtils3D, TentativePointHandler).\n" +
-        "   • DrawingApp Curves: `/Users/rob/source/recursi copy/web/DrawingApp/` (CurveDraw, UpdateControlPoints, BezierVertex).\n" +
-        "2. Immediate Implementation Milestones:\n" +
-        "   • Phase 1 (Zero-Fork Web MVP): Launch `cadcraft-web` in an iframe with `?host=parent&webgl`, overlaying our Three.js/SVG Squircle Compass HUD via `postMessage`.\n" +
-        "   • Phase 2 (Rust Crate `compassdraw-core`): Implement the `ThreeAxes` direction-cosine basis, SmartLock (L), and SmartKeyin quadrant inference in a standalone `no_std` Rust crate.\n" +
-        "   • Phase 3 (SmartLine Bulge Pipeline): Wire on-curve continuous filleting directly to CADCraft's `PolyVertex { point, bulge: tan(θ/4) }`.\n" +
-        "   • Phase 4 (MCP Agent Endpoints): Expose relative vector drafting to `cadcraft-mcp` for hallucination-free autonomous agent drafting."
+        "Handoff Checklist & Reference Ground Truth for Next Thread:\n" +
+        "• 1. Workstation File Paths (Always request full files):\n" +
+        "   - Original Aardvark: `AardvarkExtension/features/Aardvark.js` & `AardvarkOverlay.js`\n" +
+        "   - CADCraft Rust (v0.7.0): `/Users/rob/bin/cadcraft_repo` (all 12 crates)\n" +
+        "   - Bentley iTwin: `/Users/rob/bin/itwin_reference/` (AccuDraw.ts, AccuSnap.ts)\n" +
+        "   - DrawingApp Curves: `/Users/rob/source/recursi copy/web/DrawingApp/` (CurveDraw.js)\n" +
+        "   - accuCad: `accuCad/` (Main.js, BaseController.js, AccuDrawLogic.js, EventHandlers.js)\n" +
+        "   - TouchController: `TouchController/` (TouchController.js, signal-server.js)\n" +
+        "   - Luno Core: `Luno/` (ClientApp.js, OutboxQueue.js, LunoClassPatcher.js)\n" +
+        "• 2. Immediate Engineering Priorities:\n" +
+        "   - Deep Luno Integration: Connect in-situ comments directly to OutboxQueue for instant 1-tap patching.\n" +
+        "   - Revert Aardvark to authentic legacy visual behavior (yellow tag, red outline, original key-ins).\n" +
+        "   - Expand native embedded `accuCad` instances with unified keyboard focus and off-screen suspension.\n" +
+        "   - Decouple toolbars and dialog boxes so canvases and settings can dock independently in the layout."
       ];
     }
-
   static p_windowing_1() {
       return [
         "A critical decision in this architecture is resolving the relationship between 2D drafting and 3D modeling. The foundational mistake CAD vendors made in the 1980s was maintaining separate 2D drafting engines and 3D solid modelers. In our architecture, **2D is not a separate engine, nor is it an SVG viewport—it is simply a 3D orthographic camera locked to a 3D construction plane at $Z = 0$.**",

@@ -20,123 +20,86 @@ class CadPlanDocumentEditor {
   }
 
   static getOverride(pageId, blockId, dossierId = 'CadPlan') {
-    const map = this.getOverridesMap();
-    const key = `${dossierId}:${pageId}:${blockId}`;
-    return map[key] || map[`${pageId}:${blockId}`] || null;
-  }
+      const map = this.getOverridesMap();
+      return map[`${dossierId}:${pageId}:${blockId}`] || null;
+    }
 
   static saveOverride(pageId, blockId, text, docClassName = null, dossierId = 'CadPlan') {
-    const map = this.getOverridesMap();
-    const key = `${dossierId}:${pageId}:${blockId}`;
-    map[key] = {
-      dossierId,
-      pageId,
-      blockId,
-      docClassName,
-      text,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(map));
-  }
+      const map = this.getOverridesMap();
+      map[`${dossierId}:${pageId}:${blockId}`] = {
+        dossierId,
+        pageId,
+        blockId,
+        docClassName,
+        text,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(map));
+    }
 
   static removeOverride(pageId, blockId, dossierId = 'CadPlan') {
-    const map = this.getOverridesMap();
-    delete map[`${dossierId}:${pageId}:${blockId}`];
-    delete map[`${pageId}:${blockId}`];
-    localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(map));
-  }
+      const map = this.getOverridesMap();
+      delete map[`${dossierId}:${pageId}:${blockId}`];
+      localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(map));
+    }
   static clearAllOverrides() {
     localStorage.removeItem(this.LOCAL_STORAGE_KEY);
   }
 
   static generateSurgicalPatches(dossierFilter = null) {
-    const map = this.getOverridesMap();
-    const keys = Object.keys(map);
-    if (keys.length === 0) return '';
+      const map = this.getOverridesMap();
+      const keys = Object.keys(map);
+      if (keys.length === 0) return '';
 
-    let patchBundle = '';
-    const classMethodMap = {};
+      let patchBundle = '';
+      const classMethodMap = {};
 
-    const pageClassMap = {
-      // CadPlan
-      meta: { cls: 'CadPlanMetaContent', file: 'CadPlan/js/CadPlanMetaContent.js' },
-      origins: { cls: 'CadOriginsContent', file: 'CadPlan/js/CadOriginsContent.js' },
-      philosophy: { cls: 'AccuDrawPhilosophyContent', file: 'CadPlan/js/AccuDrawPhilosophyContent.js' },
-      accucad: { cls: 'AccuCadAuditContent', file: 'CadPlan/js/AccuCadAuditContent.js' },
-      shortcuts: { cls: 'KeyCommandEngineContent', file: 'CadPlan/js/KeyCommandEngineContent.js' },
-      curvedrawer: { cls: 'CadCurveDrawerContent', file: 'CadPlan/js/CadCurveDrawerContent.js' },
-      touchp2p: { cls: 'CadTouchP2PContent', file: 'CadPlan/js/CadTouchP2PContent.js' },
-      demos: { cls: 'CadInteractiveDemoContent', file: 'CadPlan/js/CadInteractiveDemoContent.js' },
-      ecosystem: { cls: 'CadLunoEcosystemContent', file: 'CadPlan/js/CadLunoEcosystemContent.js' },
-      architecture: { cls: 'CadArchitectureDecisionsContent', file: 'CadPlan/js/CadArchitectureDecisionsContent.js' },
-      cadcraft: { cls: 'CadCraftIntegrationContent', file: 'CadPlan/js/CadCraftIntegrationContent.js' },
-      itwin: { cls: 'CadITwinParityContent', file: 'CadPlan/js/CadITwinParityContent.js' },
-      interview: { cls: 'CadVisionInterviewContent', file: 'CadPlan/js/CadVisionInterviewContent.js' },
-
-      // EconomicsOfAutomation
-      dividend: { cls: 'ArticleContent', file: 'EconomicsOfAutomation/js/ArticleContent.js' },
-      colony: { cls: 'ColonyContent', file: 'EconomicsOfAutomation/js/ColonyContent.js' },
-      earth: { cls: 'EarthContent', file: 'EconomicsOfAutomation/js/EarthContent.js' },
-      doomer: { cls: 'DoomerContent', file: 'EconomicsOfAutomation/js/DoomerContent.js' },
-      paradigms: { cls: 'ParadigmsContent', file: 'EconomicsOfAutomation/js/ParadigmsContent.js' },
-      objections: { cls: 'ObjectionsContent', file: 'EconomicsOfAutomation/js/ObjectionsContent.js' },
-      statusquo: { cls: 'KineticContent', file: 'EconomicsOfAutomation/js/KineticContent.js' },
-      rules: { cls: 'RulesContent', file: 'EconomicsOfAutomation/js/RulesContent.js' },
-      gametheory: { cls: 'GameTheoryContent', file: 'EconomicsOfAutomation/js/GameTheoryContent.js' },
-      'ai-rules': { cls: 'AiRulesContent', file: 'EconomicsOfAutomation/js/AiRulesContent.js' },
-
-      // situation
-      overview: { cls: 'OverviewPage', file: 'situation/js/OverviewPage.js' },
-      'elder-advocacy': { cls: 'ElderAdvocacyPage', file: 'situation/js/ElderAdvocacyPage.js' },
-      'caretaker-bias': { cls: 'CaretakerBiasPage', file: 'situation/js/CaretakerBiasPage.js' },
-      'ai-perspective': { cls: 'AiPerspectivePage', file: 'situation/js/AiPerspectivePage.js' },
-      'current-work': { cls: 'CurrentWorkPage', file: 'situation/js/CurrentWorkPage.js' },
-      valuation: { cls: 'ValuationPage', file: 'situation/js/ValuationPage.js' },
-
-      // accudraw
-      inventions: { cls: 'AccuDrawData', file: 'accudraw/js/AccuDrawData.js' },
-      articles: { cls: 'AccuDrawArchiveApp', file: 'accudraw/js/AccuDrawArchiveApp.js' },
-      lore: { cls: 'AccuDrawData', file: 'accudraw/js/AccuDrawData.js' },
-      verify: { cls: 'AccuDrawData', file: 'accudraw/js/AccuDrawData.js' },
-
-      // ValuationOfAccudraw
-      'valuation-standalone': { cls: 'ValuationOfAccudraw', file: 'ValuationOfAccudraw/js/ValuationOfAccudraw.js' }
-    };
-
-    keys.forEach(key => {
-      const item = map[key];
-      const dossier = item.dossierId || 'CadPlan';
-      if (dossierFilter && dossier !== dossierFilter) {
-        return;
-      }
-
-      const mapping = pageClassMap[item.pageId] || {
-        cls: item.docClassName || (item.pageId.charAt(0).toUpperCase() + item.pageId.slice(1) + 'Content'),
-        file: `${dossier}/js/${item.docClassName || (item.pageId.charAt(0).toUpperCase() + item.pageId.slice(1) + 'Content')}.js`
+      const pageClassMap = {
+        meta: 'CadPlanMetaContent',
+        origins: 'CadOriginsContent',
+        philosophy: 'AccuDrawPhilosophyContent',
+        accucad: 'AccuCadAuditContent',
+        shortcuts: 'KeyCommandEngineContent',
+        curvedrawer: 'CadCurveDrawerContent',
+        touchp2p: 'CadTouchP2PContent',
+        demos: 'CadInteractiveDemoContent',
+        ecosystem: 'CadLunoEcosystemContent',
+        architecture: 'CadArchitectureDecisionsContent',
+        cadcraft: 'CadCraftIntegrationContent',
+        itwin: 'CadITwinParityContent',
+        interview: 'CadVisionInterviewContent'
       };
 
-      const targetKey = `${mapping.file}::${mapping.cls}`;
-      classMethodMap[targetKey] = classMethodMap[targetKey] || { file: mapping.file, cls: mapping.cls, items: [] };
-      classMethodMap[targetKey].items.push(item);
-    });
+      keys.forEach(key => {
+        const item = map[key];
+        const dossier = item.dossierId || 'CadPlan';
+        if (dossierFilter && dossier !== dossierFilter) return;
 
-    for (const entry of Object.values(classMethodMap)) {
-      entry.items.forEach(item => {
-        const methodSignature = `${entry.cls}.${item.blockId}`;
-        const escapedText = JSON.stringify(item.text);
+        const cls = pageClassMap[item.pageId] || item.docClassName || `${item.pageId.charAt(0).toUpperCase() + item.pageId.slice(1)}Content`;
+        const file = `${dossier}/js/${cls}.js`;
 
-        patchBundle += `<` + `script data-file="${entry.file}" data-method="${methodSignature}" data-action="patch">\n`;
-        patchBundle += `${item.blockId}() {\n`;
-        patchBundle += `  return [\n`;
-        patchBundle += `    ${escapedText}\n`;
-        patchBundle += `  ];\n`;
-        patchBundle += `}\n`;
-        patchBundle += `<` + `/script>\n\n`;
+        const targetKey = `${file}::${cls}`;
+        classMethodMap[targetKey] = classMethodMap[targetKey] || { file, cls, items: [] };
+        classMethodMap[targetKey].items.push(item);
       });
-    }
 
-    return patchBundle.trim();
-  }
+      for (const entry of Object.values(classMethodMap)) {
+        entry.items.forEach(item => {
+          const methodSignature = `${entry.cls}.${item.blockId}`;
+          const escapedText = JSON.stringify(item.text);
+
+          patchBundle += `<script data-file="${entry.file}" data-method="${methodSignature}" data-action="patch">\n`;
+          patchBundle += `${item.blockId}() {\n`;
+          patchBundle += `  return [\n`;
+          patchBundle += `    ${escapedText}\n`;
+          patchBundle += `  ];\n`;
+          patchBundle += `}\n`;
+          patchBundle += `</` + `script>\n\n`;
+        });
+      }
+
+      return patchBundle.trim();
+    }
   /**
    * Opens the in-situ block editor modal for a specific paragraph.
    */
@@ -266,160 +229,159 @@ class CadPlanDocumentEditor {
     return dlg;
   }
 
-  /**
-   * Opens the Document Revision Manager dialog listing all edits across all chapters,
-   * allowing one-click compilation and disk saving.
-   */
   static openRevisionManager(onUpdated) {
-    const hostContainer = document.body;
-    const map = this.getOverridesMap();
-    const keys = Object.keys(map);
+      const hostContainer = document.body;
+      const map = this.getOverridesMap();
+      const keys = Object.keys(map);
 
-    const wrap = makeElement('div', {
-      style: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        height: '100%',
-        color: '#e2e8f0',
-        fontFamily: 'var(--dr-font-sans)'
-      }
-    });
-
-    const header = makeElement('div', {
-      style: {
-        padding: '6px 4px',
-        borderBottom: '1px solid #232d3f',
-        fontSize: '12px',
-        color: '#94a3b8',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }
-    }, [
-      makeElement('span', {}, `Customized Paragraphs & Revisions: ${keys.length}`),
-      makeElement('span', { style: { color: '#10b981', fontWeight: 'bold' } }, 'Ready to Compile')
-    ]);
-    wrap.appendChild(header);
-
-    const listContainer = makeElement('div', {
-      style: {
-        flex: 1,
-        minHeight: '260px',
-        maxHeight: '380px',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-      }
-    });
-
-    if (keys.length === 0) {
-      listContainer.appendChild(makeElement('div', {
-        style: { padding: '24px', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontSize: '12px' }
-      }, 'No custom revisions active. Click the pencil icon on any paragraph to edit in-situ.'));
-    } else {
-      keys.forEach(k => {
-        const item = map[k];
-        const card = makeElement('div', {
-          style: {
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid #1e293b',
-            borderRadius: '6px',
-            padding: '10px 12px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px'
-          }
-        }, [
-          makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
-            makeElement('strong', { style: { fontSize: '12px', color: '#38bdf8', fontFamily: 'monospace' } }, `${item.pageId} / ${item.blockId}`),
-            makeElement('button', {
-              className: 'dr-nav-btn',
-              style: { padding: '2px 6px', fontSize: '10px', color: '#ef4444' },
-              onclick: () => {
-                this.removeOverride(item.pageId, item.blockId);
-                if (onUpdated) onUpdated();
-                dlg.close();
-                CadPlanDocumentEditor.openRevisionManager(onUpdated);
-              }
-            }, 'Remove')
-          ]),
-          makeElement('div', {
-            style: { fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
-          }, item.text)
-        ]);
-        listContainer.appendChild(card);
-      });
-    }
-    wrap.appendChild(listContainer);
-
-    const footer = makeElement('div', {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: '8px',
-        borderTop: '1px solid #232d3f',
-        gap: '8px',
-        flexWrap: 'wrap'
-      }
-    }, [
-      makeElement('button', {
-        className: 'dr-nav-btn',
-        style: { color: '#f59e0b', fontSize: '11px' },
-        onclick: (e) => {
-          const btn = e.currentTarget;
-          const patches = this.generateSurgicalPatches();
-          if (!patches) {
-            alert('No active revisions to compile.');
-            return;
-          }
-          navigator.clipboard.writeText(patches).then(() => {
-            const orig = btn.textContent;
-            btn.textContent = '✓ Copied Patches!';
-            setTimeout(() => { btn.textContent = orig; }, 1800);
-          });
+      const wrap = makeElement('div', {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          height: '100%',
+          color: '#e2e8f0',
+          fontFamily: 'var(--dr-font-sans)'
         }
-      }, '📋 Copy Surgical Patches'),
+      });
 
-      makeElement('div', { style: { display: 'flex', gap: '8px' } }, [
+      const header = makeElement('div', {
+        style: {
+          padding: '6px 4px',
+          borderBottom: '1px solid #232d3f',
+          fontSize: '12px',
+          color: '#94a3b8',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }
+      }, [
+        makeElement('span', {}, `Customized Paragraphs & Revisions: ${keys.length}`),
+        makeElement('span', { style: { color: '#10b981', fontWeight: 'bold' } }, 'Ready to Compile')
+      ]);
+      wrap.appendChild(header);
+
+      const listContainer = makeElement('div', {
+        style: {
+          flex: 1,
+          minHeight: '260px',
+          maxHeight: '380px',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }
+      });
+
+      if (keys.length === 0) {
+        listContainer.appendChild(makeElement('div', {
+          style: { padding: '24px', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontSize: '12px' }
+        }, 'No custom revisions active. Click the pencil icon on any paragraph to edit in-situ.'));
+      } else {
+        keys.forEach(k => {
+          const item = map[k];
+          const card = makeElement('div', {
+            style: {
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid #1e293b',
+              borderRadius: '6px',
+              padding: '10px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }
+          }, [
+            makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+              makeElement('strong', { style: { fontSize: '12px', color: '#38bdf8', fontFamily: 'monospace' } }, `${item.pageId} / ${item.blockId}`),
+              makeElement('button', {
+                className: 'dr-nav-btn',
+                style: { padding: '2px 6px', fontSize: '10px', color: '#ef4444' },
+                onclick: () => {
+                  this.removeOverride(item.pageId, item.blockId);
+                  if (onUpdated) onUpdated();
+                  dlg.close();
+                  CadPlanDocumentEditor.openRevisionManager(onUpdated);
+                }
+              }, 'Remove')
+            ]),
+            makeElement('div', {
+              style: { fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+            }, item.text)
+          ]);
+          listContainer.appendChild(card);
+        });
+      }
+      wrap.appendChild(listContainer);
+
+      const footer = makeElement('div', {
+        style: {
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: '8px',
+          borderTop: '1px solid #232d3f',
+          gap: '8px',
+          flexWrap: 'wrap'
+        }
+      }, [
         makeElement('button', {
-          className: 'dr-nav-btn primary',
-          style: { fontWeight: 'bold' },
-          onclick: async () => {
+          className: 'dr-nav-btn',
+          style: { color: '#f59e0b', fontSize: '11px' },
+          onclick: (e) => {
+            const btn = e.currentTarget;
             const patches = this.generateSurgicalPatches();
             if (!patches) {
               alert('No active revisions to compile.');
               return;
             }
-
-            // If Luno client parser is active, push directly to Outbox or trigger server execution
-            if (typeof OutboxQueue !== 'undefined' && OutboxQueue.addBundle) {
-              OutboxQueue.addBundle('CadPlan In-Situ Revisions', patches, { priority: 'high' });
-              alert('✓ Compiled revisions dispatched directly to Luno Outbox!');
-            } else {
-              navigator.clipboard.writeText(patches);
-              alert('✓ Compiled revisions generated as surgical patches and copied to clipboard!');
-            }
-            dlg.close();
+            navigator.clipboard.writeText(patches).then(() => {
+              const orig = btn.textContent;
+              btn.textContent = '✓ Copied Patches!';
+              setTimeout(() => { btn.textContent = orig; }, 1800);
+            });
           }
-        }, '💾 Compile & Save Changes')
-      ])
-    ]);
-    wrap.appendChild(footer);
+        }, '📋 Copy Patches'),
 
-    const dlg = UITools.makeDialog({
-      title: '📑 CadPlan Document Revision Manager',
-      size: [580, 500],
-      position: [Math.max(20, (window.innerWidth - 580) / 2), 70],
-      contentElement: wrap,
-      appendTo: hostContainer
-    });
+        makeElement('div', { style: { display: 'flex', gap: '8px' } }, [
+          makeElement('button', {
+            className: 'dr-nav-btn primary',
+            style: { fontWeight: 'bold' },
+            onclick: async () => {
+              const patches = this.generateSurgicalPatches();
+              if (!patches) {
+                alert('No active revisions to compile.');
+                return;
+              }
 
-    return dlg;
-  }
+              const ItemNotes = globalThis.CadPlanItemNotes || globalThis.DocumentItemNotes;
+              if (ItemNotes && typeof ItemNotes.dispatchToOutbox === 'function') {
+                const res = ItemNotes.dispatchToOutbox('CadPlan In-Situ Revisions', patches);
+                if (res.channel === 'clipboard-fallback') {
+                  alert('✓ Copied surgical revisions to clipboard!');
+                } else {
+                  alert(`✓ Dispatched surgical revisions directly to Luno Outbox via [${res.channel}]!`);
+                }
+              } else {
+                navigator.clipboard.writeText(patches);
+                alert('✓ Compiled revisions generated as surgical patches and copied to clipboard!');
+              }
+              dlg.close();
+            }
+          }, '💾 Compile to Outbox')
+        ])
+      ]);
+      wrap.appendChild(footer);
 
+      const dlg = UITools.makeDialog({
+        title: '📑 CadPlan Document Revision Manager',
+        size: [580, 500],
+        position: [Math.max(20, (window.innerWidth - 580) / 2), 70],
+        contentElement: wrap,
+        appendTo: hostContainer
+      });
+
+      return dlg;
+    }
   static applyInMemoryPatch(pageId, blockId, newText, dossierId = 'CadPlan') {
     this.saveOverride(pageId, blockId, newText, null, dossierId);
     const targetEl = document.querySelector(`[data-block-id="${blockId}"]`);

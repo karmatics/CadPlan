@@ -1,0 +1,63 @@
+<article data-page="ecosystem" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Self-Replicating Blueprint Architecture</span>
+    <h1 class="dossier-title">Luno Loop & Self-Replication</h1>
+    <p class="dossier-subtitle">The plan is the application: how CAD Plan self-replicates, tests its own geometry, and evolves through surgical LLM collaboration.</p>
+  </header>
+
+  <section data-section="self_rep">
+    <h2 class="section-title">The Living, Self-Replicating Blueprint</h2>
+    <div data-block="comp_ecosystem_graphic" data-type="component" data-component="CadEcosystemGraphicComponent"></div>
+
+    <p data-block="p_self_rep_1">
+      In traditional software engineering, developers build monolithic applications and write separate, static documentation that rots within months. In our architecture, <strong>the document is the primary deliverable, not a secondary byproduct</strong>. Notice how the application ecosystem is structured: we have decomposed the monolithic CAD suite into focused, testable sub-views (<code>CompassApp</code>, <code>KeyCommandApp</code>, <code>TouchController</code>, and <code>accuCad</code>), unified by the shared <code>Library</code> hub. And <code>CadPlan</code> is the living master orchestrator that embeds, audits, and runs all of these instruments side-by-side in real time without nested iframes.
+    </p>
+
+    <p data-block="p_self_rep_2">
+      More importantly, it is built to self-replicate and improve itself using Luno. Because every section, demo, and paragraph is an independent static method or clean HTML block, an LLM can inspect, refine, or add new capabilities with surgical precision. When you start a fresh conversation with an AI, you don't need to paste 600,000 tokens of chat history. You simply bundle <code>CadPlan</code>, and the AI immediately receives 100% of the project's history, philosophy, prototype audits, and live demos in a lean payload.
+    </p>
+
+    <aside data-block="sidebar_self_rep_philosophy" data-type="sidebar">
+      <span class="sidebar-kicker">Methodology</span>
+      <strong class="sidebar-title">Why The Plan Is The Application</strong>
+      <ul>
+        <li><strong>1. CompassApp:</strong> In-process 3D Squircle Studio isolating compass geometry, direction cosines, and morphing without dialog clutter.</li>
+        <li><strong>2. KeyCommandApp:</strong> Standalone Keystroke Engine testing single-stroke commands without Enter and numerical range bindings.</li>
+        <li><strong>3. TouchController:</strong> Standalone Mobile WebRTC Glass Deck for two-handed analog parameter scrubbing over local Wi-Fi.</li>
+        <li><strong>4. accuCad:</strong> The unified CAD workstation combining snapping, solids, curves, and tool settings panels.</li>
+        <li><strong>5. Library:</strong> Central shared dependency repository (<code>DomBasics</code>, <code>ThreeJSLoader</code>, <code>UITools</code>).</li>
+        <li><strong>6. CadPlan:</strong> The Living Master Specification that embeds, tests, and documents every tool natively!</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="luno_loop">
+    <h2 class="section-title">Surgical Patching & Instant Iteration</h2>
+
+    <p data-block="p_luno_loop_1">
+      The engine driving this rapid evolution is Luno's copy-paste loop. Luno runs on a local Node.js server, stores projects in IndexedDB or direct disk files, and provides an isolated preview environment where the application updates live.
+    </p>
+
+    <p data-block="p_luno_loop_2">
+      The workflow is simple: I copy a prompt or code bundle from Luno's Outbox, paste it to an LLM, copy the AI's response, and tap "Paste from Chatbot" in Luno. Luno parses the response in browser client JavaScript using the HTML Container Protocol, extracting surgical method patches (<code>&lt;script data-method="..." data-action="patch"&gt;</code>) and HTML template blocks (<code>&lt;template data-block="..." data-action="patch"&gt;</code>).
+    </p>
+
+    <aside data-block="sidebar_container_protocol" data-type="sidebar">
+      <span class="sidebar-kicker">Protocol Architecture</span>
+      <strong class="sidebar-title">Surgical Method Patch Containers</strong>
+      <p>
+        The HTML Container Protocol in Action:
+        <br>
+        • <strong>Surgical Class Method Patches:</strong> Instead of re-streaming 50KB files, the LLM outputs only the modified method.
+        <br>
+        • <strong>Client-Side AST Merging:</strong> Luno's <code>LunoClassPatcher</code> parses the target file's AST using Acorn, splices the updated method into place, verifies syntax, and saves the file directly to disk.
+        <br>
+        • <strong>Instant Hot-Reload:</strong> The application reloads in milliseconds, allowing continuous real-time iteration without build pipeline delays.
+      </p>
+    </aside>
+
+    <p data-block="p_luno_loop_3">
+      This workflow eliminates the token bloat and context fatigue that plague traditional AI programming. A single developer, equipped with domain experience and supported by an agentic AI partner through Luno, can build, audit, and evolve complex CAD software at unprecedented speed.
+    </p>
+  </section>
+</article>

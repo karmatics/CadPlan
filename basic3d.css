@@ -1,61 +1,250 @@
-* {
+/* ==========================================================================
+   CadPlan Luxury Obsidian Design System & Interactive Ergonomics
+   ========================================================================== */
+
+:root {
+  --cp-bg-deep: #070a13;
+  --cp-bg-surface: #0c1220;
+  --cp-bg-card: rgba(15, 23, 42, 0.75);
+  --cp-border-subtle: rgba(255, 255, 255, 0.08);
+  --cp-border-active: rgba(0, 242, 254, 0.45);
+  
+  --cp-cyan: #00f2fe;
+  --cp-cyan-glow: rgba(0, 242, 254, 0.4);
+  --cp-sky: #38bdf8;
+  --cp-amethyst: #c084fc;
+  --cp-emerald: #10b981;
+  --cp-amber: #f59e0b;
+  --cp-rose: #f43f5e;
+  
+  --cp-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --cp-font-serif: 'Newsreader', 'Lora', Georgia, serif;
+  --cp-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom Obsidian Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 10, 19, 0.95);
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cp-sky);
+  box-shadow: 0 0 10px var(--cp-cyan-glow);
+}
+
+/* Neon Text Selection */
+::selection {
+  background: rgba(0, 242, 254, 0.25);
+  color: #f8fafc;
+  text-shadow: 0 0 12px var(--cp-cyan);
+}
+
+/* Mic Recording Pulse Animation */
+@keyframes cp-mic-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), 0 0 12px rgba(239, 68, 68, 0.5);
+    border-color: #ef4444;
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0), 0 0 20px rgba(239, 68, 68, 0);
+    border-color: #f87171;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    border-color: #ef4444;
+  }
+}
+
+.dictation-btn-listen.is-recording {
+  animation: cp-mic-pulse 1.6s infinite ease-out !important;
+  background: #450a0a !important;
+  color: #fca5a5 !important;
+  border-color: #ef4444 !important;
+}
+
+/* Audio Waveform Ripple */
+.cp-audio-wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+  margin-left: 6px;
+}
+.cp-audio-wave span {
+  display: block;
+  width: 2.5px;
+  height: 100%;
+  background: #00f2fe;
+  border-radius: 1px;
+  animation: cp-wave-bounce 0.8s infinite ease-in-out;
+}
+.cp-audio-wave span:nth-child(2) { animation-delay: 0.15s; }
+.cp-audio-wave span:nth-child(3) { animation-delay: 0.3s; }
+.cp-audio-wave span:nth-child(4) { animation-delay: 0.45s; }
+@keyframes cp-wave-bounce {
+  0%, 100% { transform: scaleY(0.2); }
+  50% { transform: scaleY(1); }
+}
+
+/* Tactical Segmented Toggle (Author vs LLM) */
+.cp-segmented-deck {
+  display: inline-flex;
+  background: #060911;
+  border: 1px solid #1e293b;
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
+  user-select: none;
+}
+.cp-segmented-btn {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-family: var(--cp-font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cp-segmented-btn:hover {
+  color: #cbd5e1;
+}
+.cp-segmented-btn.active.author {
+  background: rgba(0, 242, 254, 0.15);
+  color: #00f2fe;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+}
+.cp-segmented-btn.active.llm {
+  background: rgba(192, 132, 252, 0.15);
+  color: #c084fc;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.35);
+  border: 1px solid rgba(192, 132, 252, 0.4);
+}
+
+/* Intent Tag Chips */
+.cp-tag-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-family: var(--cp-font-mono);
+  font-size: 9.5px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cp-tag-chip:hover {
+  background: rgba(0, 242, 254, 0.12);
+  border-color: #00f2fe;
+  color: #00f2fe;
+}
+
+/* In-Situ Visual Diff Highlight */
+.cp-diff-del {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  text-decoration: line-through;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.cp-diff-ins {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 1px 3px;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+/* In-Situ Block Flash upon Acceptance */
+@keyframes cp-accepted-flash {
+  0% {
+    background-color: rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.7);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+.cp-block-accepted-flash {
+  animation: cp-accepted-flash 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Smart Sidebar Search & Accordion Details */
+.cp-sidebar-search {
+  width: 100%;
+  background: #080c16;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: #f8fafc;
+  font-family: var(--cp-font-sans);
+  font-size: 11px;
+  outline: none;
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cp-sidebar-search:focus {
+  border-color: var(--cp-cyan);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
 }
 
-html, body {
-  width: 100%;
-  min-height: 100%;
-  height: auto !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  background-color: #0f141c;
-  color: #e2e8f0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+.cp-chapter-card {
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  transition: all 0.15s ease;
 }
-
-#app-container {
-  width: 100%;
-  min-height: 100vh;
-  height: auto !important;
-  position: relative;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+.cp-chapter-card.active {
+  border-color: var(--cp-cyan);
+  background: rgba(0, 242, 254, 0.08);
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.15);
 }
-
-/* DocumentReader Top Navigation Tabs Scrollability Fix */
-.dr-header-nav, .dr-nav-tabs, .dr-tabs, .dr-header .dr-nav, .dr-tabs-bar, nav.dr-nav, header.dr-header nav {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
-  max-width: 100% !important;
-  gap: 6px !important;
-  padding: 4px 6px !important;
+.cp-chapter-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  cursor: pointer;
+  user-select: none;
 }
-
-.dr-header-nav::-webkit-scrollbar,
-.dr-nav-tabs::-webkit-scrollbar,
-.dr-tabs::-webkit-scrollbar,
-nav.dr-nav::-webkit-scrollbar,
-header.dr-header nav::-webkit-scrollbar {
-  height: 4px !important;
+.cp-chapter-header-row:hover {
+  background: rgba(255, 255, 255, 0.04);
 }
-
-.dr-header-nav::-webkit-scrollbar-thumb,
-.dr-nav-tabs::-webkit-scrollbar-thumb,
-.dr-tabs::-webkit-scrollbar-thumb,
-nav.dr-nav::-webkit-scrollbar-thumb,
-header.dr-header nav::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.4) !important;
-  border-radius: 4px !important;
+.cp-chapter-sections-list {
+  padding: 4px 10px 8px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-
-.dr-tab-btn, .dr-nav-btn, .dr-tab, .dr-header button, header.dr-header nav button {
-  flex-shrink: 0 !important;
-  white-space: nowrap !important;
+.cp-section-item {
+  color: #94a3b8;
+  font-size: 10.5px;
+  font-family: var(--cp-font-sans);
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: all 0.12s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cp-section-item:hover {
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.1);
+  padding-left: 9px;
 }

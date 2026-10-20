@@ -102,7 +102,7 @@ class CadITwinParityContent {
       return [
         "Our direct code inspection of Bentley's `AccuDraw.ts` confirms the five foundational pillars of the engine:",
         "1. **`ThreeAxes` (3D Direction Cosines):** Maintains three orthonormal unit vectors (`x`, `y`, `z`) derived from `Matrix3d`. It provides `fromMatrix3d`, `toMatrix3d`, and `equals`, allowing the compass plane to rotate into Top, Front, Side, View, or arbitrary surface normals without gimbal lock.",
-        "2. **`RoundOff` (Precision Inset & Snapping):** Computes distance and angle round-offs, applying hysteresis thresholds so the cursor cleanly indexes to recurring dimensional intervals without jitter.",
+        "2. **`RoundOff` (Screen-Space Inset & Hysteresis):** Computes distance and angle round-offs. As Rob Brown emphasizes, indexing hysteresis is evaluated in screen-space pixels to maintain uniform tactile feel across zoom ratios, preventing magnetic traps through single-keystroke axis isolation.",
         "3. **`ItemField` & `KeyinStatus`:** Tracks the active input focus across X, Y, Distance, Angle, and Z. Distinguishes between dynamic coordinate tracking (`KeyinStatus.Dynamic`) and hard numerical locks (`KeyinStatus.Locked`).",
         "4. **`AccuDrawHintBuilder`:** The standardized protocol whereby interactive CAD drawing tools communicate contextual intent to the compass—such as anchoring origin to the prior vertex, aligning orientation to the current stroke segment, or locking polar angles.",
         "5. **`SavedState`:** A transactional state stack that allows AccuDraw to push and pop coordinate frames across view manipulation and nested sub-commands."
@@ -113,8 +113,9 @@ class CadITwinParityContent {
       return [
         "Verified Bentley iTwin Production Architecture (itwinjs-core):\n" +
         "• `ThreeAxes`: True 3×3 direction-cosine basis managing spatial orientation vectors.\n" +
-        "• `RoundOff`: Distance & angle roundoff engine with dynamic hysteresis tolerance.\n" +
+        "• `RoundOff`: Distance & angle roundoff engine with screen-space hysteresis tolerance.\n" +
         "• `AccuDrawFlags`: Packed state flags for auto-orientation, floating vs. fixed origin, and polar mode.\n" +
+        "• Axis Lock Isolation: Single-stroke shortcut locks the axis constraint while disengaging distance indexing traps.\n" +
         "• `AccuDrawHintBuilder`: Methods including `setOrigin`, `setRotation`, `setLockAngle`, `setMode`, and `sendHints`.\n" +
         "• `AccuSnap.ts`: Proximity-based candidate element harvesting and tentative point latching."
       ];
@@ -124,36 +125,38 @@ class CadITwinParityContent {
       return [
         "In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users were forced to draw individual straight lines, circles, and arcs using separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture.",
         "Within SmartLine, there are two distinct kinds of arcs: **Rounded Corner Fillets** and **Independent Tangent Arc Segments**. If a rounded corner could do it, that's what was done—it was by far the most common architectural transition. But when an independent arc segment was required, SmartLine seamlessly transitioned into it without interrupting the placement command loop.",
-        "Furthermore, unlike legacy tools where settings applied globally, in my CurveDraw architecture we introduced **vertex-targeted parameter modulation**: you can select and adjust which specific vertex a curvature or balance setting applies to. And for expressive design, the draftsman can turn off AccuDraw constraints entirely for freeform sketching, or engage it for mathematical tangency."
+        "Crucially, for corner fillets, **if a segment was too short to physically fit the requested rounding radius, SmartLine simply rendered a clean, sharp corner**. It did not distort the drafter's requested radius, push adjacent vertices, or interrupt the user with modal error dialogs. The geometry stayed clean, predictable, and fast."
       ];
     }
 
   static p_smartline_2() {
-        return [
-          "Arc segments were remarkably easy to make tangent to the previous segment because AccuDraw automatically oriented itself with the tangent vector of the prior line. Crucially, as soon as you switched into Arc mode, AccuDraw flipped into **Polar mode**, letting the draftsperson immediately type the radius or chord distance directly without looking at a command prompt.",
-          "SmartLine arc segments are governed by **Rob Brown's Closest-Point Sweep Principle**: the orientation is solved by finding the candidate tangent arc where the cursor is as close as possible to a point along the circumference. As you pull the mouse away from the start point, the arc naturally opens out from $0^\\circ$ to $+5^\\circ$; if you back up and cross the tangent line, it smoothly flips to $-6^\\circ$. There is zero deadband jitter near zero because the math evaluates continuous proximity to the candidate circle rather than arbitrary boolean sign toggling, while edge-on view angles (looking straight down the plane normal) are handled cleanly as natural projection limits.",
-          "Upon clicking the endpoint to commit the arc, the compass **automatically oriented itself to the exit tangent vector**. This meant the draftsperson could continue drawing tangent ($G^1$) or perpendicular (90°) into the next line or arc effortlessly. If they wanted to make a sharp break away from the curve, a single keystroke—**`T`** for Top plane or **`V`** for View plane—immediately reset the compass to global orthogonal axes without breaking the continuous polyline chain."
-        ];
-      }
+      return [
+        "Arc segments were remarkably easy to make tangent to the previous segment because AccuDraw automatically oriented itself with the tangent vector of the prior line. Crucially, as soon as you switched into Arc mode, AccuDraw flipped into **Polar mode**, letting the draftsperson immediately type the radius or chord distance directly without looking at a command prompt.",
+        "SmartLine arc segments are governed by **Rob Brown's Closest-Point Sweep Principle**: the orientation is solved by finding the candidate tangent arc where the cursor is as close as possible to a point along the circumference. As you pull the mouse away from the start point, the arc naturally opens out from $0^\\circ$ to $+5^\\circ$; if you back up and cross the tangent line, it smoothly flips to $-6^\\circ$. There is zero deadband jitter near zero because the math evaluates continuous proximity to the candidate circle rather than arbitrary boolean sign toggling, while edge-on view angles are handled cleanly as natural projection limits.",
+        "Upon clicking the endpoint to commit the arc, the compass **automatically oriented itself to the exit tangent vector**. This meant the draftsperson could continue drawing tangent ($G^1$) or perpendicular (90°) into the next line or arc effortlessly. If they wanted to make a sharp break away from the curve, a single keystroke—**`T`** for Top plane or **`V`** for View plane—immediately reset the compass to global orthogonal axes without breaking the continuous polyline chain.",
+        "For closed shapes, Rob Brown solved a notorious CAD edge case through **Trailing Corner Live Adjustment**: when closing a shape back onto the starting point $P_0$, the closing corner defaults to the active fillet radius. However, SmartLine keeps a live modification hook on that final corner: if the drafter adjusts the radius slider or turns a wheel immediately after closing, the trailing corner dynamically recalculates and redraws in real time until a new element is initiated."
+      ];
+    }
 
   static sidebar_smartline_transitions() {
-        return [
-          "SmartLine Geometry & Vertex Targeting Rules:\n" +
-          "1. Type A: Rounded Corner Fillets (Most Common):\n" +
-          "   • Tangent circular arc connecting incoming and outgoing segment bisectors via closed-form O(1) math.\n" +
-          "2. Type B: Tangent Arc Segments (Closest-Point Heuristic):\n" +
-          "   • Minimizes distance between cursor and candidate arc circumference.\n" +
-          "   • Smooth transitions across zero: sweeps from 0° to +5° or backs up across the line to -6° with zero jitter.\n" +
-          "   • Degenerate limits: Edge-on viewing angles handled without mathematical instability.\n" +
-          "3. Post-Arc Exit Tangent Orientation:\n" +
-          "   • Compass automatically aligns primary axis to the exit tangent vector of the placed arc.\n" +
-          "   • Next segment can be drawn tangent (0°) or perpendicular (90°) with zero modal setup.\n" +
-          "4. Single-Stroke Escapes & Vertex Targeting:\n" +
-          "   • `T` (Top) or `V` (View) snaps compass back to standard orthogonal axes.\n" +
-          "   • Curve settings can target specific individual vertices rather than applying globally across all nodes.\n" +
-          "   • AccuDraw constraint bypass toggle: allows freeform expressive sketching on the fly."
-        ];
-      }
+      return [
+        "SmartLine Geometry & Corner Fillet Rules:\n" +
+        "1. Type A: Rounded Corner Fillets:\n" +
+        "   • Tangent circular arc connecting incoming and outgoing segment bisectors.\n" +
+        "   • Tangent Setback: $T = R \\tan(\\theta / 2)$ where $\\theta$ is the turning angle.\n" +
+        "   • Short-Segment Fallback (Rob Brown's Rule): If $T > \\text{segment length} / 2$, the fillet is suppressed and a clean sharp corner is rendered.\n" +
+        "2. Trailing Corner Live Adjustment (Post-Closure Hook):\n" +
+        "   • Closing a loop applies the active fillet radius to the closing vertex $P_0$.\n" +
+        "   • Adjusting the radius immediately after placement dynamically tunes that trailing corner until a new command begins.\n" +
+        "3. Type B: Tangent Arc Segments (Closest-Point Heuristic):\n" +
+        "   • Minimizes distance between cursor and candidate arc circumference.\n" +
+        "   • Smooth transitions across zero: sweeps from 0° to +5° or backs up across the line to -6° with zero deadband jitter.\n" +
+        "4. Post-Arc Exit Tangent Orientation:\n" +
+        "   • Compass automatically aligns primary axis to the exit tangent vector of the placed arc.\n" +
+        "5. Single-Stroke Escapes & Planes:\n" +
+        "   • 'T' (Top), 'F' (Front), 'S' (Side), or 'V' (View) snaps compass back to orthogonal planes without breaking the polyline chain."
+      ];
+    }
   static p_smartline_3() {
       return [
         "To bring this interaction model into the modern open ecosystem, we implement the entire 2D drafting engine in pure SVG. In the live laboratory above, you can lay down lines, press `A` or `~` to swing dynamic tangent arcs, watch the Squircle Compass rotate to align with exit tangents, and press `T` or `V` to break onto standard planes.",
@@ -214,21 +217,24 @@ class CadITwinParityContent {
         "• Interoperable: Feeds `winit` on desktop and WebAssembly in browser viewports."
       ];
     }
+
   static p_hint_protocol_1() {
       return [
-        "A critical discovery in Bentley's `AccuDraw.ts` is `AccuDrawHintBuilder`. In inferior CAD systems, drafting tools and coordinate inputs are tightly coupled: a line tool has to know how to draw a rubber-band, how to calculate orthogonal axes, and how to snap. In AccuDraw, tools communicate with the compass via an inverted dependency called Hints."
+        "A critical discovery in Bentley's `AccuDraw.ts` is `AccuDrawHintBuilder` and the architectural separation between `floatingOrigin` and `contextSensitivity`. In inferior CAD systems, coordinate origins and axis rotations are mashed together into a monolithic state. In AccuDraw, they are governed by independent boolean flags.",
+        "Tools communicate with the compass via an inverted dependency called Hints. When an element is drawn or snapped, the tool dispatches hints (`setOrigin`, `setRotation`). How AccuDraw acts on those hints depends strictly on whether the user has enabled **Context Sensitivity** (reorienting the axes) and **Floating Origin** (advancing the reference coordinate)."
       ];
     }
 
   static p_hint_protocol_2() {
       return [
         "Inside `AccuDraw.ts`, the `doProcessHints()` method reveals the exact execution sequence when hints are received:",
-        "1. `flags.autoOrient`: If the hint requests auto-orientation, it evaluates the active tool's geometry to determine whether the compass should align with the current line segment vector (`setXAxis`) or surface normal (`setRotation`).",
-        "2. `flags.setOrigin`: If the tool specifies a new origin (or user placement occurs), it updates `this.origin` and resets distance/delta buffers.",
+        "1. `flags.autoOrient`: If context sensitivity is enabled, it rotates the compass axes to align with the current segment vector (`setXAxis`) or surface normal (`setRotation`). When context sensitivity is disabled, orientation hints are ignored, keeping the construction plane locked.",
+        "2. `flags.setOrigin`: If floating origin is enabled (or the user presses `O`/`G`), `this.origin` updates to the specified point, while delta buffers reset to $(0, 0, 0)$. As Rob Brown emphasized, moving the origin never forces an axis reorientation.",
         "3. `flags.lockDistance` / `flags.lockAngle`: Immediately locks polar coordinates to the tool's prescribed increments.",
         "4. `flags.smartRotation`: Preserves context rotation across viewports so moving between isometric and top views smoothly reorients the drawing plane without jarring coordinate jumps."
       ];
     }
+
   static sidebar_hint_protocol() {
       return [
         "The AccuDrawHintBuilder Context Protocol:\n" +
@@ -243,11 +249,13 @@ class CadITwinParityContent {
         "  public sendHints(activate = true): boolean;\n" +
         "}\n" +
         "```\n" +
-        "• Decoupled Inversion of Control: Tools never calculate compass orientations directly; they send geometric hints.\n" +
+        "• Floating Origin vs. Context Sensitivity:\n" +
+        "  - `flags.floatingOrigin`: Automatic origin tracking to last data point.\n" +
+        "  - `flags.contextSensitivity`: Reorients compass to element vectors (independently toggleable).\n" +
+        "• Set Origin (O / G): Moving origin to a tentative point preserves existing axis orientation.\n" +
         "• Hysteresis Zoom Round-Off (`RoundOff`): Uses dynamic `units: Set<number>` to snap to the smallest discernible unit at the current viewport zoom level."
       ];
     }
-
   static p_fillet_comp_1() {
       return [
         "Our inspection of CADCraft's `crates/geom/src/fillet.rs` reveals a sophisticated numerical solver. Rather than just supporting simple circular arc fillets between straight line segments, CADCraft's `CornerFit` computes circles tangent across any combination of Lines, Circles, Ellipses, and Splines (`TanCurve`) using a 40-step damped Newton-Raphson method on exact offset curves."
@@ -347,38 +355,37 @@ class CadITwinParityContent {
 
   static p_plane_math_1() {
       return [
-        "Our inspection of `AccuDrawShortcuts.rotateAxesByPoint` in `itwin_reference/AccuDrawTool.ts` reveals a subtle mathematical distinction that made original AccuDraw feel so natural in 3D: the difference between **Hard** and **Soft** construction planes.",
-        "When a user rotates the compass by snapping to a reference point or element, AccuDraw checks `aboutCurrentZ`: if true, it applies a *soft construction plane*—keeping the current drawing plane's normal intact while spinning the X/Y axes. If false, it applies a *hard construction plane*—reorienting the entire 3D plane into alignment with the snapped entity's surface normal."
+        "In AccuDraw, explicit spatial rotation is governed by two distinct, highly optimized commands: **Rotate Quick (`RQ`)** and **Rotate Axes (`RA`)**.",
+        "• **Rotate Quick (`RQ`)**: Designed for fast, in-plane reorientation. It takes the active compass origin $\\vec{O}$ and a single data point $\\vec{P}$ to establish the new primary $X$-axis: $\\hat{X} = \\text{normalize}(\\vec{P} - \\vec{O})$. To preserve stability and avoid sudden gimbal flips, it preserves the active construction plane's normal (whether Top, Front, Side, or custom) and computes the perpendicular axis via cross product: $\\hat{Y} = \\text{normalize}(\\vec{Z}_{\\text{current}} \\times \\hat{X})$. It strictly avoids view-dependent calculations unless the compass was explicitly placed in View mode (`V`).",
+        "• **Rotate Axes (`RA`)**: An explicit 3D 3-point coordinate system builder that does not require using the current origin. Point 1 defines the new origin $\\vec{O}$; Point 2 defines the primary $X$-axis direction $\\hat{X} = \\text{normalize}(\\vec{P}_2 - \\vec{P}_1)$; and Point 3 establishes the construction plane and positive $Y$ half-space."
       ];
     }
 
   static p_plane_math_2() {
       return [
-        "Another crucial UX feedback mechanism in `AccuDrawTool.ts` is the automatic **Index Line Flash**: `accudraw.indexed |= LockedStates.X_BM`. When a rotation shortcut executes, changing the rotation matrix would normally clear all dynamic line decorations. AccuDraw explicitly sets the X-axis indexed bitmask so the white index indicator line immediately flashes along the new X-axis, giving the user instant visual confirmation before they even move the mouse."
+        "A vital insight from Rob Brown regarding `RA` is that **Point 3 does not need to be perpendicular to the $X$-axis**. Requiring the user to eyeball or construct an exact 90° third point would be clumsy and defeat the purpose.",
+        "As long as Point 3 is not collinear with $\\vec{P}_1 \\to \\vec{P}_2$ (which would produce a degenerate cross product), AccuDraw computes the plane normal deterministically: $\\vec{Z} = \\text{normalize}(\\hat{X} \\times (\\vec{P}_3 - \\vec{P}_1))$, and then derives the true orthogonal $Y$-axis via $\\hat{Y} = \\hat{Z} \\times \\hat{X}$.",
+        "Additionally, upon executing any rotation command, AccuDraw triggers an immediate **Index Line Flash** (`accudraw.indexed |= LockedStates.X_BM`), ensuring the primary indicator line pulses along the new $X$-axis so the drafter receives instant visual confirmation before moving the mouse."
       ];
     }
 
   static sidebar_plane_math_code() {
       return [
-        "Verbatim Plane Rotation Mechanics (itwin_reference/AccuDrawTool.ts):\n" +
-        "```typescript\n" +
-        "if (aboutCurrentZ)\n" +
-        "  accudraw.hardConstructionPlane(point, point, accudraw.planePt, accudraw.axes.z, vp, isSnapped);\n" +
-        "else\n" +
-        "  accudraw.softConstructionPlane(point, point, accudraw.planePt, accudraw.axes.z, vp, isSnapped);\n\n" +
-        "accudraw.axes.x.setFrom(xVec);\n" +
-        "accudraw.setRotationMode(RotationMode.Context);\n" +
-        "accudraw.flags.contextRotMode = ContextMode.XAxis;\n" +
-        "accudraw.updateRotation();\n" +
-        "// Immediate visual feedback flash\n" +
-        "accudraw.indexed |= LockedStates.X_BM;\n" +
-        "```\n" +
-        "• Soft Plane: Spins X/Y axes while locking the active Z working depth.\n" +
-        "• Hard Plane: Reorients the 3D plane normal to the snapped entity.\n" +
-        "• Index Flash: Triggers instant visual pulse along the new primary axis."
+        "Explicit Plane Rotation Mechanics: RQ vs. RA:\n" +
+        "• 1. Rotate Quick (RQ — In-Plane 1-Point Reorientation):\n" +
+        "  - $\\hat{X} = \\text{normalize}(\\vec{P} - \\vec{O})$ using active origin $\\vec{O}$.\n" +
+        "  - $\\hat{Y} = \\text{normalize}(\\vec{Z}_{\\text{current}} \\times \\hat{X})$ preserving active plane normal.\n" +
+        "  - $\\hat{Z} = \\hat{X} \\times \\hat{Y}$.\n" +
+        "  - Avoids view-dependent shifts unless in explicit View mode ('V').\n" +
+        "• 2. Rotate Axes (RA — 3-Point 3D Construction System):\n" +
+        "  - Point 1: Sets new Origin $\\vec{O} = \\vec{P}_1$.\n" +
+        "  - Point 2: Defines X-axis direction $\\hat{X} = \\text{normalize}(\\vec{P}_2 - \\vec{P}_1)$.\n" +
+        "  - Point 3: Defines Y half-plane (does NOT need to be perpendicular to X).\n" +
+        "  - Vector Normal: $\\hat{Z} = \\text{normalize}(\\hat{X} \\times (\\vec{P}_3 - \\vec{P}_1))$.\n" +
+        "  - Derived Y-Axis: $\\hat{Y} = \\hat{Z} \\times \\hat{X}$.\n" +
+        "• Index Line Flash: Immediate visual feedback along the new primary axis upon rotation commit."
       ];
     }
-
   static p_val_history_1() {
       return [
         "A standout usability feature in `AccuDrawTool.ts` is the **Value Memory Stack**: `choosePreviousValue(index: ItemField)` and `chooseNextValue(index: ItemField)`. In high-production civil and architectural drafting, drafters repeatedly place geometry with recurring dimensions (e.g. wall thicknesses of 6\", door clearances of 36\", or column bays of 24')."
