@@ -8,57 +8,65 @@ class AccuCadAuditContent {
   }
 
   static manifest() {
-        return [
-          {
-            section: 'snapping_lab_top',
-            partLabel: 'Chapter 3 • Interactive Snapping Lab',
-            title: 'TentativePointHandler: 50ms Chord Snap & 3-Axis Mini-Jack',
-            blocks: [
-              { id: 'comp_tentative_snapping_lab', type: 'component', component: 'TentativeSnappingLab' }
-            ]
-          },
-          {
-            section: 'controller',
-            partLabel: 'Chapter 3 • Pipeline',
-            title: 'The Controller & 50ms Chord Loop',
-            blocks: [
-              { id: 'p_audit_ctrl_1', type: 'p' },
-              { id: 'p_audit_ctrl_2', type: 'p' },
-              { id: 'sidebar_chord_mechanics', type: 'sidebar', kicker: 'Event Handling', title: 'Chorded Clicks & The 4-Tier Escape Cascade' }
-            ]
-          },
-          {
-            section: 'math',
-            partLabel: 'Chapter 3 • Constraint Engine',
-            title: 'AccuDrawLogic: Relative Vectors & Smart Lock',
-            blocks: [
-              { id: 'p_audit_math_1', type: 'p' },
-              { id: 'p_audit_math_2', type: 'p' },
-              { id: 'sidebar_smart_lock_math', type: 'sidebar', kicker: 'Constraint Logic', title: 'Smart Lock (L) & Typing Gesture Anchors' },
-              { id: 'p_audit_math_3', type: 'p' }
-            ]
-          },
-          {
-            section: 'snapping',
-            partLabel: 'Chapter 3 • Snapping',
-            title: 'TentativePointHandler: 3D Raycasting & 2D Screen Picking',
-            blocks: [
-              { id: 'p_audit_snap_1', type: 'p' },
-              { id: 'p_audit_snap_2', type: 'p' },
-              { id: 'sidebar_mini_jack_vis', type: 'sidebar', kicker: 'Visual Cues', title: 'The Mini-Jack & Z-Plane Projection Guides' }
-            ]
-          },
-          {
-            section: 'tools',
-            partLabel: 'Chapter 3 • Tools & Camera',
-            title: 'Drawing Commands & Camera Oscillation',
-            blocks: [
-              { id: 'p_audit_tools_1', type: 'p' },
-              { id: 'p_audit_tools_2', type: 'p' }
-            ]
-          }
-        ];
-      }
+      return [
+        {
+          section: 'snapping_lab_top',
+          partLabel: 'Chapter 3 • Interactive Snapping Lab',
+          title: 'TentativePointHandler: 50ms Chord Snap & 3-Axis Mini-Jack',
+          blocks: [
+            { id: 'comp_tentative_snapping_lab', type: 'component', component: 'TentativeSnappingLab' }
+          ]
+        },
+        {
+          section: 'controller',
+          partLabel: 'Chapter 3 • Pipeline',
+          title: 'The Controller & 50ms Chord Loop',
+          blocks: [
+            { id: 'p_audit_ctrl_1', type: 'p' },
+            { id: 'p_audit_ctrl_2', type: 'p' },
+            { id: 'sidebar_chord_mechanics', type: 'sidebar', kicker: 'Event Handling', title: 'Chorded Clicks & The 4-Tier Escape Cascade' }
+          ]
+        },
+        {
+          section: 'math',
+          partLabel: 'Chapter 3 • Constraint Engine',
+          title: 'AccuDrawLogic: Relative Vectors & Smart Lock',
+          blocks: [
+            { id: 'p_audit_math_1', type: 'p' },
+            { id: 'p_audit_math_2', type: 'p' },
+            { id: 'sidebar_smart_lock_math', type: 'sidebar', kicker: 'Constraint Logic', title: 'Smart Lock (L) & Typing Gesture Anchors' },
+            { id: 'p_audit_math_3', type: 'p' }
+          ]
+        },
+        {
+          section: 'snapping',
+          partLabel: 'Chapter 3 • Snapping',
+          title: 'TentativePointHandler: 3D Raycasting & 2D Screen Picking',
+          blocks: [
+            { id: 'p_audit_snap_1', type: 'p' },
+            { id: 'p_audit_snap_2', type: 'p' },
+            { id: 'sidebar_mini_jack_vis', type: 'sidebar', kicker: 'Visual Cues', title: 'The Mini-Jack & Z-Plane Projection Guides' }
+          ]
+        },
+        {
+          section: 'live_dimension_hud',
+          partLabel: 'Chapter 3 • Dynamic Telemetry',
+          title: 'Dynamic Dimension HUD & Real-Time Distance Memory Lab',
+          blocks: [
+            { id: 'comp_dynamic_dimension_hud_lab', type: 'component', component: 'CadDynamicDimensionHudLab' }
+          ]
+        },
+        {
+          section: 'tools',
+          partLabel: 'Chapter 3 • Tools & Camera',
+          title: 'Drawing Commands & Camera Oscillation',
+          blocks: [
+            { id: 'p_audit_tools_1', type: 'p' },
+            { id: 'p_audit_tools_2', type: 'p' }
+          ]
+        }
+      ];
+    }
   static p_audit_ctrl_1() {
     return [
       "In `accuCad`, I built `BaseController.js` as the central coordinator. It holds the element registry (`this.cadElements`), the floating origin (`this.origin = [0, 0, 0]`), the active drawing orientation (`this.rotationMatrix` as a 3×3 direction cosine matrix), and the registered tool instances (rectangle, arc, path, curve, circle, capsule, move, rotate, scale, delete)."

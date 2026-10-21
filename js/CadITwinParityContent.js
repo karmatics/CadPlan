@@ -8,90 +8,91 @@ class CadITwinParityContent {
   }
 
   static manifest() {
-      return [
-        {
-          section: 'universal_converter_top',
-          partLabel: 'Chapter 10 • Transformation Lab',
-          title: 'Universal Arc & Coordinate Transformation Engine',
-          blocks: [
-            { id: 'comp_coordinate_converter', type: 'component', component: 'CadCoordinateConverterLab' }
-          ]
-        },
-        {
-          section: 'itwin_audit',
-          partLabel: 'Chapter 10 • Lineage',
-          title: 'Inside Bentley iTwin AccuDraw.ts (3,862 Lines)',
-          blocks: [
-            { id: 'p_itwin_1', type: 'p' },
-            { id: 'p_itwin_2', type: 'p' },
-            { id: 'sidebar_itwin_architecture', type: 'sidebar', kicker: 'iTwin Symbols', title: 'AccuDraw.ts & AccuSnap.ts Core Topology' }
-          ]
-        },
-        {
-          section: 'smartline_spec',
-          partLabel: 'Chapter 10 • SmartLine',
-          title: 'The SmartLine Continuous Chaining State Machine',
-          blocks: [
-            { id: 'comp_svg_smartline_lab', type: 'component', component: 'SvgSmartLineLab' },
-            { id: 'p_smartline_1', type: 'p' },
-            { id: 'p_smartline_2', type: 'p' },
-            { id: 'sidebar_smartline_transitions', type: 'sidebar', kicker: 'State Machine', title: 'SmartLine Continuous Geometry Transitions' },
-            { id: 'p_smartline_3', type: 'p' }
-          ]
-        },
-        {
-          section: 'surface_and_state',
-          partLabel: 'Chapter 10 • Surface Kinematics & State',
-          title: 'Surface Normal Alignment (Q), Transactional Undo & winit Key Interception',
-          blocks: [
-            { id: 'p_surface_normal_1', type: 'p' },
-            { id: 'sidebar_surface_normal_math', type: 'sidebar', kicker: 'Gram-Schmidt Math', title: '3D Face Normal Derivation & Non-Flipping Axes' },
-            { id: 'p_state_stack_1', type: 'p' },
-            { id: 'sidebar_smart_backspace_winit', type: 'sidebar', kicker: 'Event Interception', title: 'Single-Stroke Typing & Smart Backspace in winit' }
-          ]
-        },
-        {
-          section: 'fillet_comparison',
-          partLabel: 'Chapter 10 • Mathematics',
-          title: 'Fillet Geometry: CADCraft Newton-Raphson vs. Analytic Bisector',
-          blocks: [
-            { id: 'p_fillet_comp_1', type: 'p' },
-            { id: 'p_fillet_comp_2', type: 'p' },
-            { id: 'sidebar_fillet_comparison', type: 'sidebar', kicker: 'Algorithm Audit', title: 'CornerFit (Rust) vs. RoundingUtils3D (JS)' }
-          ]
-        },
-        {
-          section: 'smart_keyin',
-          partLabel: 'Chapter 10 • Ergonomics',
-          title: 'SmartKeyin: Directional Sign Inference & SavedState',
-          blocks: [
-            { id: 'p_smart_keyin_1', type: 'p' },
-            { id: 'p_smart_keyin_2', type: 'p' },
-            { id: 'sidebar_smart_keyin_math', type: 'sidebar', kicker: 'Math & State Stack', title: 'SmartKeyin Quadrant Inference & SavedState' }
-          ]
-        },
-        {
-          section: 'mcp_agents',
-          partLabel: 'Chapter 10 • AI Agents',
-          title: 'MCP Autonomous Drafting & Compass Constraints',
-          blocks: [
-            { id: 'p_mcp_agent_spec_1', type: 'p' },
-            { id: 'p_mcp_agent_spec_2', type: 'p' },
-            { id: 'sidebar_mcp_compass_tools', type: 'sidebar', kicker: 'Agent API', title: 'Model Context Protocol Compass Endpoints' }
-          ]
-        },
-        {
-          section: 'rust_core',
-          partLabel: 'Chapter 10 • Rust Blueprint',
-          title: 'compassdraw-core: The Headless Rust Crate',
-          blocks: [
-            { id: 'p_rust_crate_1', type: 'p' },
-            { id: 'p_rust_crate_2', type: 'p' },
-            { id: 'sidebar_rust_crate_api', type: 'sidebar', kicker: 'Rust Architecture', title: 'compassdraw-core Crate Specification' }
-          ]
-        }
-      ];
-    }
+        return [
+          {
+            section: 'universal_converter_top',
+            partLabel: 'Chapter 10 • Transformation Lab',
+            title: 'Universal Arc & Coordinate Transformation Engine',
+            blocks: [
+              { id: 'comp_coordinate_converter', type: 'component', component: 'CadCoordinateConverterLab' }
+            ]
+          },
+          {
+            section: 'itwin_audit',
+            partLabel: 'Chapter 10 • Lineage',
+            title: 'Inside Bentley iTwin AccuDraw.ts (3,862 Lines)',
+            blocks: [
+              { id: 'p_itwin_1', type: 'p' },
+              { id: 'p_itwin_2', type: 'p' },
+              { id: 'sidebar_itwin_architecture', type: 'sidebar', kicker: 'iTwin Symbols', title: 'AccuDraw.ts & AccuSnap.ts Core Topology' }
+            ]
+          },
+          {
+            section: 'smartline_spec',
+            partLabel: 'Chapter 10 • SmartLine',
+            title: 'The SmartLine Continuous Chaining State Machine',
+            blocks: [
+              { id: 'comp_3d_smartline_lab', type: 'component', component: 'Cad3DSmartLineLab' },
+              { id: 'comp_svg_smartline_lab', type: 'component', component: 'SvgSmartLineLab' },
+              { id: 'p_smartline_1', type: 'p' },
+              { id: 'p_smartline_2', type: 'p' },
+              { id: 'sidebar_smartline_transitions', type: 'sidebar', kicker: 'State Machine', title: 'SmartLine Continuous Geometry Transitions' },
+              { id: 'p_smartline_3', type: 'p' }
+            ]
+          },
+          {
+            section: 'surface_and_state',
+            partLabel: 'Chapter 10 • Surface Kinematics & State',
+            title: 'Surface Normal Alignment (Q), Transactional Undo & winit Key Interception',
+            blocks: [
+              { id: 'p_surface_normal_1', type: 'p' },
+              { id: 'sidebar_surface_normal_math', type: 'sidebar', kicker: 'Gram-Schmidt Math', title: '3D Face Normal Derivation & Non-Flipping Axes' },
+              { id: 'p_state_stack_1', type: 'p' },
+              { id: 'sidebar_smart_backspace_winit', type: 'sidebar', kicker: 'Event Interception', title: 'Single-Stroke Typing & Smart Backspace in winit' }
+            ]
+          },
+          {
+            section: 'fillet_comparison',
+            partLabel: 'Chapter 10 • Mathematics',
+            title: 'Fillet Geometry: CADCraft Newton-Raphson vs. Analytic Bisector',
+            blocks: [
+              { id: 'p_fillet_comp_1', type: 'p' },
+              { id: 'p_fillet_comp_2', type: 'p' },
+              { id: 'sidebar_fillet_comparison', type: 'sidebar', kicker: 'Algorithm Audit', title: 'CornerFit (Rust) vs. RoundingUtils3D (JS)' }
+            ]
+          },
+          {
+            section: 'smart_keyin',
+            partLabel: 'Chapter 10 • Ergonomics',
+            title: 'SmartKeyin: Directional Sign Inference & SavedState',
+            blocks: [
+              { id: 'p_smart_keyin_1', type: 'p' },
+              { id: 'p_smart_keyin_2', type: 'p' },
+              { id: 'sidebar_smart_keyin_math', type: 'sidebar', kicker: 'Math & State Stack', title: 'SmartKeyin Quadrant Inference & SavedState' }
+            ]
+          },
+          {
+            section: 'mcp_agents',
+            partLabel: 'Chapter 10 • AI Agents',
+            title: 'MCP Autonomous Drafting & Compass Constraints',
+            blocks: [
+              { id: 'p_mcp_agent_spec_1', type: 'p' },
+              { id: 'p_mcp_agent_spec_2', type: 'p' },
+              { id: 'sidebar_mcp_compass_tools', type: 'sidebar', kicker: 'Agent API', title: 'Model Context Protocol Compass Endpoints' }
+            ]
+          },
+          {
+            section: 'rust_core',
+            partLabel: 'Chapter 10 • Rust Blueprint',
+            title: 'compassdraw-core: The Headless Rust Crate',
+            blocks: [
+              { id: 'p_rust_crate_1', type: 'p' },
+              { id: 'p_rust_crate_2', type: 'p' },
+              { id: 'sidebar_rust_crate_api', type: 'sidebar', kicker: 'Rust Architecture', title: 'compassdraw-core Crate Specification' }
+            ]
+          }
+        ];
+      }
   static p_itwin_1() {
     return [
       "With the direct download of Bentley's `@itwin/core-frontend` production source into our workspace (`itwin_reference/AccuDraw.ts` and `AccuSnap.ts`), we can compare my original 1990s C implementation, our modern WebGL `accuCad` prototype, and Bentley's active 3,862-line TypeScript engine side-by-side."

@@ -60,4 +60,632 @@
       This workflow eliminates the token bloat and context fatigue that plague traditional AI programming. A single developer, equipped with domain experience and supported by an agentic AI partner through Luno, can build, audit, and evolve complex CAD software at unprecedented speed.
     </p>
   </section>
+
+  <article data-page="ecosystem" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Self-Replicating Blueprint Architecture</span>
+    <h1 class="dossier-title">Luno Loop & Self-Replication</h1>
+    <p class="dossier-subtitle">The plan is the application: how CAD Plan self-replicates, tests its own geometry, and evolves through surgical LLM collaboration.</p>
+  </header>
+
+  <section data-section="self_rep">
+    <h2 class="section-title">The Living, Self-Replicating Blueprint</h2>
+    <div data-block="comp_ecosystem_graphic" data-type="component" data-component="CadEcosystemGraphicComponent"></div>
+
+    <p data-block="p_self_rep_1">
+      In traditional software engineering, developers build monolithic applications and write separate, static documentation that rots within months. In our architecture, <strong>the document is the primary deliverable, not a secondary byproduct</strong>. Notice how the application ecosystem is structured: we have decomposed the monolithic CAD suite into focused, testable sub-views (<code>CompassApp</code>, <code>KeyCommandApp</code>, <code>TouchController</code>, and <code>accuCad</code>), unified by the shared <code>Library</code> hub. And <code>CadPlan</code> is the living master orchestrator that embeds, audits, and runs all of these instruments side-by-side in real time without nested iframes.
+    </p>
+
+    <p data-block="p_self_rep_2">
+      More importantly, it is built to self-replicate and improve itself using Luno. Because every section, demo, and paragraph is an independent static method or clean HTML block, an LLM can inspect, refine, or add new capabilities with surgical precision. When you start a fresh conversation with an AI, you don't need to paste 600,000 tokens of chat history. You simply bundle <code>CadPlan</code>, and the AI immediately receives 100% of the project's history, philosophy, prototype audits, and live demos in a lean payload.
+    </p>
+
+    <aside data-block="sidebar_self_rep_philosophy" data-type="sidebar">
+      <span class="sidebar-kicker">Methodology</span>
+      <strong class="sidebar-title">Why The Plan Is The Application</strong>
+      <ul>
+        <li><strong>1. CompassApp:</strong> In-process 3D Squircle Studio isolating compass geometry, direction cosines, and morphing without dialog clutter.</li>
+        <li><strong>2. KeyCommandApp:</strong> Standalone Keystroke Engine testing single-stroke commands without Enter and numerical range bindings.</li>
+        <li><strong>3. TouchController:</strong> Standalone Mobile WebRTC Glass Deck for two-handed analog parameter scrubbing over local Wi-Fi.</li>
+        <li><strong>4. accuCad:</strong> The unified CAD workstation combining snapping, solids, curves, and tool settings panels.</li>
+        <li><strong>5. Library:</strong> Central shared dependency repository (<code>DomBasics</code>, <code>ThreeJSLoader</code>, <code>UITools</code>).</li>
+        <li><strong>6. CadPlan:</strong> The Living Master Specification that embeds, tests, and documents every tool natively!</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="luno_loop">
+    <h2 class="section-title">Surgical Patching & Instant Iteration</h2>
+
+    <p data-block="p_luno_loop_1">
+      The engine driving this rapid evolution is Luno's copy-paste loop. Luno runs on a local Node.js server, stores projects in IndexedDB or direct disk files, and provides an isolated preview environment where the application updates live.
+    </p>
+
+    <p data-block="p_luno_loop_2">
+      The workflow is simple: I copy a prompt or code bundle from Luno's Outbox, paste it to an LLM, copy the AI's response, and tap "Paste from Chatbot" in Luno. Luno parses the response in browser client JavaScript using the HTML Container Protocol, extracting surgical method patches (<code>&lt;script data-method="..." data-action="patch"&gt;</code>) and HTML template blocks (<code>&lt;template data-block="..." data-action="patch"&gt;</code>).
+    </p>
+
+    <aside data-block="sidebar_container_protocol" data-type="sidebar">
+      <span class="sidebar-kicker">Protocol Architecture</span>
+      <strong class="sidebar-title">Surgical Method Patch Containers</strong>
+      <p>
+        The HTML Container Protocol in Action:
+        <br>
+        • <strong>Surgical Class Method Patches:</strong> Instead of re-streaming 50KB files, the LLM outputs only the modified method.
+        <br>
+        • <strong>Client-Side AST Merging:</strong> Luno's <code>LunoClassPatcher</code> parses the target file's AST using Acorn, splices the updated method into place, verifies syntax, and saves the file directly to disk.
+        <br>
+        • <strong>Instant Hot-Reload:</strong> The application reloads in milliseconds, allowing continuous real-time iteration without build pipeline delays.
+      </p>
+    </aside>
+
+    <p data-block="p_luno_loop_3">
+      This workflow eliminates the token bloat and context fatigue that plague traditional AI programming. A single developer, equipped with domain experience and supported by an agentic AI partner through Luno, can build, audit, and evolve complex CAD software at unprecedented speed.
+    </p>
+  </section>
+
+  <section data-section="genetic_recombination">
+    <h2 class="section-title">The Genetic Mutation & Cross-Thread Recombination Protocol</h2>
+
+    <p data-block="p_mutation_1">
+      Here is where this software architecture enters a truly revolutionary frontier: <strong>the document itself can copy itself, mutate inside an AI conversation, and recombine seamlessly with other mutated copies</strong>. In traditional development, collaborating across experimental branches requires complex Git merges, resolving conflicting lines of code, and risking broken builds. With CadPlan and Luno, software evolution mirrors biological reproduction. Because the living specification is composed of modular, addressable components—each paragraph, mathematical calculator, and Three.js viewport being an isolated method or template block—you can copy the whole organism into an LLM, instruct the model to explore a mutation (such as inventing a new clockwork steampunk compass reticle or optimizing ray-curve snapping), and test that mutated branch independently.
+    </p>
+
+    <aside data-block="sidebar_genetic_recombination" data-type="sidebar">
+      <span class="sidebar-kicker">Evolutionary Loop</span>
+      <strong class="sidebar-title">Fork, Mutate, and Recombine via LLM Context</strong>
+      <ul>
+        <li><strong>1. Living State Extraction:</strong> The author captures the active organism (code, DOM XPaths, user directives) in a lean Outbox payload.</li>
+        <li><strong>2. Divergent Mutation:</strong> Fork the payload across parallel AI chats (e.g., Thread A builds Rust Wasm bindings, Thread B invents two-handed mobile gestures).</li>
+        <li><strong>3. Granular AST Containerization:</strong> Each thread outputs isolated patches using the HTML container protocol (<code>&lt;script data-method="..."&gt;</code>).</li>
+        <li><strong>4. Recombination Synthesis:</strong> Feed both patch logs into an LLM context to synthesize a conflict-free hybrid.</li>
+        <li><strong>5. Instant In-Situ Compilation:</strong> Luno splices the reconciled methods into the runtime heap—completing the evolutionary loop!</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_mutation_2">
+      When you are ready to bring those experimental threads together, you don't fight merge tools. You simply take the surgical container outputs from both threads, paste them into a large context window, and say: <em>"Merge these two capabilities into one unified system."</em> The LLM evaluates the AST differences, verifies that neither mutation breaks the core direction-cosine or snapping invariants, and produces a single, reconciled patch bundle. With one click of "Paste from Chatbot", Luno splices the unified genetic code into the live files in browser memory, and the evolved application boots instantly without reload friction.
+    </p>
+  </section>
+</article>
+
+  <article data-page="ecosystem" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Self-Replicating Blueprint Architecture</span>
+    <h1 class="dossier-title">Luno Loop & Self-Replication</h1>
+    <p class="dossier-subtitle">The plan is the application: how CAD Plan self-replicates, tests its own geometry, and evolves through surgical LLM collaboration.</p>
+  </header>
+
+  <section data-section="self_rep">
+    <h2 class="section-title">The Living, Self-Replicating Blueprint</h2>
+    <div data-block="comp_ecosystem_graphic" data-type="component" data-component="CadEcosystemGraphicComponent"></div>
+
+    <p data-block="p_self_rep_1">
+      In traditional software engineering, developers build monolithic applications and write separate, static documentation that rots within months. In our architecture, <strong>the document is the primary deliverable, not a secondary byproduct</strong>. Notice how the application ecosystem is structured: we have decomposed the monolithic CAD suite into focused, testable sub-views (<code>CompassApp</code>, <code>KeyCommandApp</code>, <code>TouchController</code>, and <code>accuCad</code>), unified by the shared <code>Library</code> hub. And <code>CadPlan</code> is the living master orchestrator that embeds, audits, and runs all of these instruments side-by-side in real time without nested iframes.
+    </p>
+
+    <p data-block="p_self_rep_2">
+      More importantly, it is built to self-replicate and improve itself using Luno. Because every section, demo, and paragraph is an independent static method or clean HTML block, an LLM can inspect, refine, or add new capabilities with surgical precision. When you start a fresh conversation with an AI, you don't need to paste 600,000 tokens of chat history. You simply bundle <code>CadPlan</code>, and the AI immediately receives 100% of the project's history, philosophy, prototype audits, and live demos in a lean payload.
+    </p>
+
+    <aside data-block="sidebar_self_rep_philosophy" data-type="sidebar">
+      <span class="sidebar-kicker">Methodology</span>
+      <strong class="sidebar-title">Why The Plan Is The Application</strong>
+      <ul>
+        <li><strong>1. CompassApp:</strong> In-process 3D Squircle Studio isolating compass geometry, direction cosines, and morphing without dialog clutter.</li>
+        <li><strong>2. KeyCommandApp:</strong> Standalone Keystroke Engine testing single-stroke commands without Enter and numerical range bindings.</li>
+        <li><strong>3. TouchController:</strong> Standalone Mobile WebRTC Glass Deck for two-handed analog parameter scrubbing over local Wi-Fi.</li>
+        <li><strong>4. accuCad:</strong> The unified CAD workstation combining snapping, solids, curves, and tool settings panels.</li>
+        <li><strong>5. Library:</strong> Central shared dependency repository (<code>DomBasics</code>, <code>ThreeJSLoader</code>, <code>UITools</code>).</li>
+        <li><strong>6. CadPlan:</strong> The Living Master Specification that embeds, tests, and documents every tool natively!</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="luno_loop">
+    <h2 class="section-title">Surgical Patching & Instant Iteration</h2>
+
+    <p data-block="p_luno_loop_1">
+      The engine driving this rapid evolution is Luno's copy-paste loop. Luno runs on a local Node.js server, stores projects in IndexedDB or direct disk files, and provides an isolated preview environment where the application updates live.
+    </p>
+
+    <p data-block="p_luno_loop_2">
+      The workflow is simple: I copy a prompt or code bundle from Luno's Outbox, paste it to an LLM, copy the AI's response, and tap "Paste from Chatbot" in Luno. Luno parses the response in browser client JavaScript using the HTML Container Protocol, extracting surgical method patches (<code>&lt;script data-method="..." data-action="patch"&gt;</code>) and HTML template blocks (<code>&lt;template data-block="..." data-action="patch"&gt;</code>).
+    </p>
+
+    <aside data-block="sidebar_container_protocol" data-type="sidebar">
+      <span class="sidebar-kicker">Protocol Architecture</span>
+      <strong class="sidebar-title">Surgical Method Patch Containers</strong>
+      <p>
+        The HTML Container Protocol in Action:
+        <br>
+        • <strong>Surgical Class Method Patches:</strong> Instead of re-streaming 50KB files, the LLM outputs only the modified method.
+        <br>
+        • <strong>Client-Side AST Merging:</strong> Luno's <code>LunoClassPatcher</code> parses the target file's AST using Acorn, splices the updated method into place, verifies syntax, and saves the file directly to disk.
+        <br>
+        • <strong>Instant Hot-Reload:</strong> The application reloads in milliseconds, allowing continuous real-time iteration without build pipeline delays.
+      </p>
+    </aside>
+
+    <p data-block="p_luno_loop_3">
+      This workflow eliminates the token bloat and context fatigue that plague traditional AI programming. A single developer, equipped with domain experience and supported by an agentic AI partner through Luno, can build, audit, and evolve complex CAD software at unprecedented speed.
+    </p>
+  </section>
+
+  <section data-section="genetic_recombination">
+    <h2 class="section-title">The Genetic Mutation & Cross-Thread Recombination Protocol</h2>
+    <div data-block="comp_genetic_mutation_lab" data-type="component" data-component="CadGeneticMutationLab"></div>
+
+    <p data-block="p_mutation_1">
+      Here is where this software architecture enters a truly revolutionary frontier: <strong>the document itself can copy itself, mutate inside an AI conversation, and recombine seamlessly with other mutated copies</strong>. In traditional development, collaborating across experimental branches requires complex Git merges, resolving conflicting lines of code, and risking broken builds. With CadPlan and Luno, software evolution mirrors biological reproduction. Because the living specification is composed of modular, addressable components—each paragraph, mathematical calculator, and Three.js viewport being an isolated method or template block—you can copy the whole organism into an LLM, instruct the model to explore a mutation (such as inventing a new clockwork steampunk compass reticle or optimizing ray-curve snapping), and test that mutated branch independently.
+    </p>
+
+    <aside data-block="sidebar_genetic_recombination" data-type="sidebar">
+      <span class="sidebar-kicker">Evolutionary Loop</span>
+      <strong class="sidebar-title">Fork, Mutate, and Recombine via LLM Context</strong>
+      <ul>
+        <li><strong>1. Living State Extraction:</strong> The author captures the active organism (code, DOM XPaths, user directives) in a lean Outbox payload.</li>
+        <li><strong>2. Divergent Mutation:</strong> Fork the payload across parallel AI chats (e.g., Thread A builds Rust Wasm bindings, Thread B invents two-handed mobile gestures).</li>
+        <li><strong>3. Granular AST Containerization:</strong> Each thread outputs isolated patches using the HTML container protocol (<code>&lt;script data-method="..."&gt;</code>).</li>
+        <li><strong>4. Recombination Synthesis:</strong> Feed both patch logs into an LLM context to synthesize a conflict-free hybrid.</li>
+        <li><strong>5. Instant In-Situ Compilation:</strong> Luno splices the reconciled methods into the runtime heap—completing the evolutionary loop!</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_mutation_2">
+      When you are ready to bring those experimental threads together, you don't fight merge tools. You simply take the surgical container outputs from both threads, paste them into a large context window, and say: <em>"Merge these two capabilities into one unified system."</em> The LLM evaluates the AST differences, verifies that neither mutation breaks the core direction-cosine or snapping invariants, and produces a single, reconciled patch bundle. With one click of "Paste from Chatbot", Luno splices the unified genetic code into the live files in browser memory, and the evolved application boots instantly without reload friction.
+    </p>
+  </section>
+</article>
+</script>
+
+<script data-file="CadPlan/js/CadLunoEcosystemContent.js" data-method="CadLunoEcosystemContent.manifest" data-action="patch">
+  static manifest() {
+      return [
+        {
+          section: 'self_rep',
+          partLabel: 'Chapter 8 • Self-Replication',
+          title: 'The Living, Self-Replicating Blueprint',
+          blocks: [
+            { id: 'comp_ecosystem_graphic', type: 'component', component: 'CadEcosystemGraphicComponent' },
+            { id: 'p_self_rep_1', type: 'p' },
+            { id: 'p_self_rep_2', type: 'p' },
+            { id: 'sidebar_self_rep_philosophy', type: 'sidebar', kicker: 'Methodology', title: 'Why The Plan Is The Application' }
+          ]
+        },
+        {
+          section: 'luno_loop',
+          partLabel: 'Chapter 8 • Workflow',
+          title: 'Surgical Patching & Instant Iteration',
+          blocks: [
+            { id: 'p_luno_loop_1', type: 'p' },
+            { id: 'p_luno_loop_2', type: 'p' },
+            { id: 'sidebar_container_protocol', type: 'sidebar', kicker: 'Protocol Architecture', title: 'Surgical Method Patch Containers' },
+            { id: 'p_luno_loop_3', type: 'p' }
+          ]
+        },
+        {
+          section: 'genetic_recombination',
+          partLabel: 'Chapter 8 • Evolutionary Computing',
+          title: 'The Genetic Mutation & Cross-Thread Recombination Protocol',
+          blocks: [
+            { id: 'comp_genetic_mutation_lab', type: 'component', component: 'CadGeneticMutationLab' },
+            { id: 'p_mutation_1', type: 'p' },
+            { id: 'sidebar_genetic_recombination', type: 'sidebar', kicker: 'Evolutionary Loop', title: 'Fork, Mutate, and Recombine via LLM Context' },
+            { id: 'p_mutation_2', type: 'p' }
+          ]
+        }
+      ];
+    }
+</script>
+
+<script data-file="CadPlan/js/Cad3DSmartLineLab.js">
+class Cad3DSmartLineLab {
+  /**
+   * Live 3D SmartLine & iTwin ThreeAxes Laboratory for Chapter 11.
+   * Full 3D perspective continuous chaining:
+   * - Rounded corner fillets with analytic 3D bisectors
+   * - Tangent circular arc swings with closest-point heuristic
+   * - Live DXF bulge factor [tan(θ/4)] telemetry stream
+   */
+  static async render(container) {
+    container.innerHTML = '';
+
+    const wrap = makeElement('div', {
+      style: {
+        width: '100%',
+        minHeight: '620px',
+        background: '#070a13',
+        borderRadius: '12px',
+        border: '1.5px solid #21262d',
+        overflow: 'hidden',
+        boxShadow: '0 16px 40px rgba(0,0,0,0.65)',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative'
+      }
+    });
+
+    const toolbar = makeElement('div', {
+      style: {
+        padding: '10px 16px',
+        background: 'rgba(15, 23, 42, 0.95)',
+        borderBottom: '1px solid #21262d',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '8px',
+        zIndex: 10
+      }
+    }, [
+      makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+        makeElement('span', { style: { fontSize: '15px' } }, '📐'),
+        makeElement('strong', { style: { fontSize: '13px', color: '#00f2fe', fontFamily: 'monospace' } }, 'accuCad 3D SmartLine & iTwin ThreeAxes Studio'),
+        makeElement('span', { style: { fontSize: '10px', background: '#10b981', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, 'Continuous Chaining')
+      ]),
+      makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { padding: '3px 8px', fontSize: '10px' },
+          onclick: () => app?.baseController?.setDrawingPlane('top')
+        }, 'T: Top'),
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { padding: '3px 8px', fontSize: '10px' },
+          onclick: () => app?.baseController?.setDrawingPlane('front')
+        }, 'F: Front'),
+        makeElement('button', {
+          className: 'dr-nav-btn',
+          style: { padding: '3px 8px', fontSize: '10px' },
+          onclick: () => app?.baseController?.setDrawingPlane('side')
+        }, 'S: Side'),
+        makeElement('button', {
+          className: 'dr-nav-btn primary',
+          style: { padding: '3px 10px', fontSize: '10px', fontWeight: 'bold' },
+          onclick: () => exportDxf()
+        }, '📤 DXF Bulges')
+      ])
+    ]);
+    wrap.appendChild(toolbar);
+
+    const stageGrid = makeElement('div', {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(320px, 1.4fr) minmax(280px, 1fr)',
+        flex: 1,
+        minHeight: '520px',
+        background: '#21262d',
+        gap: '1px'
+      }
+    });
+
+    const canvasMount = makeElement('div', {
+      id: 'accucad-mount-3d-smartline-lab',
+      style: { width: '100%', height: '100%', minHeight: '520px', position: 'relative', background: '#050811' }
+    });
+    stageGrid.appendChild(canvasMount);
+
+    // Right Column: Live Telemetry & DXF Bulge Stream
+    const telemetryCol = makeElement('div', {
+      style: {
+        background: '#0a0e1a',
+        padding: '12px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        fontFamily: 'monospace',
+        fontSize: '11px',
+        color: '#cbd5e1'
+      }
+    });
+
+    const infoCard = makeElement('div', {
+      style: {
+        background: '#070a13', border: '1px solid #1e293b', borderRadius: '8px', padding: '10px',
+        display: 'flex', flexDirection: 'column', gap: '6px'
+      }
+    }, [
+      makeElement('strong', { style: { color: '#00f2fe' } }, 'iTwin ThreeAxes & SmartLine State:'),
+      activePlaneLabel = makeElement('div', { style: { color: '#38bdf8' } }, 'Active Plane: TOP [Z = (0, 1, 0)]'),
+      segmentCountLabel = makeElement('div', {}, 'Segments: 0 (Click points to chain)'),
+      lastBulgeLabel = makeElement('div', { style: { color: '#f59e0b' } }, 'Last Tangent Bulge tan(θ/4): 0.0000')
+    ]);
+    let activePlaneLabel, segmentCountLabel, lastBulgeLabel;
+    telemetryCol.appendChild(infoCard);
+
+    telemetryCol.appendChild(makeElement('div', { style: { color: '#10b981', fontWeight: 'bold' } }, 'Live DXF LWPOLYLINE Stream:'));
+    const dxfTerminal = makeElement('pre', {
+      style: {
+        flex: 1, margin: 0, minHeight: '180px', maxHeight: '240px', background: '#050811',
+        border: '1px solid #1e293b', borderRadius: '6px', padding: '8px', color: '#7ee787',
+        fontSize: '10.5px', overflowY: 'auto', lineHeight: '1.4'
+      }
+    }, '0\nSECTION\n2\nENTITIES\n0\nLWPOLYLINE\n...');
+    telemetryCol.appendChild(dxfTerminal);
+    stageGrid.appendChild(telemetryCol);
+
+    wrap.appendChild(stageGrid);
+    container.appendChild(wrap);
+
+    let app = null;
+    let instId = null;
+
+    const isLoaded = await CadStudioDemoComponent.ensureAccuCadLoaded();
+    if (isLoaded && globalThis.Main) {
+      app = new globalThis.Main();
+      await app.run({
+        container: canvasMount,
+        showSidePanel: false,
+        showCompassUi: false,
+        initialTool: 'path',
+        cameraPos: { x: 3.5, y: 3.2, z: 4.8 },
+        target: [0, 0, 0],
+        background: 0x050811,
+        initialPlane: 'top'
+      });
+
+      instId = CadStudioDemoComponent.registerInstance(app, canvasMount, '3D SmartLine Studio');
+
+      // Update telemetry on clicks
+      canvasMount.addEventListener('pointerup', () => {
+        setTimeout(updateTelemetry, 40);
+      });
+    }
+
+    function updateTelemetry() {
+      if (!app?.baseController) return;
+      const bc = app.baseController;
+      const elements = bc.cadElements.filter(e => !e.isTemporary);
+
+      segmentCountLabel.textContent = `CAD Elements: ${elements.length} committed`;
+
+      const rm = bc.rotationMatrix || [[1,0,0],[0,1,0],[0,0,1]];
+      activePlaneLabel.textContent = `Active Plane Basis: Normal = [${rm[2].map(n => n.toFixed(2)).join(', ')}]`;
+
+      let dxfText = "0\nSECTION\n2\nENTITIES\n";
+      elements.forEach(el => {
+        if (el.type === 'path' && el.vertices) {
+          dxfText += `0\nLWPOLYLINE\n8\nSMARTLINE_3D\n90\n${el.vertices.length}\n70\n${el.closed ? 1 : 0}\n`;
+          el.vertices.forEach(v => {
+            dxfText += `10\n${v.point[0].toFixed(3)}\n20\n${v.point[1].toFixed(3)}\n`;
+            if (v.bulge) {
+              dxfText += `42\n${v.bulge.toFixed(4)}\n`;
+              lastBulgeLabel.textContent = `Last Tangent Bulge tan(θ/4): ${v.bulge.toFixed(4)}`;
+            }
+          });
+        }
+      });
+      dxfText += "0\nENDSEC\n0\nEOF";
+      dxfTerminal.textContent = dxfText;
+    }
+
+    function exportDxf() {
+      if (!app?.baseController) return;
+      CadStorageManager.prototype.exportToDxf.call(
+        { baseController: app.baseController },
+        null,
+        `SmartLine_3D_${Date.now()}.dxf`
+      );
+    }
+
+    const observer = new MutationObserver(() => {
+      if (!document.body.contains(wrap)) {
+        if (instId && typeof CadStudioDemoComponent !== 'undefined') {
+          CadStudioDemoComponent.unregisterInstance(instId);
+        }
+        if (app && typeof app.destroy === 'function') {
+          app.destroy();
+        }
+        observer.disconnect();
+      }
+    });
+    observer.observe(wrap.parentNode || document.body, { childList: true });
+  }
+}
+
+globalThis.Cad3DSmartLineLab = Cad3DSmartLineLab;
+if (typeof module !== 'undefined' && module.exports) module.exports = Cad3DSmartLineLab;
+</script>
+
+<script data-file="CadPlan/content/itwin.html" data-action="patch">
+<article data-page="itwin" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Lineage Parity & SmartLine Specification</span>
+    <h1 class="dossier-title">10. iTwin Parity Audit & SmartLine Spec</h1>
+    <p class="dossier-subtitle">Auditing Bentley’s 3,862-line TypeScript AccuDraw engine, formalizing the SmartLine state machine, and blueprinting compassdraw-core in Rust.</p>
+  </header>
+
+  <section data-section="universal_converter_top">
+    <h2 class="section-title">Universal Arc & Coordinate Transformation Engine</h2>
+    <div data-block="comp_coordinate_converter" data-type="component" data-component="CadCoordinateConverterLab"></div>
+  </section>
+
+  <section data-section="itwin_audit">
+    <h2 class="section-title">Inside Bentley iTwin AccuDraw.ts (3,862 Lines)</h2>
+
+    <p data-block="p_itwin_1">
+      With the direct download of Bentley's <code>@itwin/core-frontend</code> production source into our workspace (<code>itwin_reference/AccuDraw.ts</code> and <code>AccuSnap.ts</code>), we can compare my original 1990s C implementation, our modern WebGL <code>accuCad</code> prototype, and Bentley's active 3,862-line TypeScript engine side-by-side.
+    </p>
+
+    <p data-block="p_itwin_2">
+      Our direct code inspection of Bentley's <code>AccuDraw.ts</code> confirms the five foundational pillars of the engine:
+      <br><br>
+      1. <strong><code>ThreeAxes</code> (3D Direction Cosines):</strong> Maintains three orthonormal unit vectors (<code>x</code>, <code>y</code>, <code>z</code>) derived from <code>Matrix3d</code>. It provides <code>fromMatrix3d</code>, <code>toMatrix3d</code>, and <code>equals</code>, allowing the compass plane to rotate into Top, Front, Side, View, or arbitrary surface normals without gimbal lock.
+      <br><br>
+      2. <strong><code>RoundOff</code> (Screen-Space Inset & Hysteresis):</strong> Computes distance and angle round-offs. Indexing hysteresis is evaluated in screen-space pixels to maintain uniform tactile feel across zoom ratios, preventing magnetic traps through single-keystroke axis isolation.
+      <br><br>
+      3. <strong><code>ItemField</code> &amp; <code>KeyinStatus</code>:</strong> Tracks active input focus across X, Y, Distance, Angle, and Z, distinguishing between dynamic coordinate tracking and hard numerical locks.
+      <br><br>
+      4. <strong><code>AccuDrawHintBuilder</code>:</strong> The standardized protocol whereby interactive CAD drawing tools communicate contextual intent to the compass—such as anchoring origin to the prior vertex or aligning orientation to the current stroke segment.
+      <br><br>
+      5. <strong><code>SavedState</code>:</strong> A transactional state stack that allows AccuDraw to push and pop coordinate frames across view manipulation and nested sub-commands.
+    </p>
+
+    <aside data-block="sidebar_itwin_architecture" data-type="sidebar">
+      <span class="sidebar-kicker">iTwin Symbols</span>
+      <strong class="sidebar-title">AccuDraw.ts & AccuSnap.ts Core Topology</strong>
+      <ul>
+        <li><code>ThreeAxes</code>: True 3×3 direction-cosine basis managing spatial orientation vectors.</li>
+        <li><code>RoundOff</code>: Distance and angle roundoff engine with screen-space hysteresis tolerance.</li>
+        <li><code>AccuDrawFlags</code>: Packed state flags for auto-orientation, floating origin, and polar mode.</li>
+        <li><code>AccuDrawHintBuilder</code>: Standardized contextual communication between tools and compass.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="smartline_spec">
+    <h2 class="section-title">The SmartLine Continuous Chaining State Machine</h2>
+    <div data-block="comp_3d_smartline_lab" data-type="component" data-component="Cad3DSmartLineLab"></div>
+    <div data-block="comp_svg_smartline_lab" data-type="component" data-component="SvgSmartLineLab"></div>
+
+    <p data-block="p_smartline_1">
+      In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users were forced to draw individual straight lines, circles, and arcs using separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture. Within SmartLine, there are two distinct kinds of arcs: <strong>Rounded Corner Fillets</strong> and <strong>Independent Tangent Arc Segments</strong>. If a rounded corner could do it, that's what was done. Crucially, for corner fillets, <strong>if a segment was too short to physically fit the requested rounding radius, SmartLine simply rendered a clean, sharp corner</strong>. It did not distort the drafter's requested radius, push adjacent vertices, or interrupt the user with modal error dialogs. The geometry stayed clean, predictable, and fast.
+    </p>
+
+    <p data-block="p_smartline_2">
+      Arc segments were remarkably easy to make tangent to the previous segment because AccuDraw automatically oriented itself with the tangent vector of the prior line. Crucially, as soon as you switched into Arc mode, AccuDraw flipped into <strong>Polar mode</strong>, letting the draftsperson immediately type the radius or chord distance directly without looking at a command prompt. SmartLine arc segments are governed by <strong>Rob Brown's Closest-Point Sweep Principle</strong>: the orientation is solved by finding the candidate tangent arc where the cursor is as close as possible to a point along the circumference. As you pull the mouse away, the arc naturally opens out from 0° to +5°; if you back up and cross the tangent line, it smoothly flips to -6° with zero deadband jitter. Upon committing the arc, the compass automatically aligns to the exit tangent vector, allowing the draftsperson to continue tangent or perpendicular into the next segment effortlessly.
+    </p>
+
+    <aside data-block="sidebar_smartline_transitions" data-type="sidebar">
+      <span class="sidebar-kicker">State Machine</span>
+      <strong class="sidebar-title">SmartLine Continuous Geometry Transitions</strong>
+      <ul>
+        <li><strong>Type A: Rounded Corner Fillets:</strong> Tangent circular arc connecting incoming and outgoing segment bisectors. Short-Segment Fallback renders a clean sharp corner if setback exceeds half segment length.</li>
+        <li><strong>Trailing Corner Live Adjustment:</strong> Closing a loop applies active fillet radius to $P_0$, keeping a live adjustment hook until a new command begins.</li>
+        <li><strong>Type B: Tangent Arc Segments:</strong> Closest-Point heuristic evaluates proximity to candidate circumference with zero deadband jitter.</li>
+        <li><strong>Exit Tangent Orientation:</strong> Compass aligns to exit tangent vector automatically upon arc commit.</li>
+        <li><strong>Single-Stroke Escapes:</strong> <code>T</code>, <code>F</code>, <code>S</code>, or <code>V</code> snaps compass back to orthogonal planes without breaking polyline chain.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_smartline_3">
+      To bring this interaction model into the modern open ecosystem, we implement the entire 2D drafting engine in pure SVG. In the live laboratory above, you can lay down lines, press <code>A</code> or <code>~</code> to swing dynamic tangent arcs, watch the Squircle Compass rotate to align with exit tangents, and press <code>T</code> or <code>V</code> to break onto standard planes. Each segment drawn in the SVG canvas maps 1:1 into CADCraft's <code>LwPolyline</code> with <code>PolyVertex { point, bulge: tan(θ/4) }</code>.
+    </p>
+  </section>
+
+  <section data-section="surface_and_state">
+    <h2 class="section-title">Surface Normal Alignment (Q), Transactional Undo & winit Key Interception</h2>
+
+    <p data-block="p_surface_normal_1">
+      A primary capability proven in our <code>accuCad</code> prototype is <strong>Instant Surface Normal Alignment (<code>Q</code>)</strong>. When drafting in 3D, a user clicks or tentative-snaps onto an angled face of a 3D solid or imported assembly, and taps <code>Q</code>. The compass immediately tilts flush against that surface. The challenge in 3D space is that a face hit provides only a single vector: the surface normal $\vec{n}$. To construct a stable drafting plane, we derive two orthogonal tangent vectors ($\vec{X}_c, \vec{Y}_c$) using Gram-Schmidt orthogonalization without gimbal lock or sudden axis flipping as the camera moves.
+    </p>
+
+    <aside data-block="sidebar_surface_normal_math" data-type="sidebar">
+      <span class="sidebar-kicker">Gram-Schmidt Math</span>
+      <strong class="sidebar-title">3D Face Normal Derivation & Non-Flipping Axes</strong>
+      <p>
+        Derives stable, non-flipping 3D drafting axes from a surface hit normal $\vec{n}$. Selects a reference up vector to avoid collinear cross products, normalizes $\vec{X} = \text{up} \times \vec{n}$, and derives $\vec{Y} = \vec{n} \times \vec{X}$, feeding directly into CADCraft's <code>Mat4::ocs</code>.
+      </p>
+    </aside>
+
+    <p data-block="p_state_stack_1">
+      To preserve continuity between AutoCAD and AccuDraw, we synchronize their state stacks. In CADCraft, drawing operations commit changes to <code>cadcraft-doc::EntityStore</code> with incremental transaction IDs. In <code>compassdraw-core</code>, we maintain a parallel <code>SavedState</code> stack. Whenever an entity point is committed, AccuDraw records its floating origin, active <code>ThreeAxes</code>, and coordinate locks. If the user invokes AutoCAD's <code>UNDO</code> command, CADCraft notifies CompassDraw, which pops its state stack to the matching transaction ID—instantly returning the compass origin and working depth to the prior vertex.
+    </p>
+
+    <aside data-block="sidebar_smart_backspace_winit" data-type="sidebar">
+      <span class="sidebar-kicker">Event Interception</span>
+      <strong class="sidebar-title">Single-Stroke Typing & Smart Backspace in winit</strong>
+      <ul>
+        <li><strong>Numeric Interception:</strong> Numbers are captured directly into the active field buffer without opening command-line prompts.</li>
+        <li><strong>Smart Backspace:</strong> Truncates active typing buffer or least significant digit of live dynamic coordinate.</li>
+        <li><strong>Zero Double-Typing:</strong> Eliminates keystroke conflicts between AccuDraw and CADCraft.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="fillet_comparison">
+    <h2 class="section-title">Fillet Geometry: CADCraft Newton-Raphson vs. Analytic Bisector</h2>
+
+    <p data-block="p_fillet_comp_1">
+      Our inspection of CADCraft's <code>crates/geom/src/fillet.rs</code> reveals a sophisticated numerical solver. Rather than just supporting simple circular arc fillets between straight line segments, CADCraft's <code>CornerFit</code> computes circles tangent across any combination of Lines, Circles, Ellipses, and Splines (<code>TanCurve</code>) using a 40-step damped Newton-Raphson method on exact offset curves.
+    </p>
+
+    <p data-block="p_fillet_comp_2">
+      By contrast, in <code>accuCad/js/RoundingUtils3D.js</code>, our 3D path filleting algorithm is closed-form and analytic: it calculates the 3D angle bisector between incoming and outgoing unit vectors, directly projecting tangent touch points $p_1$ and $p_2$. This is ultra-fast ($O(1)$) and works across arbitrary 3D planes. By combining both approaches, <code>compassdraw-core</code> uses analytic 3D bisectors for real-time mouse hover previews, and CADCraft's Newton solver for complex spline/ellipse boundary fillets.
+    </p>
+
+    <aside data-block="sidebar_fillet_comparison" data-type="sidebar">
+      <span class="sidebar-kicker">Algorithm Audit</span>
+      <strong class="sidebar-title">CornerFit (Rust) vs. RoundingUtils3D (JS)</strong>
+      <ul>
+        <li><strong>CADCraft (<code>fillet.rs</code>):</strong> Damped Newton-Raphson solver supporting lines, circles, ellipses, and NURBS splines.</li>
+        <li><strong>accuCad (<code>RoundingUtils3D.js</code>):</strong> Closed-form 3D vector bisector math ($O(1)$ speed, zero iterations) optimized for 60 FPS cursor previews.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="smart_keyin">
+    <h2 class="section-title">SmartKeyin: Directional Sign Inference & SavedState</h2>
+
+    <p data-block="p_smart_keyin_1">
+      One of the most elegant interaction design details in AccuDraw—preserved in Bentley's <code>AccuDraw.ts</code> under <code>public smartKeyin = true</code>—is automatic directional sign inference. When drafting precisely, forcing a user to type <code>-12.5</code> versus <code>12.5</code> based on Cartesian signs breaks drafting rhythm. Your eyes are on the geometry, not on coordinate signs.
+    </p>
+
+    <p data-block="p_smart_keyin_2">
+      In <code>AccuDraw.ts</code>, when <code>smartKeyin</code> is active, the engine checks whether the current cursor delta vector points along the negative axis: <code>this._xIsNegative === (this.delta.x &gt;= 0.0)</code>. If the user moves the mouse to the left and types <code>5</code>, AccuDraw automatically multiplies the value by <code>-1</code>. The sign is inferred entirely from physical human motion. Furthermore, <code>AccuDraw.ts</code> maintains <code>savedStateViewTool</code> and <code>savedStateInputCollector</code>: when the user pans, zooms, rotates the view, or runs a nested query command, AccuDraw pushes its coordinate frame to a state stack, restoring origin, locks, and orientation without resetting the active drawing command.
+    </p>
+
+    <aside data-block="sidebar_smart_keyin_math" data-type="sidebar">
+      <span class="sidebar-kicker">Math & State Stack</span>
+      <strong class="sidebar-title">SmartKeyin Quadrant Inference & SavedState</strong>
+      <ul>
+        <li><code>delta.x &lt; 0.0 ? -abs(val) : abs(val)</code>: Eliminates 100% of negative key-ins during drafting.</li>
+        <li><code>savedStateViewTool</code>: Restores active compass frame after view manipulation (Pan, Zoom, Orbit).</li>
+        <li><code>savedStateInputCollector</code>: Preserves origin and locks across nested measurement tools.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="mcp_agents">
+    <h2 class="section-title">MCP Autonomous Drafting & Compass Constraints</h2>
+
+    <p data-block="p_mcp_agent_spec_1">
+      CADCraft includes <code>cadcraft-mcp</code>—a native Model Context Protocol server. Currently, AI agents interact with CADCraft using raw absolute coordinates (e.g. <code>create_line(x1, y1, x2, y2)</code>). Anyone who has watched an LLM draft knows the problem: models struggle with exact spatial trigonometry, producing misaligned corners, small gaps, and overlapping lines.
+    </p>
+
+    <p data-block="p_mcp_agent_spec_2">
+      By exposing CompassDraw endpoints to the MCP server (<code>compass_origin</code>, <code>compass_align</code>, <code>compass_lock_axis</code>, <code>smartline_segment</code>), the AI agent drafts using relative vectors: "Move origin to vertex A, lock X-axis, offset 42.5 units, tangent arc of radius 10 to vertex B." This allows the AI agent to produce geometrically perfect, manifold drawings on the first pass without spatial hallucinations.
+    </p>
+
+    <aside data-block="sidebar_mcp_compass_tools" data-type="sidebar">
+      <span class="sidebar-kicker">Agent API</span>
+      <strong class="sidebar-title">Model Context Protocol Compass Endpoints</strong>
+      <ul>
+        <li><code>compass_set_origin(handle, vertex_index)</code>: Anchors compass to an element vertex.</li>
+        <li><code>compass_orient_plane(plane)</code>: Sets Front, Top, Side, or element normal.</li>
+        <li><code>compass_vector_input(distance, angle | dx, dy)</code>: Commits constrained displacement.</li>
+        <li><code>smartline_chain(points, radii, auto_close)</code>: Commits multi-segment tangent path.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="rust_core">
+    <h2 class="section-title">compassdraw-core: The Headless Rust Crate</h2>
+
+    <p data-block="p_rust_crate_1">
+      To bridge our interaction design into CADCraft and the broader Rust CAD ecosystem, we are blueprinting <code>compassdraw-core</code>—a standalone, pure-Rust crate with <code>no_std</code> compatibility that compiles to native desktop binaries (macOS Metal, Windows DX12, Linux Vulkan via <code>winit</code>/<code>wgpu</code>) as well as WebAssembly. The crate contains zero UI, windowing, or DOM allocations. It takes ray origins, ray directions, and key codes, and returns constrained coordinates, direction-cosine matrix bases, and arc bulge factors.
+    </p>
+
+    <p data-block="p_rust_crate_2">
+      Because <code>compassdraw-core</code> is decoupled from both the GPU and windowing systems, it satisfies both requirements simultaneously:
+      <br><br>
+      1. <strong>2D Drafting Replacement:</strong> In 2D mode, it locks the projection plane to Top ($Z=0$), converting 3D ray intersections into 2D planar coordinates (<code>[x, y, 0.0]</code>) that feed directly into CADCraft's standard <code>Vec2</code> command machines.
+      <br><br>
+      2. <strong>3D Spatial Navigation:</strong> In 3D mode, single-keystroke inputs (<code>T</code>, <code>F</code>, <code>S</code>, <code>V</code>, <code>Q</code>) reorient <code>ThreeAxes</code>, allowing <code>PlineM</code> and CADCraft's <code>Mat4::ocs</code> to extrude angled faces with exact topological continuity.
+      <br><br>
+      3. <strong>Dual Host Support:</strong> The same crate feeds CADCraft's native <code>wgpu</code> overlay pass on desktop and drives Three.js / WebGL viewports via our <code>host.rs</code> postMessage bridge on the web.
+    </p>
+
+    <aside data-block="sidebar_rust_crate_api" data-type="sidebar">
+      <span class="sidebar-kicker">Rust Architecture</span>
+      <strong class="sidebar-title">compassdraw-core Crate Specification</strong>
+      <ul>
+        <li><code>ThreeAxes</code>: Direction cosine basis ($x, y, z$) managing spatial orientation.</li>
+        <li><code>CompassDraw</code>: Kernel state machine managing origin, locks, roundoff, and SmartLine chaining.</li>
+        <li><code>no_std</code> compatible: Zero heap/OS bindings for ultra-portable execution in Wasm or microcontrollers.</li>
+      </ul>
+    </aside>
+  </section>
+</article>
 </article>

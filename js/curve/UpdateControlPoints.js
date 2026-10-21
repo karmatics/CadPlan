@@ -1,15 +1,6 @@
-class UpdateControlPoints {
-  /**
-   * Authentic iterative relaxation solver for on-curve cubic Bezier splines.
-   * Directly ported from Rob Brown's DrawingApp engine.
-   *
-   * @param {Array<BezierVertex>} vertices - Array of on-curve BezierVertex instances
-   * @param {number} iterations - Number of relaxation passes (typically 8 for final, 4 for live preview)
-   */
+var UpdateControlPoints = class UpdateControlPoints {
   static run(vertices, iterations = 8) {
-    if (!vertices || vertices.length === 0) {
-      return;
-    }
+    if (!vertices || vertices.length === 0) return;
     if (vertices.length === 1) {
       vertices[0].controlPoints = [
         vertices[0].point.slice(),
@@ -17,8 +8,6 @@ class UpdateControlPoints {
       ];
       return;
     }
-
-    const gu = (typeof GeometryUtils !== 'undefined') ? GeometryUtils : UpdateControlPoints;
 
     for (const v of vertices) {
       if (!v.controlPoints || v.controlPoints.length < 2) {
@@ -37,19 +26,19 @@ class UpdateControlPoints {
         if (vertex.tangents && vertex.tangents[1]) {
           tangent = vertex.tangents[1];
         } else if (prevVertex && nextVertex) {
-          const toNext = gu.makeUnitVector(nextVertex.controlPoints[0], vertex.point);
-          const fromPrev = gu.makeUnitVector(vertex.point, prevVertex.controlPoints[1]);
-          tangent = gu.normalize(gu.addVectors(toNext, fromPrev));
+          const toNext = UpdateControlPoints.makeUnitVector(nextVertex.controlPoints[0], vertex.point);
+          const fromPrev = UpdateControlPoints.makeUnitVector(vertex.point, prevVertex.controlPoints[1]);
+          tangent = UpdateControlPoints.normalize(UpdateControlPoints.addVectors(toNext, fromPrev));
         } else if (nextVertex) {
-          tangent = gu.makeUnitVector(nextVertex.controlPoints[0], vertex.point);
+          tangent = UpdateControlPoints.makeUnitVector(nextVertex.controlPoints[0], vertex.point);
         } else if (prevVertex) {
-          tangent = gu.makeUnitVector(vertex.point, prevVertex.controlPoints[1]);
+          tangent = UpdateControlPoints.makeUnitVector(vertex.point, prevVertex.controlPoints[1]);
         }
 
         if (!tangent) continue;
 
         if (vertex.tangentAngleOffset) {
-          tangent = gu.rotateVector(tangent, vertex.tangentAngleOffset);
+          tangent = UpdateControlPoints.rotateVector(tangent, vertex.tangentAngleOffset);
         }
 
         const balance = (typeof vertex.balance === 'number') ? vertex.balance : 1;
@@ -57,17 +46,17 @@ class UpdateControlPoints {
         const reversedTangent = [-tangent[0], -tangent[1], -(tangent[2] || 0)];
 
         if (nextVertex) {
-          const dist = gu.getDistance(vertex.point, nextVertex.point);
+          const dist = UpdateControlPoints.getDistance(vertex.point, nextVertex.point);
           const scale = (dist / 3) * curvature * (2 - balance);
-          vertex.controlPoints[1] = gu.projectPoint(vertex.point, tangent, scale);
+          vertex.controlPoints[1] = UpdateControlPoints.projectPoint(vertex.point, tangent, scale);
         } else {
           vertex.controlPoints[1] = vertex.point.slice();
         }
 
         if (prevVertex) {
-          const dist = gu.getDistance(vertex.point, prevVertex.point);
+          const dist = UpdateControlPoints.getDistance(vertex.point, prevVertex.point);
           const scale = (dist / 3) * curvature * balance;
-          vertex.controlPoints[0] = gu.projectPoint(vertex.point, reversedTangent, scale);
+          vertex.controlPoints[0] = UpdateControlPoints.projectPoint(vertex.point, reversedTangent, scale);
         } else {
           vertex.controlPoints[0] = vertex.point.slice();
         }
@@ -75,7 +64,6 @@ class UpdateControlPoints {
     }
   }
 
-  // --- Self-contained Geometry & Vector Math Fallbacks ---
   static getDistance(p1, p2) {
     const dx = p2[0] - p1[0];
     const dy = p2[1] - p1[1];
@@ -123,7 +111,7 @@ class UpdateControlPoints {
       v[2] || 0
     ];
   }
-}
+};
 
 globalThis.UpdateControlPoints = UpdateControlPoints;
 if (typeof module !== 'undefined' && module.exports) module.exports = UpdateControlPoints;

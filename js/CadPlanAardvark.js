@@ -185,42 +185,58 @@ class CadPlanAardvark {
     }
 
   _highlightElement(el) {
-      if (!el || !this.overlayElement) return;
-      const rect = el.getBoundingClientRect();
-      this.overlayElement.style.display = 'block';
-      this.overlayElement.style.top = `${rect.top}px`;
-      this.overlayElement.style.left = `${rect.left}px`;
-      this.overlayElement.style.width = `${rect.width}px`;
-      this.overlayElement.style.height = `${rect.height}px`;
+        if (!el || !this.overlayElement) return;
+        const rect = el.getBoundingClientRect();
+        this.overlayElement.style.display = 'block';
+        this.overlayElement.style.top = `${rect.top}px`;
+        this.overlayElement.style.left = `${rect.left}px`;
+        this.overlayElement.style.width = `${rect.width}px`;
+        this.overlayElement.style.height = `${rect.height}px`;
 
-      const blockId = el.getAttribute('data-block') || el.getAttribute('data-block-id') || (el.id && !el.id.startsWith('uw') ? el.id : '');
-      const tagName = el.tagName.toLowerCase();
-      const tagDisplay = blockId ? `${tagName}#${blockId}` : tagName;
+        const blockId = el.getAttribute('data-block') || el.getAttribute('data-block-id') || (el.id && !el.id.startsWith('uw') ? el.id : '');
+        const tagName = el.tagName.toLowerCase();
+        const tagDisplay = blockId ? `${tagName}#${blockId}` : tagName;
 
-      if (this.tagElement) {
-        this.tagElement.textContent = `<${tagDisplay}>`;
-      }
+        // Compute full breadcrumb path
+        const getBreadcrumb = (node) => {
+          const parts = [];
+          let curr = node;
+          while (curr && curr !== document.body && parts.length < 4) {
+            const bId = curr.getAttribute('data-block') || curr.id;
+            const sec = curr.getAttribute('data-section');
+            if (bId) parts.unshift(`${curr.tagName.toLowerCase()}#${bId}`);
+            else if (sec) parts.unshift(`sec#${sec}`);
+            else parts.unshift(curr.tagName.toLowerCase());
+            curr = curr.parentElement;
+          }
+          return parts.join(' ➔ ');
+        };
+        const breadcrumbStr = getBreadcrumb(el);
 
-      let noteBadge = '';
-      const notes = CadPlanItemNotes.getLocalMap();
-      let count = 0;
-      Object.keys(notes).forEach(k => {
-        if (blockId && k.endsWith(':' + blockId)) {
-          count += (notes[k] || []).filter(n => n.status !== 'resolved').length;
+        if (this.tagElement) {
+          this.tagElement.textContent = `<${tagDisplay}>`;
         }
-      });
-      if (count > 0) {
-        noteBadge = ` • 📝 ${count} note${count > 1 ? 's' : ''}`;
-      }
 
-      if (this.isElementLocked) {
-        this.overlayElement.classList.add('locked');
-        this._showHudMessage(`[LOCKED] <${tagDisplay}>${noteBadge} — Dialog has focus • Press Esc to unlock`);
-      } else {
-        this.overlayElement.classList.remove('locked');
-        this._showHudMessage(`<${tagDisplay}>${noteBadge} — Press 'C' to add note | 'W' wider | 'N' narrower | 'Esc' to exit`);
+        let noteBadge = '';
+        const notes = CadPlanItemNotes.getLocalMap();
+        let count = 0;
+        Object.keys(notes).forEach(k => {
+          if (blockId && k.endsWith(':' + blockId)) {
+            count += (notes[k] || []).filter(n => n.status !== 'resolved').length;
+          }
+        });
+        if (count > 0) {
+          noteBadge = ` • 📝 ${count} note${count > 1 ? 's' : ''}`;
+        }
+
+        if (this.isElementLocked) {
+          this.overlayElement.classList.add('locked');
+          this._showHudMessage(`[LOCKED] ${breadcrumbStr}${noteBadge} — [C] Note | [E] Edit | [Space/Esc] Unlock`);
+        } else {
+          this.overlayElement.classList.remove('locked');
+          this._showHudMessage(`${breadcrumbStr}${noteBadge} — [C] Note | [Space] Freeze | [W] Wider | [N] Narrower`);
+        }
       }
-    }
   _selectParent() {
     if (this.currentElement && this.currentElement.parentElement && this.currentElement.tagName !== 'BODY') {
       this.widerStack.push(this.currentElement);
@@ -237,60 +253,76 @@ class CadPlanAardvark {
   }
 
   _handleKeyDown(e) {
-    if (!this.isActive) return;
-    const key = e.key.toLowerCase();
+      if (!this.isActive) return;
+      const key = e.key.toLowerCase();
 
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-      if (this.radialMenuElement && this.radialMenuElement.style.display === 'flex') {
-        this._closeRadialMenu();
-      } else {
-        this.deactivate();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.isElementLocked) {
+          this.isElementLocked = false;
+          this.lockedElement = null;
+          if (this.currentElement) this._highlightElement(this.currentElement);
+          return;
+        }
+        if (this.radialMenuElement && this.radialMenuElement.style.display === 'flex') {
+          this._closeRadialMenu();
+        } else {
+          this.deactivate();
+        }
+        return;
       }
-      return;
-    }
 
-    // C or M or A: Open Author Note / Directive Dialog on Selected Element
-    if (key === 'c' || key === 'm' || key === 'a') {
-      e.preventDefault();
-      e.stopPropagation();
-      this._openNoteOnSelected();
-      return;
-    }
+      // Spacebar toggles freeze lock on active element
+      if (e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.isElementLocked = !this.isElementLocked;
+        this.lockedElement = this.isElementLocked ? this.currentElement : null;
+        if (this.currentElement) this._highlightElement(this.currentElement);
+        return;
+      }
 
-    // W: Traverse to Parent Container (Wider)
-    if (key === 'w') {
-      e.preventDefault();
-      e.stopPropagation();
-      this._selectParent();
-      return;
-    }
+      // C or M or A: Open Author Note / Directive Dialog on Selected Element
+      if (key === 'c' || key === 'm' || key === 'a') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._openNoteOnSelected();
+        return;
+      }
 
-    // N: Traverse down child history stack (Narrower)
-    if (key === 'n') {
-      e.preventDefault();
-      e.stopPropagation();
-      this._selectChild();
-      return;
-    }
+      // W: Traverse to Parent Container (Wider)
+      if (key === 'w') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._selectParent();
+        return;
+      }
 
-    // E: Edit paragraph in-situ
-    if (key === 'e') {
-      e.preventDefault();
-      e.stopPropagation();
-      this._openEditOnSelected();
-      return;
-    }
+      // N: Traverse down child history stack (Narrower)
+      if (key === 'n') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._selectChild();
+        return;
+      }
 
-    // T: Copy Selector / Patch Template
-    if (key === 't') {
-      e.preventDefault();
-      e.stopPropagation();
-      this._copyPatchSnippetOnSelected();
-      return;
+      // E: Edit paragraph in-situ
+      if (key === 'e') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._openEditOnSelected();
+        return;
+      }
+
+      // T: Copy Selector / Patch Template
+      if (key === 't') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._copyPatchSnippetOnSelected();
+        return;
+      }
     }
-  }
   _handleContextMenu(e) {
     if (!this.isActive || !this.currentElement) return;
     e.preventDefault();

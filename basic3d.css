@@ -3,17 +3,18 @@
    ========================================================================== */
 
 :root {
-  --cp-bg-deep: #070a13;
-  --cp-bg-surface: #0c1220;
-  --cp-bg-card: rgba(15, 23, 42, 0.75);
+  --cp-bg-deep: #050811;
+  --cp-bg-surface: #0a0e1a;
+  --cp-bg-card: rgba(12, 18, 32, 0.82);
   --cp-border-subtle: rgba(255, 255, 255, 0.08);
-  --cp-border-active: rgba(0, 242, 254, 0.45);
+  --cp-border-active: rgba(0, 242, 254, 0.55);
   
   --cp-cyan: #00f2fe;
-  --cp-cyan-glow: rgba(0, 242, 254, 0.4);
+  --cp-cyan-glow: rgba(0, 242, 254, 0.45);
   --cp-sky: #38bdf8;
   --cp-amethyst: #c084fc;
   --cp-emerald: #10b981;
+  --cp-emerald-glow: rgba(16, 185, 129, 0.45);
   --cp-amber: #f59e0b;
   --cp-rose: #f43f5e;
   
@@ -28,21 +29,21 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(7, 10, 19, 0.95);
+  background: rgba(5, 8, 17, 0.98);
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--cp-sky);
-  box-shadow: 0 0 10px var(--cp-cyan-glow);
+  background: var(--cp-cyan);
+  box-shadow: 0 0 12px var(--cp-cyan-glow);
 }
 
 /* Neon Text Selection */
 ::selection {
-  background: rgba(0, 242, 254, 0.25);
+  background: rgba(0, 242, 254, 0.28);
   color: #f8fafc;
   text-shadow: 0 0 12px var(--cp-cyan);
 }
@@ -69,12 +70,12 @@
   background-position: 0 0, 100% 0, 100% 100%, 0 100% !important;
   animation: cp-crawling-ants 1.4s linear infinite !important;
   border-radius: 6px !important;
-  box-shadow: 0 0 18px rgba(0, 242, 254, 0.25) !important;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.28), inset 0 0 10px rgba(0, 242, 254, 0.08) !important;
   transition: box-shadow 0.2s ease !important;
 }
 
 .cadplan-has-note-marker:hover {
-  box-shadow: 0 0 28px rgba(0, 242, 254, 0.45) !important;
+  box-shadow: 0 0 32px rgba(0, 242, 254, 0.6) !important;
 }
 
 .cadplan-has-note-marker.proposal-mode {
@@ -83,16 +84,69 @@
     linear-gradient(180deg, #c084fc 50%, transparent 50%),
     linear-gradient(270deg, #c084fc 50%, transparent 50%),
     linear-gradient(0deg, #c084fc 50%, transparent 50%) !important;
-  box-shadow: 0 0 18px rgba(192, 132, 252, 0.3) !important;
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.35) !important;
 }
 
 /* ==========================================================================
-   Navigation Sidebar (Left Panel) Typography & Wrapping Rules
+   Cyberpunk Glassmorphism & Micro-Interactions
    ========================================================================== */
 
+.cp-cyber-card {
+  background: var(--cp-bg-card);
+  border: 1px solid var(--cp-border-subtle);
+  border-radius: 10px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cp-cyber-card:hover {
+  border-color: rgba(0, 242, 254, 0.45);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 242, 254, 0.15);
+}
+
+.cp-glow-pulse {
+  animation: cp-pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes cp-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(0, 242, 254, 0.65), 0 0 8px rgba(0, 242, 254, 0.9);
+  }
+}
+
+/* Ghost Cursor Particle Motion Trails */
+.cad-ghost-cursor {
+  filter: drop-shadow(0 0 6px #00f2fe) drop-shadow(0 0 14px rgba(0, 242, 254, 0.5));
+}
+
+.cad-ghost-trail-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #00f2fe;
+  pointer-events: none;
+  z-index: 999;
+  box-shadow: 0 0 6px #00f2fe;
+  animation: cp-trail-fade 0.5s ease-out forwards;
+}
+
+@keyframes cp-trail-fade {
+  0% { opacity: 0.85; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(0.2); }
+}
+
+/* Navigation Sidebar (Left Panel) Typography & Wrapping Rules */
 .cp-sidebar-search {
   width: 100%;
-  background: #090d16;
+  background: #070b14;
   border: 1px solid #1e293b;
   border-radius: 6px;
   padding: 8px 10px;
@@ -105,7 +159,7 @@
 }
 .cp-sidebar-search:focus {
   border-color: #00f2fe;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
 }
 
 .cp-chapter-card {
@@ -117,13 +171,13 @@
   box-sizing: border-box;
 }
 .cp-chapter-card:hover {
-  border-color: rgba(0, 242, 254, 0.35);
+  border-color: rgba(0, 242, 254, 0.4);
   background: rgba(15, 23, 42, 0.7);
 }
 .cp-chapter-card.active {
   background: rgba(0, 242, 254, 0.08);
-  border-color: rgba(0, 242, 254, 0.55);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(0, 242, 254, 0.08);
+  border-color: rgba(0, 242, 254, 0.65);
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.5), inset 0 0 16px rgba(0, 242, 254, 0.1);
 }
 
 .cp-chapter-header-row {
@@ -137,13 +191,13 @@
   transition: background 0.15s ease;
 }
 .cp-chapter-header-row:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .cp-chapter-num-badge {
-  background: rgba(0, 242, 254, 0.14);
+  background: rgba(0, 242, 254, 0.15);
   color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.35);
+  border: 1px solid rgba(0, 242, 254, 0.4);
   font-family: var(--cp-font-mono);
   font-size: 10px;
   font-weight: 800;
@@ -171,7 +225,7 @@
   gap: 3px;
   padding: 4px 8px 8px 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(7, 10, 19, 0.6);
+  background: rgba(5, 8, 17, 0.75);
 }
 
 .cp-section-item {
@@ -189,32 +243,29 @@
 }
 .cp-section-item:hover {
   color: #00f2fe;
-  background: rgba(0, 242, 254, 0.08);
-  padding-left: 10px;
+  background: rgba(0, 242, 254, 0.1);
+  padding-left: 11px;
 }
 .cp-section-item.active-subchapter {
   color: #00f2fe !important;
   font-weight: 700 !important;
-  background: rgba(0, 242, 254, 0.15) !important;
-  border-left: 3px solid #00f2fe !important;
-  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25) !important;
-  padding-left: 10px !important;
+  background: rgba(0, 242, 254, 0.18) !important;
+  border-left: 3.5px solid #00f2fe !important;
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.3) !important;
+  padding-left: 11px !important;
 }
 
-/* ==========================================================================
-   Document Callout Sidebar (.dr-block-sidebar) List & Typography Fixes
-   ========================================================================== */
-
+/* Callout Sidebars */
 .dr-block-sidebar {
   margin: 28px 0 !important;
-  padding: 18px 22px !important;
-  background: #0c1220 !important;
+  padding: 20px 24px !important;
+  background: #0b1120 !important;
   border-left: 4px solid #00f2fe !important;
   border-top: 1px solid #1e293b !important;
   border-right: 1px solid #1e293b !important;
   border-bottom: 1px solid #1e293b !important;
   border-radius: 0 12px 12px 0 !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
   font-family: var(--cp-font-sans) !important;
 }
 
@@ -230,7 +281,7 @@
 
 .dr-sidebar-title {
   font-family: var(--cp-font-sans) !important;
-  font-size: 1.12rem !important;
+  font-size: 1.15rem !important;
   font-weight: 800 !important;
   color: #f8fafc !important;
   margin-bottom: 12px !important;
@@ -247,15 +298,13 @@
 .dr-sidebar-body p {
   margin: 0 0 10px 0 !important;
   font-family: var(--cp-font-sans) !important;
-  font-size: 0.88rem !important;
-  line-height: 1.65 !important;
 }
 
 .dr-sidebar-body ul,
 .dr-sidebar-body ol,
 .dr-block-sidebar ul,
 .dr-block-sidebar ol {
-  margin: 8px 0 12px 18px !important;
+  margin: 8px 0 12px 20px !important;
   padding: 0 !important;
   font-family: var(--cp-font-sans) !important;
 }
@@ -267,8 +316,6 @@
   line-height: 1.6 !important;
   color: #e2e8f0 !important;
   margin-bottom: 6px !important;
-  white-space: normal !important;
-  word-break: break-word !important;
 }
 
 .dr-sidebar-body strong,
@@ -279,13 +326,13 @@
 
 .dr-sidebar-body code,
 .dr-block-sidebar code {
-  background: rgba(0, 242, 254, 0.12) !important;
+  background: rgba(0, 242, 254, 0.14) !important;
   color: #00f2fe !important;
-  border: 1px solid rgba(0, 242, 254, 0.25) !important;
+  border: 1px solid rgba(0, 242, 254, 0.3) !important;
   border-radius: 4px !important;
-  padding: 1px 5px !important;
+  padding: 1px 6px !important;
   font-family: var(--cp-font-mono) !important;
-  font-size: 0.82em !important;
+  font-size: 0.84em !important;
 }
 
 /* Terminal Chrome Styling */
@@ -306,11 +353,11 @@
 
 /* Pulse Highlight when Navigating Targets */
 @keyframes cp-target-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.8); }
-  50% { box-shadow: 0 0 0 12px rgba(0, 242, 254, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.85); }
+  50% { box-shadow: 0 0 0 14px rgba(0, 242, 254, 0); }
   100% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0); }
 }
 .dr-pulse-highlight {
-  animation: cp-target-pulse 1.2s ease-out !important;
+  animation: cp-target-pulse 1.3s ease-out !important;
   border-radius: 6px !important;
 }

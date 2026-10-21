@@ -526,349 +526,306 @@ class CadPlanItemNotes {
     }
 
   static async openBlockNotesDialog(pageId, blockId, currentDoc, onUpdated, hostReader = null, extraOptions = {}) {
-      CadPlanItemNotes.playHapticSound('click');
-      const dossierId = hostReader?.options?.dossierId || currentDoc?.name || 'CadPlan';
-      const docName = currentDoc?.name || (typeof currentDoc === 'function' ? currentDoc.name : 'DocumentContent');
-      const existing = await this.getNotesForBlock(pageId, blockId, dossierId);
+        CadPlanItemNotes.playHapticSound(580, 0.04);
+        const dossierId = hostReader?.options?.dossierId || currentDoc?.name || 'CadPlan';
+        const docName = currentDoc?.name || (typeof currentDoc === 'function' ? currentDoc.name : 'DocumentContent');
+        const existing = await this.getNotesForBlock(pageId, blockId, dossierId);
 
-      // Resolve target element: prioritize explicitly passed element, then DOM lookups
-      let targetEl = extraOptions?.targetElement ||
-                     document.querySelector(`[data-block-id="${blockId}"]`) ||
-                     document.querySelector(`[data-block="${blockId}"]`) ||
-                     document.getElementById(`block-${blockId}`) ||
-                     document.getElementById(blockId);
+        let targetEl = extraOptions?.targetElement ||
+                       document.querySelector(`[data-block-id="${blockId}"]`) ||
+                       document.querySelector(`[data-block="${blockId}"]`) ||
+                       document.getElementById(`block-${blockId}`) ||
+                       document.getElementById(blockId);
 
-      // If target element is not found by ID, attempt XPath resolution from existing note
-      if (!targetEl && existing.length > 0 && existing[0].xpath) {
-        try {
-          const res = document.evaluate(existing[0].xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-          if (res.singleNodeValue) targetEl = res.singleNodeValue;
-        } catch (e) {}
-      }
-
-      const locator = extraOptions?.locator || (targetEl ? CadPlanItemNotes.generateElementLocator(targetEl) : { key: blockId, isOfficial: true, xpath: '' });
-
-      let excerpt = '';
-      if (currentDoc && typeof currentDoc[blockId] === 'function') {
-        const val = currentDoc[blockId]();
-        excerpt = Array.isArray(val) ? val.join(' ') : String(val);
-      }
-      if (!excerpt && targetEl) {
-        excerpt = targetEl.textContent.trim();
-      }
-      if (!excerpt && existing[0]?.blockPreview) {
-        excerpt = existing[0].blockPreview;
-      }
-      if (excerpt.length > 150) excerpt = excerpt.substring(0, 150) + '...';
-
-      const wrap = makeElement('div', {
-        style: {
-          display: 'flex', flexDirection: 'column', height: '100%',
-          color: '#f8fafc', fontFamily: 'var(--cp-font-sans, system-ui, sans-serif)', gap: '10px',
-          background: 'linear-gradient(180deg, rgba(12, 18, 32, 0.98) 0%, rgba(7, 10, 19, 0.98) 100%)',
-          padding: '12px',
-          boxSizing: 'border-box'
+        if (!targetEl && existing.length > 0 && existing[0].xpath) {
+          try {
+            const res = document.evaluate(existing[0].xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            if (res.singleNodeValue) targetEl = res.singleNodeValue;
+          } catch (e) {}
         }
-      });
 
-      const humanCount = existing.filter(n => !n.isLLM).length;
-      const aiCount = existing.filter(n => n.isLLM).length;
+        const locator = extraOptions?.locator || (targetEl ? CadPlanItemNotes.generateElementLocator(targetEl) : { key: blockId, isOfficial: true, xpath: '' });
 
-      // Header Toolbar
-      const topBar = makeElement('div', {
-        style: {
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '8px 12px', borderBottom: '1.5px solid rgba(0, 242, 254, 0.35)',
-          background: 'rgba(0, 242, 254, 0.06)', borderRadius: '8px',
-          fontSize: '11px', fontFamily: 'var(--cp-font-mono, monospace)'
+        let excerpt = '';
+        if (currentDoc && typeof currentDoc[blockId] === 'function') {
+          const val = currentDoc[blockId]();
+          excerpt = Array.isArray(val) ? val.join(' ') : String(val);
         }
-      }, [
-        makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }, [
-          makeElement('span', { style: { color: '#00f2fe', fontWeight: '800' } }, `🎯 ${locator.isOfficial ? `${docName}.${blockId}` : locator.key}`),
-          makeElement('span', {
-            style: { color: '#38bdf8', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid #38bdf866', padding: '1px 8px', borderRadius: '12px' }
-          }, `👤 ${humanCount}`),
-          aiCount > 0 ? makeElement('span', {
-            style: { color: '#c084fc', background: 'rgba(192, 132, 252, 0.22)', padding: '1px 8px', borderRadius: '12px', border: '1px solid #c084fc88' }
-          }, `🤖 ${aiCount} Proposal${aiCount === 1 ? '' : 's'}`) : null
-        ]),
-        makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, `[${dossierId}]`)
-      ]);
-      wrap.appendChild(topBar);
+        if (!excerpt && targetEl) {
+          excerpt = targetEl.textContent.trim();
+        }
+        if (!excerpt && existing[0]?.blockPreview) {
+          excerpt = existing[0].blockPreview;
+        }
+        if (excerpt.length > 150) excerpt = excerpt.substring(0, 150) + '...';
 
-      if (locator.xpath && !locator.isOfficial) {
-        wrap.appendChild(makeElement('div', {
-          style: { fontSize: '10px', color: '#64748b', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
-        }, `XPath: ${locator.xpath}`));
-      }
-
-      if (excerpt) {
-        wrap.appendChild(makeElement('div', {
+        const wrap = makeElement('div', {
           style: {
-            background: 'rgba(0, 242, 254, 0.05)', borderLeft: '3.5px solid #00f2fe',
-            padding: '8px 12px', fontSize: '11.5px', color: '#cbd5e1', fontStyle: 'italic', borderRadius: '4px',
-            boxShadow: 'inset 0 0 12px rgba(0, 242, 254, 0.06)'
+            display: 'flex', flexDirection: 'column', height: '100%',
+            color: '#f8fafc', fontFamily: 'var(--cp-font-sans, system-ui, sans-serif)', gap: '10px',
+            background: 'linear-gradient(180deg, rgba(12, 18, 32, 0.98) 0%, rgba(7, 10, 19, 0.98) 100%)',
+            padding: '12px',
+            boxSizing: 'border-box'
           }
-        }, `"${excerpt}"`));
-      }
+        });
 
-      // Directives & Staged Thread List
-      const threadList = makeElement('div', {
-        id: 'item-notes-thread-list',
-        style: {
-          flex: 1, minHeight: '160px', maxHeight: '240px', overflowY: 'auto',
-          display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px'
-        }
-      });
-      wrap.appendChild(threadList);
+        const humanCount = existing.filter(n => !n.isLLM).length;
+        const aiCount = existing.filter(n => n.isLLM).length;
 
-      const renderThread = async () => {
-        threadList.innerHTML = '';
-        const notes = await CadPlanItemNotes.getNotesForBlock(pageId, blockId, dossierId);
+        const topBar = makeElement('div', {
+          style: {
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '8px 12px', borderBottom: '1.5px solid rgba(0, 242, 254, 0.35)',
+            background: 'rgba(0, 242, 254, 0.06)', borderRadius: '8px',
+            fontSize: '11px', fontFamily: 'var(--cp-font-mono, monospace)'
+          }
+        }, [
+          makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }, [
+            makeElement('span', { style: { color: '#00f2fe', fontWeight: '800' } }, `🎯 ${locator.isOfficial ? `${docName}.${blockId}` : locator.key}`),
+            makeElement('span', {
+              style: { color: '#38bdf8', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid #38bdf866', padding: '1px 8px', borderRadius: '12px' }
+            }, `👤 ${humanCount}`),
+            aiCount > 0 ? makeElement('span', {
+              style: { color: '#c084fc', background: 'rgba(192, 132, 252, 0.22)', padding: '1px 8px', borderRadius: '12px', border: '1px solid #c084fc88' }
+            }, `🤖 ${aiCount} Proposal${aiCount === 1 ? '' : 's'}`) : null
+          ]),
+          makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, `[${dossierId}]`)
+        ]);
+        wrap.appendChild(topBar);
 
-        if (notes.length === 0) {
-          threadList.appendChild(makeElement('div', {
-            style: { padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', fontSize: '11.5px' }
-          }, 'No directives on this element. Dictate thoughts below, select an intent tag, or tap "Ask AI".'));
-          return;
-        }
-
-        notes.forEach((note) => {
-          const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          const isLLM = Boolean(note.isLLM || note.author === 'LLM');
-          const isCleanup = note.status === 'pending_cleanup';
-
-          const borderCol = isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#00f2fe');
-          const bgCol = isLLM ? 'rgba(192, 132, 252, 0.1)' : (isCleanup ? 'rgba(245, 158, 11, 0.08)' : 'rgba(0, 242, 254, 0.06)');
-
-          const itemBox = makeElement('div', {
+        if (excerpt) {
+          wrap.appendChild(makeElement('div', {
             style: {
-              background: bgCol,
-              border: `1.5px solid ${borderCol}`,
-              borderLeft: `4.5px solid ${isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#00f2fe')}`,
-              borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+              background: 'rgba(0, 242, 254, 0.05)', borderLeft: '3.5px solid #00f2fe',
+              padding: '8px 12px', fontSize: '11.5px', color: '#cbd5e1', fontStyle: 'italic', borderRadius: '4px',
+              boxShadow: 'inset 0 0 12px rgba(0, 242, 254, 0.06)'
             }
-          }, [
-            makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
-              makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
-                makeElement('span', {
-                  style: {
-                    fontSize: '10px', fontWeight: '800', textTransform: 'uppercase',
-                    color: isLLM ? '#c084fc' : '#00f2fe', fontFamily: 'var(--cp-font-mono, monospace)'
-                  }
-                }, isLLM ? '🤖 AI Staged Proposal' : `👤 ${note.author}`),
-                makeElement('span', { style: { fontSize: '9px', color: '#64748b' } }, `• ${timeStr}`)
-              ]),
-              makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
-                makeElement('button', {
-                  className: 'dr-nav-btn',
-                  style: { padding: '2px 6px', fontSize: '10px', color: '#ef4444' },
-                  title: 'Delete note',
-                  onclick: async () => {
-                    if (confirm('Delete this directive?')) {
-                      CadPlanItemNotes.playHapticSound('delete');
-                      await CadPlanItemNotes.deleteNote(note.id);
-                      renderThread();
-                      if (onUpdated) onUpdated();
-                    }
-                  }
-                }, '✕')
-              ])
-            ]),
-            makeElement('div', { style: { fontSize: '12px', color: '#f8fafc', lineHeight: '1.55', whiteSpace: 'pre-wrap' } }, note.text)
-          ]);
-
-          threadList.appendChild(itemBox);
-        });
-      };
-
-      await renderThread();
-
-      // Intent Tag Chips Deck
-      const tagDeck = makeElement('div', {
-        style: { display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', padding: '2px 0' }
-      });
-
-      const addTagPrefix = (tagPrefix) => {
-        if (dictationWidget) {
-          const cur = dictationWidget.getText().trim();
-          dictationWidget.setText(`${tagPrefix} ${cur}`);
-          dictationWidget.focus();
-        } else {
-          const ta = document.getElementById('append-item-note-textarea');
-          if (ta) {
-            ta.value = `${tagPrefix} ${ta.value.trim()}`;
-            ta.focus();
-          }
+          }, `"${excerpt}"`));
         }
-      };
 
-      tagDeck.appendChild(makeElement('span', { style: { fontSize: '9.5px', color: '#64748b', fontWeight: 'bold' } }, 'TAG:'));
-      ['💡 Idea', '📐 Math', '⚡ Prompt', '🐛 Fix', '🎨 Style'].forEach(t => {
-        tagDeck.appendChild(makeElement('button', {
-          className: 'cp-tag-chip',
-          onclick: () => addTagPrefix(`[${t}]`)
-        }, t));
-      });
-      wrap.appendChild(tagDeck);
-
-      // DictationWidget Mount
-      const dictationMount = makeElement('div', {
-        style: { minHeight: '110px', display: 'flex', flexDirection: 'column', position: 'relative' }
-      });
-      wrap.appendChild(dictationMount);
-
-      let dictationWidget = null;
-      if (typeof DictationWidget !== 'undefined') {
-        dictationWidget = new DictationWidget({
-          compact: true,
-          placeholder: '🎙️ Dictate directive, or type note for this element...'
-        });
-        dictationMount.appendChild(dictationWidget.getElement());
-      } else {
-        const textarea = makeElement('textarea', {
-          id: 'append-item-note-textarea',
-          placeholder: 'Type directive or staging note for this element...',
+        const threadList = makeElement('div', {
+          id: 'item-notes-thread-list',
           style: {
-            width: '100%', minHeight: '90px', background: '#090d16', color: '#f8fafc',
-            border: '1px solid #232d3f', borderRadius: '6px', padding: '8px',
-            fontFamily: 'var(--dr-font-sans)', fontSize: '12px', outline: 'none'
+            flex: 1, minHeight: '160px', maxHeight: '240px', overflowY: 'auto',
+            display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px'
           }
         });
-        dictationMount.appendChild(textarea);
-      }
+        wrap.appendChild(threadList);
 
-      // Segmented Pill Toggle (Author vs LLM)
-      let selectedAuthorMode = 'Author';
+        const renderThread = async () => {
+          threadList.innerHTML = '';
+          const notes = await CadPlanItemNotes.getNotesForBlock(pageId, blockId, dossierId);
 
-      const toggleAuthorBtn = makeElement('button', {
-        className: 'cp-segmented-btn active author',
-        onclick: () => setAuthorMode('Author')
-      }, '👤 Author Note');
-
-      const toggleLlmBtn = makeElement('button', {
-        className: 'cp-segmented-btn',
-        onclick: () => setAuthorMode('LLM')
-      }, '🤖 AI Proposal');
-
-      const segmentedDeck = makeElement('div', { className: 'cp-segmented-deck' }, [
-        toggleAuthorBtn,
-        toggleLlmBtn
-      ]);
-
-      function setAuthorMode(mode) {
-        selectedAuthorMode = mode;
-        toggleAuthorBtn.className = `cp-segmented-btn ${mode === 'Author' ? 'active author' : ''}`;
-        toggleLlmBtn.className = `cp-segmented-btn ${mode === 'LLM' ? 'active llm' : ''}`;
-        CadPlanItemNotes.playHapticSound('click');
-      }
-
-      // Footer Controls Bar
-      const footer = makeElement('div', {
-        style: {
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', gap: '8px', flexWrap: 'wrap'
-        }
-      });
-
-      const leftControls = makeElement('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, [
-        segmentedDeck
-      ]);
-
-      let clearTether = null;
-
-      const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
-        makeElement('button', {
-          className: 'dr-nav-btn',
-          onclick: () => dlg.close()
-        }, 'Close'),
-
-        makeElement('button', {
-          className: 'dr-nav-btn primary',
-          style: { fontWeight: '800' },
-          onclick: async () => {
-            let txt = '';
-            if (dictationWidget) {
-              txt = dictationWidget.getText().trim();
-            } else {
-              const ta = document.getElementById('append-item-note-textarea');
-              txt = ta ? ta.value.trim() : '';
-            }
-
-            if (!txt) {
-              alert('Please dictate or type a note before appending.');
-              return;
-            }
-
-            const isLLM = selectedAuthorMode === 'LLM';
-            await CadPlanItemNotes.addNote(pageId, blockId, txt, {
-              dossierId,
-              isLLM,
-              author: isLLM ? 'LLM' : 'Author',
-              type: isLLM ? 'proposal' : 'note',
-              blockPreview: excerpt,
-              xpath: locator.xpath,
-              cssPath: locator.cssPath,
-              tagName: locator.tagName,
-              isUniversalElement: !locator.isOfficial
-            });
-
-            CadPlanItemNotes.playHapticSound('snap');
-
-            if (dictationWidget) dictationWidget.clearContent();
-            else {
-              const ta = document.getElementById('append-item-note-textarea');
-              if (ta) ta.value = '';
-            }
-
-            await renderThread();
-            if (onUpdated) onUpdated();
+          if (notes.length === 0) {
+            threadList.appendChild(makeElement('div', {
+              style: { padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', fontSize: '11.5px' }
+            }, 'No directives on this element. Dictate thoughts below or type note.'));
+            return;
           }
-        }, '💾 + Append')
-      ]);
 
-      footer.appendChild(leftControls);
-      footer.appendChild(rightControls);
-      wrap.appendChild(footer);
+          notes.forEach((note) => {
+            const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const isLLM = Boolean(note.isLLM || note.author === 'LLM');
+            const isCleanup = note.status === 'pending_cleanup';
 
-      let posX = Math.max(20, (window.innerWidth - 600) / 2);
-      let posY = 60;
-      if (targetEl) {
-        const r = targetEl.getBoundingClientRect();
-        if (r.right + 620 < window.innerWidth) {
-          posX = r.right + 16;
-          posY = Math.max(50, r.top);
-        } else if (r.left > 620) {
-          posX = r.left - 616;
-          posY = Math.max(50, r.top);
+            const borderCol = isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#00f2fe');
+            const bgCol = isLLM ? 'rgba(192, 132, 252, 0.1)' : (isCleanup ? 'rgba(245, 158, 11, 0.08)' : 'rgba(0, 242, 254, 0.06)');
+
+            const itemBox = makeElement('div', {
+              style: {
+                background: bgCol,
+                border: `1.5px solid ${borderCol}`,
+                borderLeft: `4.5px solid ${borderCol}`,
+                borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+              }
+            }, [
+              makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+                makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
+                  makeElement('span', {
+                    style: {
+                      fontSize: '10px', fontWeight: '800', textTransform: 'uppercase',
+                      color: isLLM ? '#c084fc' : '#00f2fe', fontFamily: 'var(--cp-font-mono, monospace)'
+                    }
+                  }, isLLM ? '🤖 AI Staged Proposal' : `👤 ${note.author}`),
+                  makeElement('span', { style: { fontSize: '9px', color: '#64748b' } }, `• ${timeStr}`)
+                ]),
+                makeElement('div', { style: { display: 'flex', gap: '4px', alignItems: 'center' } }, [
+                  // Instant Prompt Formulation Button
+                  makeElement('button', {
+                    className: 'dr-nav-btn',
+                    style: { padding: '2px 8px', fontSize: '10px', color: '#c084fc', borderColor: '#c084fc66' },
+                    title: 'Copy targeted AI mutation prompt for this directive',
+                    onclick: () => {
+                      const promptText = CadPlanItemNotes.generateSingleNotePrompt(note);
+                      CadPlanItemNotes.dispatchToOutbox(`Directive on ${blockId}`, promptText);
+                      alert(`✓ Targeted prompt formulated for [${blockId}] and pushed to Outbox / clipboard!`);
+                    }
+                  }, '⚡ Prompt AI'),
+                  makeElement('button', {
+                    className: 'dr-nav-btn',
+                    style: { padding: '2px 6px', fontSize: '10px', color: '#ef4444' },
+                    title: 'Delete note',
+                    onclick: async () => {
+                      if (confirm('Delete this directive?')) {
+                        await CadPlanItemNotes.deleteNote(note.id);
+                        renderThread();
+                        if (onUpdated) onUpdated();
+                      }
+                    }
+                  }, '✕')
+                ])
+              ]),
+              makeElement('div', { style: { fontSize: '12px', color: '#f8fafc', lineHeight: '1.55', whiteSpace: 'pre-wrap' } }, note.text)
+            ]);
+
+            threadList.appendChild(itemBox);
+          });
+        };
+
+        await renderThread();
+
+        // Dictation Widget Mount
+        const dictationMount = makeElement('div', {
+          style: { minHeight: '110px', display: 'flex', flexDirection: 'column', position: 'relative' }
+        });
+        wrap.appendChild(dictationMount);
+
+        let dictationWidget = null;
+        if (typeof DictationWidget !== 'undefined') {
+          dictationWidget = new DictationWidget({
+            compact: true,
+            placeholder: '🎙️ Dictate directive, or type note for this element...'
+          });
+          dictationMount.appendChild(dictationWidget.getElement());
+        } else {
+          const textarea = makeElement('textarea', {
+            id: 'append-item-note-textarea',
+            placeholder: 'Type directive or staging note for this element...',
+            style: {
+              width: '100%', minHeight: '90px', background: '#090d16', color: '#f8fafc',
+              border: '1px solid #232d3f', borderRadius: '6px', padding: '8px',
+              fontFamily: 'var(--dr-font-sans)', fontSize: '12px', outline: 'none'
+            }
+          });
+          dictationMount.appendChild(textarea);
         }
-      }
 
-      const dlg = UITools.makeDialog({
-        title: `📝 Directives [${locator.isOfficial ? blockId : locator.key}]`,
-        size: [600, 580],
-        position: [posX, posY],
-        contentElement: wrap,
-        appendTo: document.body,
-        onClose: () => {
-          if (clearTether) clearTether();
-          if (dictationWidget && typeof dictationWidget.destroy === 'function') {
-            dictationWidget.destroy();
+        let selectedAuthorMode = 'Author';
+        const toggleAuthorBtn = makeElement('button', {
+          className: 'cp-segmented-btn active author',
+          onclick: () => setAuthorMode('Author')
+        }, '👤 Author Note');
+
+        const toggleLlmBtn = makeElement('button', {
+          className: 'cp-segmented-btn',
+          onclick: () => setAuthorMode('LLM')
+        }, '🤖 AI Proposal');
+
+        const segmentedDeck = makeElement('div', { className: 'cp-segmented-deck' }, [
+          toggleAuthorBtn, toggleLlmBtn
+        ]);
+
+        function setAuthorMode(mode) {
+          selectedAuthorMode = mode;
+          toggleAuthorBtn.className = `cp-segmented-btn ${mode === 'Author' ? 'active author' : ''}`;
+          toggleLlmBtn.className = `cp-segmented-btn ${mode === 'LLM' ? 'active llm' : ''}`;
+        }
+
+        const footer = makeElement('div', {
+          style: {
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', gap: '8px', flexWrap: 'wrap'
           }
-        }
-      });
+        });
 
-      if (dlg.element) {
-        dlg.element.style.border = '2px solid #00f2fe';
-        dlg.element.style.boxShadow = '0 20px 60px rgba(0,0,0,0.9), 0 0 28px rgba(0,242,254,0.4)';
+        let clearTether = null;
+
+        const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
+          makeElement('button', {
+            className: 'dr-nav-btn',
+            onclick: () => dlg.close()
+          }, 'Close'),
+
+          makeElement('button', {
+            className: 'dr-nav-btn primary',
+            style: { fontWeight: '800' },
+            onclick: async () => {
+              let txt = '';
+              if (dictationWidget) {
+                txt = dictationWidget.getText().trim();
+              } else {
+                const ta = document.getElementById('append-item-note-textarea');
+                txt = ta ? ta.value.trim() : '';
+              }
+
+              if (!txt) {
+                alert('Please dictate or type a note before appending.');
+                return;
+              }
+
+              const isLLM = selectedAuthorMode === 'LLM';
+              await CadPlanItemNotes.addNote(pageId, blockId, txt, {
+                dossierId,
+                isLLM,
+                author: isLLM ? 'LLM' : 'Author',
+                type: isLLM ? 'proposal' : 'note',
+                blockPreview: excerpt,
+                xpath: locator.xpath,
+                cssPath: locator.cssPath,
+                tagName: locator.tagName,
+                isUniversalElement: !locator.isOfficial
+              });
+
+              if (dictationWidget) dictationWidget.clearContent();
+              else {
+                const ta = document.getElementById('append-item-note-textarea');
+                if (ta) ta.value = '';
+              }
+
+              await renderThread();
+              if (onUpdated) onUpdated();
+            }
+          }, '💾 + Append')
+        ]);
+
+        footer.appendChild(segmentedDeck);
+        footer.appendChild(rightControls);
+        wrap.appendChild(footer);
+
+        let posX = Math.max(20, (window.innerWidth - 600) / 2);
+        let posY = 60;
         if (targetEl) {
+          const r = targetEl.getBoundingClientRect();
+          if (r.right + 620 < window.innerWidth) {
+            posX = r.right + 16;
+            posY = Math.max(50, r.top);
+          } else if (r.left > 620) {
+            posX = r.left - 616;
+            posY = Math.max(50, r.top);
+          }
+        }
+
+        const dlg = UITools.makeDialog({
+          title: `📝 Directives [${locator.isOfficial ? blockId : locator.key}]`,
+          size: [600, 580],
+          position: [posX, posY],
+          contentElement: wrap,
+          appendTo: document.body,
+          onClose: () => {
+            if (clearTether) clearTether();
+            if (dictationWidget && typeof dictationWidget.destroy === 'function') {
+              dictationWidget.destroy();
+            }
+          }
+        });
+
+        if (dlg.element && targetEl) {
           clearTether = CadPlanItemNotes._drawTetherToBlock(dlg.element, targetEl);
         }
-      }
 
-      return dlg;
-    }
+        return dlg;
+      }
   static async addAIProposal(pageId, blockId, proposalText, options = {}) {
     return await this.addNote(pageId, blockId, proposalText, {
       ...options,
@@ -1134,6 +1091,41 @@ class CadPlanItemNotes {
       }
 
       return resolvedList;
+    }
+
+  static generateSingleNotePrompt(note) {
+      if (!note) return '';
+
+      const [pageId, blockId] = (note.blockKey || `${note.pageId}:${note.blockId}`).split(':');
+      const dossierId = note.dossierId || 'CadPlan';
+
+      let targetCls = `${pageId.charAt(0).toUpperCase() + pageId.slice(1)}Content`;
+      let targetFile = `${dossierId}/js/${targetCls}.js`;
+
+      if (globalThis[targetCls] && typeof globalThis[targetCls][blockId] === 'function') {
+        // Confirmed method on content class
+      } else if (blockId.startsWith('comp_')) {
+        targetFile = `CadPlan/content/${pageId}.html`;
+      }
+
+      let p = `# 🎯 LIVING SPEC DIRECTIVE: SURGICAL CODE MUTATION\n`;
+      p += `**Dossier:** ${dossierId} • **Target Method/Block:** \`${targetCls}.${blockId}\`\n`;
+      p += `**Target File:** \`${targetFile}\`\n`;
+      if (note.xpath) p += `**DOM XPath:** \`${note.xpath}\`\n`;
+      p += `\n---\n\n`;
+
+      if (note.blockPreview) {
+        p += `### Context Excerpt:\n> ${note.blockPreview.replace(/\n+/g, '\n> ')}\n\n`;
+      }
+
+      p += `### Author / Inventor Directive:\n"${note.text}"\n\n`;
+      p += `### Execution Mandate:\n`;
+      p += `Return the surgical method patch wrapped in a single markdown code fence so Luno can compile it instantly:\n\n`;
+      p += `<` + `script data-file="${targetFile}" data-method="${targetCls}.${blockId}" data-action="patch">\n`;
+      p += `// Complete updated implementation reflecting author directive...\n`;
+      p += `<` + `/script>\n`;
+
+      return p;
     }
 }
 

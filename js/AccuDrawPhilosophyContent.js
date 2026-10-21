@@ -8,72 +8,81 @@ class AccuDrawPhilosophyContent {
   }
 
   static manifest() {
-        return [
-          {
-            section: 'isolated_compass_top',
-            partLabel: 'Chapter 2 • 3D Instrument View',
-            title: 'Isolated 3D AccuDraw Compass (Zoomed Viewport)',
-            blocks: [
-              { id: 'comp_isolated_compass_3d', type: 'component', component: 'CadIsolatedCompass3DComponent' }
-            ]
-          },
-          {
-            section: 'freedom_graphic_section',
-            partLabel: 'Chapter 2 • Human Ergonomics',
-            title: 'Freedom Over Monoliths: Composable Interactive Instruments',
-            blocks: [
-              { id: 'comp_freedom_graphic', type: 'component', component: 'CadErgonomicFreedomGraphic' }
-            ]
-          },
-          {
-            section: 'animated_svg_compass',
-            partLabel: 'Chapter 2 • Procedural Vector Lab',
-            title: 'Animated SVG Compass: Superellipse Morphing & Mini-Jack',
-            blocks: [
-              { id: 'comp_animated_svg_compass', type: 'component', component: 'CadAnimatedSvgCompassLab' }
-            ]
-          },
-          {
-            section: 'compass_anatomy_deconstruction',
-            partLabel: 'Chapter 2 • Anatomical Deconstruction',
-            title: 'The Squircle Compass: Visual Language & Geometry',
-            blocks: [
-              { id: 'comp_compass_anatomy', type: 'component', component: 'CompassAnatomyComponent' }
-            ]
-          },
-          {
-            section: 'challenge',
-            partLabel: 'Chapter 2 • Foundations',
-            title: 'The Challenge of Drawing on a Computer',
-            blocks: [
-              { id: 'p_phil_challenge_1', type: 'p' },
-              { id: 'p_phil_challenge_2', type: 'p' },
-              { id: 'sidebar_1995_reprint', type: 'sidebar', kicker: 'February 1995 MicroStation Manager', title: 'From My Original Article: A PowerDraft Highlight' }
-            ]
-          },
-          {
-            section: 'solution',
-            partLabel: 'Chapter 2 • Synthesis',
-            title: 'Marrying Keyboard Precision and Mouse Intuition',
-            blocks: [
-              { id: 'p_phil_synthesis_1', type: 'p' },
-              { id: 'p_phil_synthesis_2', type: 'p' },
-              { id: 'sidebar_scott_williams', type: 'sidebar', kicker: 'December 1996 MicroStation Manager', title: 'Scott Williams: The 3D Thinking Tool & AccuDreamer' }
-            ]
-          },
-          {
-            section: 'squircle_story',
-            partLabel: 'Chapter 2 • The Compass',
-            title: 'The Story of the Squircle Compass',
-            blocks: [
-              { id: 'p_squircle_1', type: 'p' },
-              { id: 'p_squircle_2', type: 'p' },
-              { id: 'sidebar_squircle_math', type: 'sidebar', kicker: 'Geometry & Math', title: 'Squircle3D, ArcSquircleCalc, and BezierSquircleCalc' },
-              { id: 'p_squircle_3', type: 'p' }
-            ]
-          }
-        ];
-      }
+      return [
+        {
+          section: 'isolated_compass_top',
+          partLabel: 'Chapter 2 • 3D Instrument View',
+          title: 'Isolated 3D AccuDraw Compass (Zoomed Viewport)',
+          blocks: [
+            { id: 'comp_isolated_compass_3d', type: 'component', component: 'CadIsolatedCompass3DComponent' }
+          ]
+        },
+        {
+          section: 'freedom_graphic_section',
+          partLabel: 'Chapter 2 • Human Ergonomics',
+          title: 'Freedom Over Monoliths: Composable Interactive Instruments',
+          blocks: [
+            { id: 'comp_freedom_graphic', type: 'component', component: 'CadErgonomicFreedomGraphic' }
+          ]
+        },
+        {
+          section: 'animated_svg_compass',
+          partLabel: 'Chapter 2 • Procedural Vector Lab',
+          title: 'Animated SVG Compass: Superellipse Morphing & Mini-Jack',
+          blocks: [
+            { id: 'comp_animated_svg_compass', type: 'component', component: 'CadAnimatedSvgCompassLab' }
+          ]
+        },
+        {
+          section: 'compass_anatomy_deconstruction',
+          partLabel: 'Chapter 2 • Anatomical Deconstruction',
+          title: 'The Squircle Compass: Visual Language & Geometry',
+          blocks: [
+            { id: 'comp_compass_anatomy', type: 'component', component: 'CompassAnatomyComponent' }
+          ]
+        },
+        {
+          section: 'challenge',
+          partLabel: 'Chapter 2 • Foundations',
+          title: 'The Challenge of Drawing on a Computer',
+          blocks: [
+            { id: 'p_phil_challenge_1', type: 'p' },
+            { id: 'p_phil_challenge_2', type: 'p' },
+            { id: 'sidebar_1995_reprint', type: 'sidebar', kicker: 'February 1995 MicroStation Manager', title: 'From My Original Article: A PowerDraft Highlight' }
+          ]
+        },
+        {
+          section: 'solution',
+          partLabel: 'Chapter 2 • Synthesis',
+          title: 'Marrying Keyboard Precision and Mouse Intuition',
+          blocks: [
+            { id: 'p_phil_synthesis_1', type: 'p' },
+            { id: 'p_phil_synthesis_2', type: 'p' },
+            { id: 'sidebar_scott_williams', type: 'sidebar', kicker: 'December 1996 MicroStation Manager', title: 'Scott Williams: The 3D Thinking Tool & AccuDreamer' }
+          ]
+        },
+        {
+          section: 'squircle_story',
+          partLabel: 'Chapter 2 • The Compass',
+          title: 'The Story of the Squircle Compass',
+          blocks: [
+            { id: 'p_squircle_1', type: 'p' },
+            { id: 'p_squircle_2', type: 'p' },
+            { id: 'sidebar_squircle_math', type: 'sidebar', kicker: 'Geometry & Math', title: 'Squircle3D, ArcSquircleCalc, and BezierSquircleCalc' },
+            { id: 'p_squircle_3', type: 'p' }
+          ]
+        },
+        {
+          section: 'compass_custom_skins',
+          partLabel: 'Chapter 2 • Pluggable HUD Decorators',
+          title: 'Extensible Compass Skins: Clockwork Steampunk & Art Nouveau Tendrils',
+          blocks: [
+            { id: 'comp_steampunk_compass_demo', type: 'component', component: 'CadSteampunkCompassComponent' },
+            { id: 'comp_artnouveau_compass_demo', type: 'component', component: 'CadArtNouveauCompassComponent' }
+          ]
+        }
+      ];
+    }
   static p_phil_challenge_1() {
     return [
       "When I sat down to write 'A PowerDraft Highlight: AccuDraw' for the February 1995 issue of MicroStation Manager, I started with the fundamental challenge of our medium. On paper, precision drafting had centuries of physical tools: T-squares, triangles, scales, and drafting machines. In early CAD systems, there was no direct equivalent. We had a keyboard and a mouse, and they were fighting each other."
@@ -130,7 +139,9 @@ class AccuDrawPhilosophyContent {
 
   static p_squircle_3() {
     return [
-      "When an interface responds to user intent with smooth, continuous motion rather than abrupt state changes, it enters the realm of muscle memory. The squircle compass doesn't feel like software ticking off boolean flags; it feels like an elastic physical instrument resting lightly on your drawing plane."
+      "When an interface responds to user intent with smooth, continuous motion rather than abrupt state changes, it enters the realm of muscle memory. The squircle compass doesn't feel like software ticking off boolean flags; it feels like an elastic physical instrument resting lightly on your drawing plane.",
+      "A fundamental distinction in our architecture is that **the core compass must never be bloated by application-specific themes or visual gimmicks**. The mathematical engine—origin translation, direction cosines, and the rich electric-blue Z-tick (`0x0080ff`)—remains pure and lean. If a developer or student wants to customize the compass to any degree imaginable—whether attaching playful clockwork steampunk flywheels with angular momentum, Art Nouveau organic golden vines, or cyberpunk neon bloom shaders—those are added as **pure external decorators** that mount to the coordinate frame at runtime.",
+      "The core never knows or cares about brass gears or botanical tendrils. It simply manages spatial constraints, while the open specification allows anyone to project whatever visual personality they desire onto the screen."
     ];
   }
 }

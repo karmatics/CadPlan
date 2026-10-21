@@ -116,7 +116,7 @@ class CadPlanMetaContent {
         },
         {
           section: 'asset_directory',
-          partLabel: 'Chapter 0 • Repository Directory',
+          partLabel: 'Chapter 0 ��� Repository Directory',
           title: 'Complete Local Repository & Prototype Topology',
           blocks: [
             { id: 'p_meta_assets_1', type: 'p' },
@@ -136,13 +136,14 @@ class CadPlanMetaContent {
         }
       ];
     }
-  static p_meta_dossier_1() {
-      return [
-        "In traditional software engineering, architectural specifications are static PDF documents or wiki pages that quickly rot and diverge from actual code. When developers collaborate with large language models, this creates confusion: developers copy-paste fragmentary prompt instructions or snippets, leading to hallucinated geometric methods, Catmull-Rom approximations, or broken coordinate models.",
-        "What makes `CadPlan` extraordinary is the **sheer sophistication of the product specification itself**. It is not a speculative wish list. It is an executable living blueprint that unifies a complete AutoCAD baseline with AccuDraw's 3D spatial superpowers, providing an immense, mathematically grounded payload that an AI can ingest and immediately construct without guesswork."
-      ];
-    }
 
+  static p_meta_dossier_1() {
+    return [
+      "In traditional software engineering, developers build monolithic applications and write separate, static documentation that rots within months. In our architecture, **the software itself is the specification, and code is merely its transient, executable projection.**",
+      "When developers collaborate with large language models, the greatest failure mode is treating software as an opaque pile of source lines. Developers ask AI to guess architecture from fragmented chat snippets, resulting in hallucinated geometric methods, Catmull-Rom approximations, or broken coordinate models. What makes `CadPlan` extraordinary is that the design contract—its direction-cosine matrix bases, 50ms chorded tentative snap invariants, and closest-point tangent arc sweeps—is fully resolved and executable inside the specification itself.",
+      "Because the specification defines the definitive behavioral and mathematical ground truth, whether this architecture is projected into JavaScript for Three.js, into pure Rust for CADCraft, into WebAssembly, or into C++, the intent is immutable. The specification can be as tight or as playful as we choose, but it is all here."
+    ];
+  }
   static p_meta_dossier_2() {
       return [
         "The core architectural vision is centered on **democratizing proven CAD tools through AI acceleration**:",

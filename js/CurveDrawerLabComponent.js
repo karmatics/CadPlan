@@ -6,7 +6,7 @@ class CurveDrawerLabComponent {
       const wrap = makeElement('div', {
         style: {
           width: '100%',
-          minHeight: '600px',
+          minHeight: '620px',
           background: '#070a13',
           borderRadius: '12px',
           border: '1.5px solid #21262d',
@@ -34,19 +34,21 @@ class CurveDrawerLabComponent {
         }
       });
 
-      const btnPoints = makeElement('button', {
-        className: 'dr-tab-btn active', id: 'btn-curve-lab-points',
-        onclick: () => setToolMode('points')
-      }, '✍️ On-Curve Through-Points');
-
-      const btnTether = makeElement('button', {
-        className: 'dr-tab-btn', id: 'btn-curve-lab-tether',
-        onclick: () => setToolMode('tether')
-      }, '🪢 Kinetic String-Drag [Ctrl / Shift]');
-
       const modeGroup = makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
-        btnPoints, btnTether
+        btnPoints = makeElement('button', {
+          className: 'dr-tab-btn active', id: 'btn-curve-lab-points',
+          onclick: () => setToolMode('points')
+        }, '✍️ On-Curve Points'),
+        btnTether = makeElement('button', {
+          className: 'dr-tab-btn', id: 'btn-curve-lab-tether',
+          onclick: () => setToolMode('tether')
+        }, '🪢 Kinetic String-Drag [Ctrl/Shift]'),
+        btn3D = makeElement('button', {
+          className: 'dr-tab-btn', id: 'btn-curve-lab-3d',
+          onclick: () => setToolMode('3d')
+        }, '🌐 3D Spline & Parallax (accuCad)')
       ]);
+      let btnPoints, btnTether, btn3D;
 
       const statusEl = makeElement('span', {
         id: 'curve-lab-status',
@@ -55,11 +57,6 @@ class CurveDrawerLabComponent {
 
       const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
         statusEl,
-        makeElement('button', {
-          className: 'dr-nav-btn',
-          style: { padding: '3px 8px', fontSize: '10px', background: '#271052', color: '#d2a8ff', borderColor: '#8257e5' },
-          onclick: () => exportSplineToOutbox()
-        }, '📤 Spline to Outbox'),
         makeElement('button', {
           className: 'dr-nav-btn',
           style: { padding: '3px 8px', fontSize: '10px', color: '#ef4444' },
@@ -74,6 +71,7 @@ class CurveDrawerLabComponent {
       const hintEl = makeElement('span', { id: 'tether-hint', style: { color: '#a855f7', display: 'none', fontSize: '10.5px' } }, 'Hold [Ctrl] to extend string • Release to pull • Hold [Shift] to backtrack/undo');
 
       const subBar = makeElement('div', {
+        id: 'curve-lab-subbar',
         style: {
           padding: '6px 14px', background: '#0d1117', borderBottom: '1px solid #161e2b',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px'
@@ -120,16 +118,28 @@ class CurveDrawerLabComponent {
       svg.appendChild(makeElement('svg:defs', {}, gridPattern));
       svg.appendChild(makeElement('svg:rect', { width: '100%', height: '100%', fill: 'url(#curve-lab-grid)' }));
 
-      const tetherLayer = makeElement('svg:g', { id: 'curve-lab-tether-layer' });
-      const splineLayer = makeElement('svg:g', { id: 'curve-lab-spline-layer' });
-      const controlPolygonLayer = makeElement('svg:g', { id: 'curve-lab-handles-layer' });
-      const verticesLayer = makeElement('svg:g', { id: 'curve-lab-verts-layer' });
+      const tetherLayer = makeElement('svg:g');
+      const splineLayer = makeElement('svg:g');
+      const controlPolygonLayer = makeElement('svg:g');
+      const verticesLayer = makeElement('svg:g');
 
       svg.appendChild(tetherLayer);
       svg.appendChild(splineLayer);
       svg.appendChild(controlPolygonLayer);
       svg.appendChild(verticesLayer);
       wrap.appendChild(svg);
+
+      // Live 3D accuCad mount
+      const mount3D = makeElement('div', {
+        id: 'accucad-mount-curvedrawer-3d',
+        style: { width: '100%', height: '460px', display: 'none', position: 'relative', background: '#050811' }
+      });
+      wrap.appendChild(mount3D);
+
+      container.appendChild(wrap);
+
+      let app3D = null;
+      let instId = null;
 
       const state = {
         toolMode: 'points',
@@ -144,17 +154,51 @@ class CurveDrawerLabComponent {
         tetherStream: []
       };
 
-      function setToolMode(mode) {
+      async function setToolMode(mode) {
         state.toolMode = mode;
         btnPoints.classList.toggle('active', mode === 'points');
         btnTether.classList.toggle('active', mode === 'tether');
+        btn3D.classList.toggle('active', mode === '3d');
 
-        if (mode === 'tether') {
-          hintEl.style.display = 'inline';
-          statusEl.textContent = 'Mode: Kinetic Tether [Hold Ctrl to set string, drag to tow curve]';
+        if (mode === '3d') {
+          svg.style.display = 'none';
+          subBar.style.display = 'none';
+          mount3D.style.display = 'block';
+          statusEl.textContent = 'Mode: 3D On-Curve Spline (accuCad) • Camera Parallax Oscillation Active';
+
+          if (!app3D) {
+            const isLoaded = await CadStudioDemoComponent.ensureAccuCadLoaded();
+            if (isLoaded && globalThis.Main) {
+              app3D = new globalThis.Main();
+              await app3D.run({
+                container: mount3D,
+                showSidePanel: false,
+                showCompassUi: false,
+                initialTool: 'curve',
+                cameraPos: { x: 3.5, y: 3.2, z: 4.8 },
+                target: [0, 0, 0],
+                background: 0x050811,
+                initialPlane: 'top'
+              });
+
+              instId = CadStudioDemoComponent.registerInstance(app3D, mount3D, 'Curve Drawer 3D Parallax');
+              if (typeof CameraOrbitAnimator !== 'undefined') {
+                CameraOrbitAnimator.start();
+              }
+            }
+          }
         } else {
-          hintEl.style.display = 'none';
-          statusEl.textContent = 'Mode: On-Curve Points • Click on curve to relax G1 tangents';
+          svg.style.display = 'block';
+          subBar.style.display = 'flex';
+          mount3D.style.display = 'none';
+
+          if (mode === 'tether') {
+            hintEl.style.display = 'inline';
+            statusEl.textContent = 'Mode: Kinetic Tether [Hold Ctrl to set string, drag to tow curve]';
+          } else {
+            hintEl.style.display = 'none';
+            statusEl.textContent = 'Mode: On-Curve Points • Click on curve to relax G1 tangents';
+          }
         }
       }
 
@@ -202,21 +246,6 @@ class CurveDrawerLabComponent {
             cx: v.point[0], cy: v.point[1], r: '4.5', fill: '#090d16', stroke: '#10b981', 'stroke-width': '2'
           }));
         });
-      }
-
-      function exportSplineToOutbox() {
-        if (state.vertices.length < 2) {
-          alert('Place at least 2 through-points before exporting spline.');
-          return;
-        }
-        let dxf = "0\nSECTION\n2\nENTITIES\n0\nSPLINE\n8\nON_CURVE_SPLINES\n";
-        state.vertices.forEach(v => {
-          dxf += `10\n${v.point[0].toFixed(3)}\n20\n${v.point[1].toFixed(3)}\n30\n0.0\n`;
-        });
-        dxf += "0\nENDSEC\n0\nEOF\n";
-
-        CadPlanItemNotes.dispatchToOutbox(`On-Curve Spline DXF (${state.vertices.length} vertices)`, dxf);
-        alert('✓ Queued Spline DXF directly into Luno Outbox!');
       }
 
       svg.addEventListener('pointerdown', (e) => {
@@ -293,7 +322,21 @@ class CurveDrawerLabComponent {
         if (e.key === 'Shift') state.isShiftDown = false;
       });
 
-      container.appendChild(wrap);
+      const observer = new MutationObserver(() => {
+        if (!document.body.contains(wrap)) {
+          if (instId && typeof CadStudioDemoComponent !== 'undefined') {
+            CadStudioDemoComponent.unregisterInstance(instId);
+          }
+          if (typeof CameraOrbitAnimator !== 'undefined') {
+            CameraOrbitAnimator.stop();
+          }
+          if (app3D && typeof app3D.destroy === 'function') {
+            app3D.destroy();
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(wrap.parentNode || document.body, { childList: true });
     }
 }
 

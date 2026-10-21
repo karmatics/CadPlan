@@ -32,7 +32,7 @@ class Cad2Dto3DRoundTripGraphic {
       }, [
         makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
           makeElement('span', { style: { fontSize: '15px' } }, '🔄'),
-          makeElement('strong', { style: { fontSize: '13px', color: '#38bdf8', fontFamily: 'monospace' } }, 'Interactive 2D ↔ 3D Round-Trip Engine: AutoCAD OCS to AccuDraw WCS'),
+          makeElement('strong', { style: { fontSize: '13px', color: '#00f2fe', fontFamily: 'monospace' } }, 'Interactive 2D ↔ 3D Round-Trip Engine: AutoCAD OCS to AccuDraw WCS'),
           makeElement('span', { style: { fontSize: '10px', background: '#10b981', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, 'Verified Invertibility')
         ]),
         makeElement('span', { id: 'rt-invert-badge', style: { fontSize: '11px', color: '#10b981', fontFamily: 'monospace', fontWeight: 'bold' } }, '✓ Machine Epsilon: Δ = 0.000000 mm')
@@ -87,7 +87,7 @@ class Cad2Dto3DRoundTripGraphic {
       const W_HALF = 380;
       const H_CANVAS = 280;
 
-      // Left SVG: 2D Planar OCS View
+      // Left Pane: 2D Planar OCS View
       const leftPane = makeElement('div', {
         style: { background: '#090d16', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }
       });
@@ -105,27 +105,48 @@ class Cad2Dto3DRoundTripGraphic {
       leftPane.appendChild(svgLeft);
       stageGrid.appendChild(leftPane);
 
-      // Right SVG: 3D World Space (WCS) Isometric Projection
+      // Right Pane: 3D World Space (WCS) View
       const rightPane = makeElement('div', {
         style: { background: '#090d16', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }
       });
+
       rightPane.appendChild(makeElement('div', {
         style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', fontFamily: 'monospace' }
       }, [
         makeElement('strong', { style: { color: '#10b981' } }, '2. 3D World Space (WCS) + AccuDraw Compass'),
-        makeElement('span', { style: { color: '#64748b' } }, 'Mat4::ocs Real-time Lift')
+        makeElement('div', { style: { display: 'flex', gap: '4px' } }, [
+          btnIsoMode = makeElement('button', {
+            className: 'dr-tab-btn active', id: 'btn-rt-iso',
+            style: { padding: '2px 6px', fontSize: '9.5px' },
+            onclick: () => switch3DMode('iso')
+          }, 'Isometric'),
+          btnWebGlMode = makeElement('button', {
+            className: 'dr-tab-btn', id: 'btn-rt-webgl',
+            style: { padding: '2px 6px', fontSize: '9.5px' },
+            onclick: () => switch3DMode('webgl')
+          }, '🎮 3D WebGL Orbit')
+        ])
       ]));
+      let btnIsoMode, btnWebGlMode;
 
       const svgRight = makeElement('svg:svg', {
+        id: 'rt-svg-right-pane',
         viewBox: `0 0 ${W_HALF} ${H_CANVAS}`, width: '100%', height: `${H_CANVAS}px`,
         style: { display: 'block', background: '#050811', border: '1px solid #1e293b', borderRadius: '8px' }
       });
       rightPane.appendChild(svgRight);
-      stageGrid.appendChild(rightPane);
 
+      // Optional WebGL canvas mount for live Orbit inspection
+      const webglMount = makeElement('div', {
+        id: 'accucad-mount-rt-3d',
+        style: { width: '100%', height: `${H_CANVAS}px`, display: 'none', position: 'relative', background: '#050811', borderRadius: '8px', overflow: 'hidden' }
+      });
+      rightPane.appendChild(webglMount);
+
+      stageGrid.appendChild(rightPane);
       wrap.appendChild(stageGrid);
 
-      // 4. Live Telemetry & DXF Output Box
+      // 4. Telemetry & DXF Output Box
       const telemetryBox = makeElement('div', {
         style: {
           padding: '12px 16px',
@@ -159,18 +180,20 @@ class Cad2Dto3DRoundTripGraphic {
 
       container.appendChild(wrap);
 
-      // Internal Simulation State
+      let app3D = null;
+      let instId = null;
+
       const state = {
         preset: 'tab',
         normal: [0.7071, 0.7071, 0.0],
         elevation: 20.0,
-        vertices: [] // [{ u, v, bulge }]
+        vertices: []
       };
 
       const presets = {
         tab: [
           { u: 20, v: 20, bulge: 0 },
-          { u: 100, v: 20, bulge: 0.4142 }, // 90 deg tangent arc
+          { u: 100, v: 20, bulge: 0.4142 },
           { u: 140, v: 60, bulge: 0 },
           { u: 140, v: 120, bulge: 0 },
           { u: 20, v: 120, bulge: 0 }
@@ -183,7 +206,7 @@ class Cad2Dto3DRoundTripGraphic {
           { u: 30, v: 95, bulge: 0 }
         ],
         cam: [
-          { u: 40, v: 70, bulge: 1.0 }, // 180 deg semicircle
+          { u: 40, v: 70, bulge: 1.0 },
           { u: 120, v: 70, bulge: 0 },
           { u: 120, v: 40, bulge: -0.4142 },
           { u: 60, v: 20, bulge: 0 }
@@ -257,6 +280,38 @@ class Cad2Dto3DRoundTripGraphic {
         updateAll();
       }
 
+      async function switch3DMode(mode) {
+        btnIsoMode.classList.toggle('active', mode === 'iso');
+        btnWebGlMode.classList.toggle('active', mode === 'webgl');
+
+        if (mode === 'webgl') {
+          svgRight.style.display = 'none';
+          webglMount.style.display = 'block';
+
+          if (!app3D) {
+            const isLoaded = await CadStudioDemoComponent.ensureAccuCadLoaded();
+            if (isLoaded && globalThis.Main) {
+              app3D = new globalThis.Main();
+              await app3D.run({
+                container: webglMount,
+                showSidePanel: false,
+                showCompassUi: false,
+                presetGeometry: 'bracket',
+                cameraPos: { x: 3.5, y: 3.2, z: 4.8 },
+                target: [0, 0, 0],
+                background: 0x050811,
+                initialPlane: 'top'
+              });
+
+              instId = CadStudioDemoComponent.registerInstance(app3D, webglMount, 'RoundTrip 3D Orbit');
+            }
+          }
+        } else {
+          svgRight.style.display = 'block';
+          webglMount.style.display = 'none';
+        }
+      }
+
       function updateAll() {
         svgLeft.innerHTML = '';
         svgRight.innerHTML = '';
@@ -294,7 +349,6 @@ class Cad2Dto3DRoundTripGraphic {
         // 2. Render Right Pane: 3D World Space (WCS) Lift
         const wcsPoints = state.vertices.map(v => ocsToWcs(v.u, v.v, state.elevation, ocs));
 
-        // Draw World Reference Coordinate Axes
         const oIso = toIso(0, 0, 0);
         const xIso = toIso(60, 0, 0);
         const yIso = toIso(0, 60, 0);
@@ -349,16 +403,14 @@ class Cad2Dto3DRoundTripGraphic {
           badge.style.color = maxError < 1e-9 ? '#10b981' : '#f59e0b';
         }
 
-        // 4. Update Mathematical Telemetry Readout
         mathReadout.innerHTML = `
-          <div style="color:#38bdf8; font-weight:bold; margin-bottom:4px;">📐 OCS Arbitrary Axis Matrix [cadcraft-geom::mat::Mat4]:</div>
+          <div style="color:#00f2fe; font-weight:bold; margin-bottom:4px;">📐 OCS Arbitrary Axis Matrix [cadcraft-geom::mat::Mat4]:</div>
           <div>Ax: [${ocs.ax.map(n => n.toFixed(3)).join(', ')}]</div>
           <div>Ay: [${ocs.ay.map(n => n.toFixed(3)).join(', ')}]</div>
           <div>N:  [${ocs.n.map(n => n.toFixed(3)).join(', ')}] (Elevation: ${state.elevation.toFixed(1)})</div>
           <div style="color:#10b981; font-weight:bold; margin-top:6px;">WCS Vertex 0: [${wcsPoints[0].map(n => n.toFixed(2)).join(', ')}]</div>
         `;
 
-        // 5. Generate Real AutoCAD DXF Entity Code
         let dxfText = `0\nLWPOLYLINE\n8\nACCUDRAW_3D\n90\n${state.vertices.length}\n70\n1\n`;
         dxfText += `210\n${ocs.n[0].toFixed(4)}\n220\n${ocs.n[1].toFixed(4)}\n230\n${ocs.n[2].toFixed(4)}\n`;
         dxfText += `38\n${state.elevation.toFixed(2)}\n`;
@@ -372,6 +424,19 @@ class Cad2Dto3DRoundTripGraphic {
       }
 
       loadPreset('tab');
+
+      const observer = new MutationObserver(() => {
+        if (!document.body.contains(wrap)) {
+          if (instId && typeof CadStudioDemoComponent !== 'undefined') {
+            CadStudioDemoComponent.unregisterInstance(instId);
+          }
+          if (app3D && typeof app3D.destroy === 'function') {
+            app3D.destroy();
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(wrap.parentNode || document.body, { childList: true });
     }
 }
 

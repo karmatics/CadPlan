@@ -154,101 +154,100 @@ class CadPromptBundlerDialog {
           appendTo: hostContainer
         });
       }
+
   static _applyPreset(preset) {
-        const setChecked = (id, val) => {
-          const el = document.getElementById(id);
-          if (el) el.checked = val;
-        };
+          const setChecked = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.checked = val;
+          };
 
-        if (preset === 'starter') {
-          // Recursive Sub-Task Starter Prompt Preset
-          setChecked('opt_meta', true);
-          setChecked('opt_origins', true);
-          setChecked('opt_philosophy', true);
-          setChecked('opt_accucad', false);
-          setChecked('opt_shortcuts', true);
-          setChecked('opt_curvetouch', false);
-          setChecked('opt_touch_webrtc', false);
-          setChecked('opt_ecosystem', true);
-          setChecked('opt_architecture', true);
-          setChecked('opt_cadcraft', true);
-          setChecked('opt_itwin', true);
-          setChecked('opt_cadcraft_store', false);
-          setChecked('opt_cadcraft_osmode', false);
-          setChecked('opt_cadcraft_render', false);
-          setChecked('opt_cadcraft_plinem', true);
-          setChecked('opt_cadcraft_accept', true);
-          setChecked('opt_cadcraft_lisp', false);
-          setChecked('opt_cadcraft_bulge', true);
-          setChecked('opt_cadcraft_constraints', false);
-          setChecked('opt_itwin_snap', false);
-          setChecked('opt_itwin_contrast', false);
-          setChecked('opt_itwin_history', false);
-          setChecked('opt_itwin_tool', false);
-          setChecked('opt_plane_math', true);
-          setChecked('opt_smart_keyin', true);
-          setChecked('opt_itwin_hints', true);
-          setChecked('opt_fillet_math', true);
-          setChecked('opt_mcp_spec', true);
-          setChecked('opt_interview', true);
-          setChecked('opt_embed_source', false);
-          document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~16,500 tokens (🌱 Recursive Starter Prompt for Sub-Task Threads)';
-        } else if (preset === 'lean') {
-          setChecked('opt_meta', true);
-          setChecked('opt_origins', true);
-          setChecked('opt_philosophy', false);
-          setChecked('opt_accucad', false);
-          setChecked('opt_shortcuts', false);
-          setChecked('opt_curvetouch', false);
-          setChecked('opt_touch_webrtc', false);
-          setChecked('opt_ecosystem', true);
-          setChecked('opt_architecture', true);
-          setChecked('opt_cadcraft', true);
-          setChecked('opt_itwin', false);
-          setChecked('opt_embed_source', false);
-          document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~5,500 tokens (Lean Executive Briefing)';
-        } else if (preset === 'spec') {
-          setChecked('opt_meta', true);
-          setChecked('opt_origins', true);
-          setChecked('opt_philosophy', true);
-          setChecked('opt_accucad', true);
-          setChecked('opt_shortcuts', true);
-          setChecked('opt_curvetouch', true);
-          setChecked('opt_touch_webrtc', true);
-          setChecked('opt_ecosystem', false);
-          setChecked('opt_architecture', true);
-          setChecked('opt_cadcraft', true);
-          setChecked('opt_itwin', true);
-          setChecked('opt_embed_source', false);
-          document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~28,000 tokens (Core Geometry Spec)';
-        } else if (preset === 'cadcraft_spec') {
-          setChecked('opt_meta', true);
-          setChecked('opt_origins', true);
-          setChecked('opt_philosophy', true);
-          setChecked('opt_accucad', false);
-          setChecked('opt_shortcuts', false);
-          setChecked('opt_curvetouch', false);
-          setChecked('opt_touch_webrtc', true);
-          setChecked('opt_ecosystem', false);
-          setChecked('opt_architecture', true);
-          setChecked('opt_cadcraft', true);
-          setChecked('opt_itwin', true);
-          setChecked('opt_embed_source', false);
-          document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~45,000 tokens (Deep CADCraft Rust & iTwin Parity Focus)';
-        } else if (preset === 'full') {
-          const checkboxes = document.querySelectorAll('#cp-bundle-preset ~ div input[type="checkbox"]');
-          checkboxes.forEach(cb => {
-            if (cb.id !== 'opt_embed_source') cb.checked = true;
-          });
-          setChecked('opt_embed_source', false);
-          document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~95,000 tokens (Full Master Living Dossier)';
-        } else if (preset === 'code') {
-          const checkboxes = document.querySelectorAll('#cp-bundle-preset ~ div input[type="checkbox"]');
-          checkboxes.forEach(cb => cb.checked = true);
-          document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~125,000+ tokens (Includes Production Source Code Embeds)';
+          if (preset === 'starter') {
+            setChecked('opt_meta', true);
+            setChecked('opt_origins', true);
+            setChecked('opt_philosophy', true);
+            setChecked('opt_accucad', false);
+            setChecked('opt_shortcuts', true);
+            setChecked('opt_curvetouch', false);
+            setChecked('opt_touch_webrtc', false);
+            setChecked('opt_ecosystem', true);
+            setChecked('opt_architecture', true);
+            setChecked('opt_cadcraft', true);
+            setChecked('opt_itwin', true);
+            setChecked('opt_cadcraft_store', false);
+            setChecked('opt_cadcraft_osmode', false);
+            setChecked('opt_cadcraft_render', false);
+            setChecked('opt_cadcraft_plinem', true);
+            setChecked('opt_cadcraft_accept', true);
+            setChecked('opt_cadcraft_lisp', false);
+            setChecked('opt_cadcraft_bulge', true);
+            setChecked('opt_cadcraft_constraints', false);
+            setChecked('opt_itwin_snap', false);
+            setChecked('opt_itwin_contrast', false);
+            setChecked('opt_itwin_history', false);
+            setChecked('opt_itwin_tool', false);
+            setChecked('opt_plane_math', true);
+            setChecked('opt_smart_keyin', true);
+            setChecked('opt_itwin_hints', true);
+            setChecked('opt_fillet_math', true);
+            setChecked('opt_mcp_spec', true);
+            setChecked('opt_interview', true);
+            setChecked('opt_embed_source', false);
+            document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~16,500 tokens (🌱 Recursive Starter Prompt for Sub-Task Threads)';
+          } else if (preset === 'lean') {
+            setChecked('opt_meta', true);
+            setChecked('opt_origins', true);
+            setChecked('opt_philosophy', false);
+            setChecked('opt_accucad', false);
+            setChecked('opt_shortcuts', false);
+            setChecked('opt_curvetouch', false);
+            setChecked('opt_touch_webrtc', false);
+            setChecked('opt_ecosystem', true);
+            setChecked('opt_architecture', true);
+            setChecked('opt_cadcraft', true);
+            setChecked('opt_itwin', false);
+            setChecked('opt_embed_source', false);
+            document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~5,500 tokens (Lean Executive Briefing)';
+          } else if (preset === 'spec') {
+            setChecked('opt_meta', true);
+            setChecked('opt_origins', true);
+            setChecked('opt_philosophy', true);
+            setChecked('opt_accucad', true);
+            setChecked('opt_shortcuts', true);
+            setChecked('opt_curvetouch', true);
+            setChecked('opt_touch_webrtc', true);
+            setChecked('opt_ecosystem', false);
+            setChecked('opt_architecture', true);
+            setChecked('opt_cadcraft', true);
+            setChecked('opt_itwin', true);
+            setChecked('opt_embed_source', false);
+            document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~28,000 tokens (Core Geometry Spec)';
+          } else if (preset === 'cadcraft_spec') {
+            setChecked('opt_meta', true);
+            setChecked('opt_origins', true);
+            setChecked('opt_philosophy', true);
+            setChecked('opt_accucad', false);
+            setChecked('opt_shortcuts', false);
+            setChecked('opt_curvetouch', false);
+            setChecked('opt_touch_webrtc', true);
+            setChecked('opt_ecosystem', false);
+            setChecked('opt_architecture', true);
+            setChecked('opt_cadcraft', true);
+            setChecked('opt_itwin', true);
+            setChecked('opt_embed_source', false);
+            document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~45,000 tokens (Deep CADCraft Rust & iTwin Parity Focus)';
+          } else if (preset === 'full') {
+            const checkboxes = document.querySelectorAll('#cp-bundle-preset ~ div input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+              if (cb.id !== 'opt_embed_source') cb.checked = true;
+            });
+            setChecked('opt_embed_source', false);
+            document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~95,000 tokens (Full Master Living Dossier)';
+          } else if (preset === 'code') {
+            const checkboxes = document.querySelectorAll('#cp-bundle-preset ~ div input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+            document.getElementById('cp-bundle-stats').textContent = 'Estimated payload: ~125,000+ tokens (Includes Production Source Code Embeds)';
+          }
         }
-      }
-
   static _generateMarkdownBundle() {
       let out = '# CADPLAN: NEXT-GENERATION CAD ARCHITECTURAL SPECIFICATION & AGENT DIRECTIVE\n';
       out += `Generated: ${new Date().toISOString()} • Author: Rob Brown (Inventor of AccuDraw, SmartLine)\n`;

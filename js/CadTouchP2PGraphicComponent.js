@@ -30,11 +30,21 @@ class CadTouchP2PGraphicComponent {
       }, [
         makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
           makeElement('span', { style: { fontSize: '15px' } }, '📱'),
-          makeElement('strong', { style: { fontSize: '13px', color: '#00f2fe', fontFamily: 'monospace' } }, 'Interactive TouchController & Two-Handed CAD Simulator'),
+          makeElement('strong', { style: { fontSize: '13px', color: '#00f2fe', fontFamily: 'monospace' } }, 'Two-Handed CAD & TouchController Live Studio'),
           makeElement('span', { style: { fontSize: '10px', background: '#10b981', color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' } }, 'Kinetic Inertia')
         ]),
-        makeElement('span', { id: 'sim-telemetry-badge', style: { fontSize: '11px', color: '#38bdf8', fontFamily: 'monospace' } }, 'Left Pad: Drag/Flick Orbit • Right Pad: ↕ Pick Slider / ↔ Scrub')
+        makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
+          btnSim = makeElement('button', {
+            className: 'dr-tab-btn active', id: 'btn-touch-tab-sim',
+            onclick: () => switchView('sim')
+          }, '📱 Touch Trackpads'),
+          btnLive = makeElement('button', {
+            className: 'dr-tab-btn', id: 'btn-touch-tab-live',
+            onclick: () => switchView('live')
+          }, '🎮 Live 3D accuCad Engine')
+        ])
       ]);
+      let btnSim, btnLive;
       wrap.appendChild(header);
 
       const stage = makeElement('div', {
@@ -61,8 +71,8 @@ class CadTouchP2PGraphicComponent {
       phoneShell.appendChild(makeElement('div', {
         style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace' }
       }, [
-        makeElement('strong', { style: { color: '#00f2fe' } }, 'SIMULATED SMARTPHONE (LEFT HAND)'),
-        makeElement('span', { style: { color: '#10b981', fontSize: '10px' } }, '● P2P Linked')
+        makeElement('strong', { style: { color: '#00f2fe' } }, 'TOUCH CONTROLLER (LEFT HAND)'),
+        makeElement('span', { style: { color: '#10b981', fontSize: '10px' } }, '● P2P Active')
       ]));
 
       const trackpadsBox = makeElement('div', {
@@ -115,11 +125,13 @@ class CadTouchP2PGraphicComponent {
       stage.appendChild(phoneShell);
 
       const viewportArea = makeElement('div', {
+        id: 'touch-viewport-host-area',
         style: { flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative' }
       });
 
       const svgW = 420, svgH = 300;
       const svg = makeElement('svg:svg', {
+        id: 'touch-sim-svg',
         viewBox: `0 0 ${svgW} ${svgH}`, width: '100%', height: '300px',
         style: { display: 'block', background: '#050811', border: '1px solid #1e293b', borderRadius: '8px' }
       });
@@ -131,12 +143,17 @@ class CadTouchP2PGraphicComponent {
       svg.appendChild(makeElement('svg:rect', { width: '100%', height: '100%', fill: 'url(#sim-grid-pat)' }));
 
       const liveModelLayer = makeElement('svg:g');
-      const guideLineLayer = makeElement('svg:g');
       svg.appendChild(liveModelLayer);
-      svg.appendChild(guideLineLayer);
       viewportArea.appendChild(svg);
-      stage.appendChild(viewportArea);
 
+      // Live 3D WebGL mount for accuCad
+      const liveMount3D = makeElement('div', {
+        id: 'accucad-mount-touch-p2p-live',
+        style: { width: '100%', height: '300px', display: 'none', position: 'relative', background: '#050811', borderRadius: '8px', overflow: 'hidden' }
+      });
+      viewportArea.appendChild(liveMount3D);
+
+      stage.appendChild(viewportArea);
       wrap.appendChild(stage);
 
       const slidersDeck = makeElement('div', {
@@ -153,12 +170,12 @@ class CadTouchP2PGraphicComponent {
       ]);
 
       const slider2 = makeElement('div', { id: 'sim-slider-row-1', style: { padding: '4px 8px', borderRadius: '4px', border: '1px solid #334155' } }, [
-        makeElement('span', { style: { color: '#10b981', fontWeight: 'bold' } }, '2. Extrusion Depth: '),
-        makeElement('span', { id: 'sim-val-depth' }, '40mm')
+        makeElement('span', { style: { color: '#10b981', fontWeight: 'bold' } }, '2. Line Width: '),
+        makeElement('span', { id: 'sim-val-depth' }, '4px')
       ]);
 
       const slider3 = makeElement('div', { id: 'sim-slider-row-2', style: { padding: '4px 8px', borderRadius: '4px', border: '1px solid #334155' } }, [
-        makeElement('span', { style: { color: '#f59e0b', fontWeight: 'bold' } }, '3. 3D Z-Elevation: '),
+        makeElement('span', { style: { color: '#f59e0b', fontWeight: 'bold' } }, '3. AccuDraw Z: '),
         makeElement('span', { id: 'sim-val-z' }, '0mm')
       ]);
 
@@ -169,16 +186,12 @@ class CadTouchP2PGraphicComponent {
 
       container.appendChild(wrap);
 
+      let app = null;
+      let instId = null;
+
       const state = {
-        rotX: 25,
-        rotY: -35,
-        velX: 0,
-        velY: 0,
-        zoom: 1.0,
-        activeSliderIdx: 0,
-        filletR: 25,
-        extrusionDepth: 40,
-        elevationZ: 0,
+        rotX: 25, rotY: -35, velX: 0, velY: 0, zoom: 1.0,
+        activeSliderIdx: 0, filletR: 25, lineWidth: 4, elevationZ: 0,
         inertiaId: null
       };
 
@@ -199,13 +212,12 @@ class CadTouchP2PGraphicComponent {
           return [cx + x1 * scale, cy - y2 * scale];
         };
 
-        const w = 90, h = 60, d = state.extrusionDepth;
+        const w = 90, h = 60, d = 40;
 
         const p1 = project(-w, -h, -d);
         const p2 = project(w, -h, -d);
         const p3 = project(w, h, -d);
         const p4 = project(-w, h, -d);
-
         const p5 = project(-w, -h, d);
         const p6 = project(w, -h, d);
         const p7 = project(w, h, d);
@@ -221,13 +233,13 @@ class CadTouchP2PGraphicComponent {
         [ [p1, p5], [p2, p6], [p3, p7], [p4, p8] ].forEach(pair => {
           liveModelLayer.appendChild(makeElement('svg:line', {
             x1: pair[0][0], y1: pair[0][1], x2: pair[1][0], y2: pair[1][1],
-            stroke: '#38bdf8', 'stroke-width': '1.8'
+            stroke: '#38bdf8', 'stroke-width': String(state.lineWidth * 0.5)
           }));
         });
 
         liveModelLayer.appendChild(makeElement('svg:polygon', {
           points: `${p5[0]},${p5[1]} ${p6[0]},${p6[1]} ${p7[0]},${p7[1]} ${p8[0]},${p8[1]}`,
-          fill: 'rgba(0, 242, 254, 0.12)', stroke: '#00f2fe', 'stroke-width': '2.5'
+          fill: 'rgba(0, 242, 254, 0.12)', stroke: '#00f2fe', 'stroke-width': String(state.lineWidth * 0.6)
         }));
 
         const compG = makeElement('svg:g', {
@@ -255,10 +267,14 @@ class CadTouchP2PGraphicComponent {
 
           state.rotY += state.velX;
           state.rotX = Math.max(-80, Math.min(80, state.rotX - state.velY));
+
+          if (app?.baseController) {
+            app.baseController.handleRemoteDrag(state.velX * 0.8, -state.velY * 0.8, 'rotate');
+          }
+
           render3DModel();
           state.inertiaId = requestAnimationFrame(step);
         };
-
         state.inertiaId = requestAnimationFrame(step);
       }
 
@@ -288,6 +304,11 @@ class CadTouchP2PGraphicComponent {
 
         state.rotY += dx;
         state.rotX = Math.max(-80, Math.min(80, state.rotX - dy));
+
+        if (app?.baseController) {
+          app.baseController.handleRemoteDrag(dx * 1.2, -dy * 1.2, 'rotate');
+        }
+
         render3DModel();
         document.getElementById('sim-left-status').textContent = `Rot: ${state.rotX.toFixed(0)}°, ${state.rotY.toFixed(0)}°`;
       });
@@ -302,7 +323,12 @@ class CadTouchP2PGraphicComponent {
 
       leftPad.addEventListener('wheel', (e) => {
         e.preventDefault();
-        state.zoom = Math.max(0.5, Math.min(2.5, state.zoom - e.deltaY * 0.0015));
+        const zoomFactor = 1.0 - e.deltaY * 0.0015;
+        state.zoom = Math.max(0.5, Math.min(2.5, state.zoom * zoomFactor));
+
+        if (app?.baseController) {
+          app.baseController.handleRemoteZoom(zoomFactor);
+        }
         render3DModel();
       }, { passive: false });
 
@@ -331,19 +357,22 @@ class CadTouchP2PGraphicComponent {
             if (row) row.style.borderColor = i === state.activeSliderIdx ? '#00f2fe' : '#334155';
           });
 
-          const names = ['Fillet R', 'Extrusion Depth', 'Z-Elevation'];
+          const names = ['Fillet R', 'Line Width', 'AccuDraw Z'];
           document.getElementById('sim-right-status').textContent = `Active: ${names[state.activeSliderIdx]}`;
         } else if (Math.abs(dx) > 2) {
           rightStartX = e.clientX;
           if (state.activeSliderIdx === 0) {
             state.filletR = Math.max(0, Math.min(60, state.filletR + dx * 0.5));
             document.getElementById('sim-val-fillet').textContent = `${state.filletR.toFixed(0)}px`;
+            if (app?.baseController) app.baseController.commandControlValue = state.filletR * 0.05;
           } else if (state.activeSliderIdx === 1) {
-            state.extrusionDepth = Math.max(10, Math.min(100, state.extrusionDepth + dx * 0.5));
-            document.getElementById('sim-val-depth').textContent = `${state.extrusionDepth.toFixed(0)}mm`;
+            state.lineWidth = Math.max(1, Math.min(16, state.lineWidth + dx * 0.2));
+            document.getElementById('sim-val-depth').textContent = `${state.lineWidth.toFixed(0)}px`;
+            if (app?.baseController) app.baseController.setLineWidth(Math.round(state.lineWidth));
           } else {
             state.elevationZ = Math.max(-50, Math.min(50, state.elevationZ + dx * 0.5));
             document.getElementById('sim-val-z').textContent = `${state.elevationZ.toFixed(0)}mm`;
+            if (app?.baseController) app.baseController.handleRemoteDrag(0, -dx * 0.2, 'pan');
           }
           render3DModel();
         }
@@ -353,7 +382,52 @@ class CadTouchP2PGraphicComponent {
         rightDragging = false;
       });
 
+      async function switchView(mode) {
+        btnSim.classList.toggle('active', mode === 'sim');
+        btnLive.classList.toggle('active', mode === 'live');
+
+        if (mode === 'live') {
+          svg.style.display = 'none';
+          liveMount3D.style.display = 'block';
+
+          if (!app) {
+            const isLoaded = await CadStudioDemoComponent.ensureAccuCadLoaded();
+            if (isLoaded && globalThis.Main) {
+              app = new globalThis.Main();
+              await app.run({
+                container: liveMount3D,
+                showSidePanel: false,
+                showCompassUi: false,
+                presetGeometry: 'bracket',
+                cameraPos: { x: 3.8, y: 3.2, z: 4.8 },
+                target: [0, 0, 0],
+                background: 0x050811,
+                initialPlane: 'top'
+              });
+
+              instId = CadStudioDemoComponent.registerInstance(app, liveMount3D, 'Touch P2P Live Viewport');
+            }
+          }
+        } else {
+          svg.style.display = 'block';
+          liveMount3D.style.display = 'none';
+        }
+      }
+
       render3DModel();
+
+      const observer = new MutationObserver(() => {
+        if (!document.body.contains(wrap)) {
+          if (instId && typeof CadStudioDemoComponent !== 'undefined') {
+            CadStudioDemoComponent.unregisterInstance(instId);
+          }
+          if (app && typeof app.destroy === 'function') {
+            app.destroy();
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(wrap.parentNode || document.body, { childList: true });
     }
 }
 

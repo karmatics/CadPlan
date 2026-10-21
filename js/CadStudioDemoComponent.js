@@ -148,333 +148,367 @@ class CadStudioDemoComponent {
     }
 
   static async _renderAccuCadIframe(container) {
-    container.innerHTML = '';
-
-    let isFullscreen = false;
-
-    const frameWrap = makeElement('div', {
-      style: {
-        width: '100%',
-        minHeight: '680px',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        background: '#0d1117',
-        transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)'
-      }
-    });
-
-    const toggleExpand = () => {
-      isFullscreen = !isFullscreen;
-      if (isFullscreen) {
-        frameWrap.style.position = 'fixed';
-        frameWrap.style.top = '0';
-        frameWrap.style.left = '0';
-        frameWrap.style.width = '100vw';
-        frameWrap.style.height = '100vh';
-        frameWrap.style.zIndex = '999999';
-        btnExpand.textContent = '✕ Exit Fullscreen';
-        btnExpand.style.color = '#ef4444';
-        btnExpand.style.borderColor = '#ef444466';
-      } else {
-        frameWrap.style.position = 'relative';
-        frameWrap.style.top = 'auto';
-        frameWrap.style.left = 'auto';
-        frameWrap.style.width = '100%';
-        frameWrap.style.height = 'auto';
-        frameWrap.style.minHeight = '680px';
-        frameWrap.style.zIndex = 'auto';
-        btnExpand.textContent = '⛶ Fullscreen';
-        btnExpand.style.color = '#38bdf8';
-        btnExpand.style.borderColor = '#38bdf866';
-      }
-      setTimeout(() => {
-        if (activeApp?.app?.resize) {
-          const r = appMount.getBoundingClientRect();
-          activeApp.app.resize(r.width, r.height);
-        }
-      }, 100);
-    };
-
-    const statusHeader = makeElement('div', {
-      style: {
-        padding: '8px 14px',
-        background: '#161b22',
-        borderBottom: '1px solid #30363d',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '11px',
-        fontFamily: 'monospace',
-        color: '#8b949e',
-        flexWrap: 'wrap',
-        gap: '8px'
-      }
-    }, [
-      makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-        makeElement('strong', { style: { color: '#00f2fe' } }, '📐 accuCad [Instance 2: Production Studio] • Native Embedded'),
-        makeElement('span', { id: 'accucad-inst2-focus', style: { color: '#10b981' } }, '● In-Process Canvas')
-      ]),
-      makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
-        btnExpand = makeElement('button', {
-          className: 'dr-nav-btn',
-          style: { padding: '3px 8px', fontSize: '10px', color: '#38bdf8', borderColor: '#38bdf866' },
-          onclick: toggleExpand
-        }, '⛶ Fullscreen'),
-        makeElement('span', { style: { color: '#64748b' } }, 'Shortcuts active on canvas click [T/F/S/L/Space/O/G]')
-      ])
-    ]);
-    let btnExpand;
-    frameWrap.appendChild(statusHeader);
-
-    const appMount = makeElement('div', {
-      id: 'accucad-mount-instance-2',
-      style: {
-        flex: 1,
-        width: '100%',
-        minHeight: '520px',
-        position: 'relative',
-        border: '1.5px solid #21262d',
-        transition: 'border-color 0.2s, box-shadow 0.2s'
-      }
-    });
-    frameWrap.appendChild(appMount);
-
-    // Terminal Chrome In-Situ Code Runner
-    const codeRunner = makeElement('div', {
-      style: {
-        background: '#0a0e1a',
-        borderTop: '1.5px solid #232d3f',
-        padding: '10px 14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        fontFamily: 'monospace',
-        fontSize: '11px'
-      }
-    });
-
-    const presets = CadStudioDemoComponent.getScriptPresets();
-
-    const codeRunnerHeader = makeElement('div', {
-      style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }
-    }, [
-      makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-        makeElement('div', { className: 'cp-terminal-dots' }, [
-          makeElement('span', { className: 'cp-terminal-dot red' }),
-          makeElement('span', { className: 'cp-terminal-dot yellow' }),
-          makeElement('span', { className: 'cp-terminal-dot green' })
-        ]),
-        makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, '⚡ In-Situ CAD Code Runner:'),
-        presetSelect = makeElement('select', {
-          style: {
-            background: '#070a13',
-            color: '#00f2fe',
-            border: '1px solid rgba(0, 242, 254, 0.4)',
-            borderRadius: '4px',
-            padding: '3px 8px',
-            fontSize: '10.5px',
-            fontFamily: 'monospace',
-            outline: 'none',
-            cursor: 'pointer'
-          },
-          onchange: (e) => {
-            const idx = parseInt(e.target.value);
-            if (presets[idx]) {
-              codeEditor.value = presets[idx].code;
-              codeFeedback.textContent = `Loaded preset: ${presets[idx].name}. Tap "▶ Run Script" to execute.`;
-              codeFeedback.style.color = '#38bdf8';
-            }
-          }
-        }, presets.map((p, i) => makeElement('option', { value: i }, p.name)))
-      ]),
-      makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
-        makeElement('button', {
-          className: 'dr-nav-btn primary',
-          style: { padding: '3px 10px', fontSize: '10px', fontWeight: 'bold' },
-          onclick: () => {
-            if (activeApp?.baseController) {
-              const res = activeApp.baseController.executeScript(codeEditor.value);
-              if (res.success) {
-                codeFeedback.textContent = `✓ Executed script successfully in viewport at ${new Date().toLocaleTimeString()}`;
-                codeFeedback.style.color = '#10b981';
-              } else {
-                codeFeedback.textContent = `Error: ${res.error}`;
-                codeFeedback.style.color = '#ef4444';
-              }
-            }
-          }
-        }, '▶ Run Script in Viewport'),
-        makeElement('button', {
-          className: 'dr-nav-btn',
-          style: { padding: '3px 8px', fontSize: '10px' },
-          onclick: () => {
-            codeEditor.value = presets[0].code;
-            codeFeedback.textContent = 'Code reset to default preset.';
-            codeFeedback.style.color = '#94a3b8';
-          }
-        }, '↺ Reset')
-      ])
-    ]);
-    let presetSelect;
-    codeRunner.appendChild(codeRunnerHeader);
-
-    const codeEditor = makeElement('textarea', {
-      style: {
-        width: '100%',
-        minHeight: '110px',
-        background: '#050811',
-        color: '#7ee787',
-        border: '1px solid #1e293b',
-        borderRadius: '6px',
-        padding: '8px',
-        fontFamily: 'var(--dr-font-mono, monospace)',
-        fontSize: '11.5px',
-        lineHeight: '1.45',
-        outline: 'none',
-        resize: 'vertical'
-      },
-      spellcheck: false
-    });
-    codeEditor.value = presets[0].code;
-    codeRunner.appendChild(codeEditor);
-
-    const codeFeedback = makeElement('div', {
-      style: { color: '#94a3b8', fontSize: '10.5px', fontStyle: 'italic' }
-    }, 'Ready to execute script in active instance.');
-    codeRunner.appendChild(codeFeedback);
-
-    frameWrap.appendChild(codeRunner);
-    container.appendChild(frameWrap);
-
-    let activeApp = null;
-    let instId = null;
-
-    const isLoaded = await CadStudioDemoComponent.ensureAccuCadLoaded();
-    if (isLoaded && globalThis.Main) {
-      activeApp = new globalThis.Main();
-      await activeApp.run({
-        container: appMount,
-        showSidePanel: true,
-        showCompassUi: false,
-        background: 0x0d1117
-      });
-      instId = CadStudioDemoComponent.registerInstance(activeApp, appMount, 'Instance 2: Production Studio');
-    }
-
-    const observer = new MutationObserver(() => {
-      if (!document.body.contains(frameWrap)) {
-        if (instId) CadStudioDemoComponent.unregisterInstance(instId);
-        observer.disconnect();
-      }
-    });
-    observer.observe(frameWrap.parentNode || document.body, { childList: true });
-  }
-  static async _renderAuthenticCurveAndParallaxLab(container) {
       container.innerHTML = '';
 
-      const wrap = makeElement('div', {
+      let isFullscreen = false;
+      let btnExpand = null;
+      let presetSelect = null;
+      let activeApp = null;
+      let instId = null;
+
+      const frameWrap = makeElement('div', {
         style: {
-          width: '100%', height: '100%', minHeight: '640px', position: 'relative',
-          display: 'flex', flexDirection: 'column', background: '#090d16'
+          width: '100%',
+          minHeight: '680px',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#0d1117',
+          transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)'
         }
       });
 
-      const hud = makeElement('div', {
+      const toggleExpand = () => {
+        isFullscreen = !isFullscreen;
+        if (isFullscreen) {
+          frameWrap.style.position = 'fixed';
+          frameWrap.style.top = '0';
+          frameWrap.style.left = '0';
+          frameWrap.style.width = '100vw';
+          frameWrap.style.height = '100vh';
+          frameWrap.style.zIndex = '999999';
+          btnExpand.textContent = '✕ Exit Fullscreen';
+          btnExpand.style.color = '#ef4444';
+          btnExpand.style.borderColor = '#ef444466';
+        } else {
+          frameWrap.style.position = 'relative';
+          frameWrap.style.top = 'auto';
+          frameWrap.style.left = 'auto';
+          frameWrap.style.width = '100%';
+          frameWrap.style.height = 'auto';
+          frameWrap.style.minHeight = '680px';
+          frameWrap.style.zIndex = 'auto';
+          btnExpand.textContent = '⛶ Fullscreen';
+          btnExpand.style.color = '#38bdf8';
+          btnExpand.style.borderColor = '#38bdf866';
+        }
+        setTimeout(() => {
+          if (activeApp?.app?.resize) {
+            const r = appMount.getBoundingClientRect();
+            activeApp.app.resize(r.width, r.height);
+          }
+        }, 100);
+      };
+
+      const statusHeader = makeElement('div', {
         style: {
-          padding: '8px 14px', background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid #21262d',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px',
-          fontSize: '11px', fontFamily: 'monospace', zIndex: 10
+          padding: '8px 14px',
+          background: '#161b22',
+          borderBottom: '1px solid #30363d',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '11px',
+          fontFamily: 'monospace',
+          color: '#8b949e',
+          flexWrap: 'wrap',
+          gap: '8px'
         }
       }, [
         makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-          makeElement('strong', { style: { color: '#10b981' } }, '✍️ accuCad [Sub-View: On-Curve Splines & Motion Parallax]'),
-          makeElement('span', { style: { color: '#00f2fe' } }, '● Active Tool: DrawCurveCommand (G1 Relaxation)')
+          makeElement('strong', { style: { color: '#00f2fe' } }, '📐 accuCad [Production Studio] • Multi-Shader Viewport'),
+          makeElement('span', { id: 'accucad-inst2-focus', style: { color: '#10b981' } }, '● In-Process Canvas')
         ]),
         makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
           makeElement('button', {
-            className: 'dr-nav-btn',
-            style: { padding: '3px 8px', fontSize: '10px' },
-            onclick: () => app?.baseController?.setDrawingPlane('top')
-          }, 'T: Top'),
-          makeElement('button', {
-            className: 'dr-nav-btn',
-            style: { padding: '3px 8px', fontSize: '10px' },
-            onclick: () => app?.baseController?.setDrawingPlane('front')
-          }, 'F: Front'),
-          makeElement('button', {
-            className: 'dr-nav-btn',
-            style: { padding: '3px 8px', fontSize: '10px' },
-            onclick: () => app?.baseController?.setDrawingPlane('side')
-          }, 'S: Side'),
-          makeElement('button', {
             className: 'dr-nav-btn primary',
-            id: 'btn-lab-parallax-toggle',
             style: { padding: '3px 8px', fontSize: '10px' },
-            onclick: () => toggleParallax()
-          }, '🔄 Parallax: ON')
+            onclick: () => setAesthetic('studio')
+          }, '✨ Studio PBR'),
+          makeElement('button', {
+            className: 'dr-nav-btn',
+            style: { padding: '3px 8px', fontSize: '10px', color: '#ff007f', borderColor: '#ff007f66' },
+            onclick: () => setAesthetic('cyber')
+          }, '⚡ Cyber Bloom'),
+          makeElement('button', {
+            className: 'dr-nav-btn',
+            style: { padding: '3px 8px', fontSize: '10px', color: '#38bdf8', borderColor: '#38bdf866' },
+            onclick: () => setAesthetic('blueprint')
+          }, '📐 Blueprint'),
+          btnExpand = makeElement('button', {
+            className: 'dr-nav-btn',
+            style: { padding: '3px 8px', fontSize: '10px', color: '#38bdf8', borderColor: '#38bdf866' },
+            onclick: toggleExpand
+          }, '⛶ Fullscreen')
         ])
       ]);
-      wrap.appendChild(hud);
+      frameWrap.appendChild(statusHeader);
 
-      const canvasMount = makeElement('div', {
-        id: 'accucad-mount-spline-parallax-gym',
-        style: { flex: 1, width: '100%', minHeight: '580px', position: 'relative', background: '#050811' }
-      });
-      wrap.appendChild(canvasMount);
-      container.appendChild(wrap);
-
-      let app = null;
-      let instId = null;
-
-      const boot = async () => {
-        await CadStudioDemoComponent.ensureAccuCadLoaded();
-        if (globalThis.Main) {
-          app = new globalThis.Main();
-          await app.run({
-            container: canvasMount,
-            showSidePanel: false,
-            showCompassUi: false,
-            initialTool: 'curve',
-            presetGeometry: 'primitives',
-            cameraPos: { x: 3.5, y: 3.5, z: 4.8 },
-            target: [0, 0.4, 0],
-            background: 0x050811,
-            initialPlane: 'top'
-          });
-
-          instId = CadStudioDemoComponent.registerInstance(app, canvasMount, 'Spline & Parallax Lab');
-
-          if (typeof CameraOrbitAnimator !== 'undefined') {
-            CameraOrbitAnimator.start();
-          }
+      const appMount = makeElement('div', {
+        id: 'accucad-mount-instance-2',
+        style: {
+          flex: 1,
+          width: '100%',
+          minHeight: '520px',
+          position: 'relative',
+          border: '1.5px solid #21262d',
+          transition: 'border-color 0.2s, box-shadow 0.2s'
         }
-      };
+      });
+      frameWrap.appendChild(appMount);
 
-      boot();
+      // Terminal Chrome In-Situ Code Runner
+      const codeRunner = makeElement('div', {
+        style: {
+          background: '#0a0e1a',
+          borderTop: '1.5px solid #232d3f',
+          padding: '10px 14px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontFamily: 'monospace',
+          fontSize: '11px'
+        }
+      });
 
-      function toggleParallax() {
-        if (typeof CameraOrbitAnimator !== 'undefined') {
-          CameraOrbitAnimator.toggle();
-          const btn = document.getElementById('btn-lab-parallax-toggle');
-          if (btn) {
-            const isRunning = CameraOrbitAnimator._running;
-            btn.textContent = isRunning ? '🔄 Parallax: ON' : '○ Parallax: OFF';
-            btn.style.color = isRunning ? '#ffffff' : '#94a3b8';
-          }
+      const presets = CadStudioDemoComponent.getScriptPresets();
+
+      const codeRunnerHeader = makeElement('div', {
+        style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }
+      }, [
+        makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+          makeElement('div', { className: 'cp-terminal-dots' }, [
+            makeElement('span', { className: 'cp-terminal-dot red' }),
+            makeElement('span', { className: 'cp-terminal-dot yellow' }),
+            makeElement('span', { className: 'cp-terminal-dot green' })
+          ]),
+          makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, '⚡ In-Situ CAD Code Runner:'),
+          presetSelect = makeElement('select', {
+            style: {
+              background: '#070a13',
+              color: '#00f2fe',
+              border: '1px solid rgba(0, 242, 254, 0.4)',
+              borderRadius: '4px',
+              padding: '3px 8px',
+              fontSize: '10.5px',
+              fontFamily: 'monospace',
+              outline: 'none',
+              cursor: 'pointer'
+            },
+            onchange: (e) => {
+              const idx = parseInt(e.target.value);
+              if (presets[idx]) {
+                codeEditor.value = presets[idx].code;
+                codeFeedback.textContent = `Loaded preset: ${presets[idx].name}. Tap "▶ Run Script" to execute.`;
+                codeFeedback.style.color = '#38bdf8';
+              }
+            }
+          }, presets.map((p, i) => makeElement('option', { value: i }, p.name)))
+        ]),
+        makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
+          makeElement('button', {
+            className: 'dr-nav-btn primary',
+            style: { padding: '3px 10px', fontSize: '10px', fontWeight: 'bold' },
+            onclick: () => {
+              if (activeApp?.baseController) {
+                const res = activeApp.baseController.executeScript(codeEditor.value);
+                if (res.success) {
+                  codeFeedback.textContent = `✓ Executed script successfully in viewport at ${new Date().toLocaleTimeString()}`;
+                  codeFeedback.style.color = '#10b981';
+                } else {
+                  codeFeedback.textContent = `Error: ${res.error}`;
+                  codeFeedback.style.color = '#ef4444';
+                }
+              }
+            }
+          }, '▶ Run Script in Viewport'),
+          makeElement('button', {
+            className: 'dr-nav-btn',
+            style: { padding: '3px 8px', fontSize: '10px' },
+            onclick: () => {
+              codeEditor.value = presets[0].code;
+              codeFeedback.textContent = 'Code reset to default preset.';
+              codeFeedback.style.color = '#94a3b8';
+            }
+          }, '↺ Reset')
+        ])
+      ]);
+      codeRunner.appendChild(codeRunnerHeader);
+
+      const codeEditor = makeElement('textarea', {
+        style: {
+          width: '100%',
+          minHeight: '110px',
+          background: '#050811',
+          color: '#7ee787',
+          border: '1px solid #1e293b',
+          borderRadius: '6px',
+          padding: '8px',
+          fontFamily: 'var(--dr-font-mono, monospace)',
+          fontSize: '11.5px',
+          lineHeight: '1.45',
+          outline: 'none',
+          resize: 'vertical'
+        },
+        spellcheck: false
+      });
+      codeEditor.value = presets[0].code;
+      codeRunner.appendChild(codeEditor);
+
+      const codeFeedback = makeElement('div', {
+        style: { color: '#94a3b8', fontSize: '10.5px', fontStyle: 'italic' }
+      }, 'Ready to execute script in active instance.');
+      codeRunner.appendChild(codeFeedback);
+
+      frameWrap.appendChild(codeRunner);
+      container.appendChild(frameWrap);
+
+      const isLoaded = await CadStudioDemoComponent.ensureAccuCadLoaded();
+      if (isLoaded && globalThis.Main) {
+        activeApp = new globalThis.Main();
+        await activeApp.run({
+          container: appMount,
+          showSidePanel: true,
+          showCompassUi: false,
+          background: 0x0d1117
+        });
+        instId = CadStudioDemoComponent.registerInstance(activeApp, appMount, 'Instance 2: Production Studio');
+      }
+
+      function setAesthetic(styleKey) {
+        if (!activeApp) return;
+        const THREE = globalThis.THREE;
+
+        if (styleKey === 'cyber') {
+          if (activeApp.threeDView?.scene) activeApp.threeDView.scene.background = new THREE.Color(0x05040a);
+          if (activeApp.threeLoader) activeApp.threeLoader.setBloom(true);
+          if (activeApp.baseController) activeApp.baseController.setCompassStyle('cyber');
+        } else if (styleKey === 'blueprint') {
+          if (activeApp.threeDView?.scene) activeApp.threeDView.scene.background = new THREE.Color(0x0f1c2e);
+          if (activeApp.threeLoader) activeApp.threeLoader.setBloom(false);
+          if (activeApp.baseController) activeApp.baseController.setCompassStyle('classic');
+        } else {
+          if (activeApp.threeDView?.scene) activeApp.threeDView.scene.background = new THREE.Color(0x0d1117);
+          if (activeApp.threeLoader) activeApp.threeLoader.setBloom(false);
+          if (activeApp.baseController) activeApp.baseController.setCompassStyle('minimal');
         }
       }
 
       const observer = new MutationObserver(() => {
-        if (!document.body.contains(wrap)) {
+        if (!document.body.contains(frameWrap)) {
           if (instId) CadStudioDemoComponent.unregisterInstance(instId);
-          if (typeof CameraOrbitAnimator !== 'undefined') CameraOrbitAnimator.stop();
-          if (app && typeof app.destroy === 'function') app.destroy();
           observer.disconnect();
         }
       });
-      observer.observe(wrap.parentNode || document.body, { childList: true });
-  }
+      observer.observe(frameWrap.parentNode || document.body, { childList: true });
+    }
+
+  static async _renderAuthenticCurveAndParallaxLab(container) {
+        container.innerHTML = '';
+
+        let app = null;
+        let instId = null;
+
+        const wrap = makeElement('div', {
+          style: {
+            width: '100%', height: '100%', minHeight: '640px', position: 'relative',
+            display: 'flex', flexDirection: 'column', background: '#090d16'
+          }
+        });
+
+        const hud = makeElement('div', {
+          style: {
+            padding: '8px 14px', background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid #21262d',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px',
+            fontSize: '11px', fontFamily: 'monospace', zIndex: 10
+          }
+        }, [
+          makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+            makeElement('strong', { style: { color: '#10b981' } }, '✍️ accuCad [Sub-View: On-Curve Splines & Motion Parallax]'),
+            makeElement('span', { style: { color: '#00f2fe' } }, '● Active Tool: DrawCurveCommand (G1 Relaxation)')
+          ]),
+          makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
+            makeElement('button', {
+              className: 'dr-nav-btn',
+              style: { padding: '3px 8px', fontSize: '10px' },
+              onclick: () => app?.baseController?.setDrawingPlane('top')
+            }, 'T: Top'),
+            makeElement('button', {
+              className: 'dr-nav-btn',
+              style: { padding: '3px 8px', fontSize: '10px' },
+              onclick: () => app?.baseController?.setDrawingPlane('front')
+            }, 'F: Front'),
+            makeElement('button', {
+              className: 'dr-nav-btn',
+              style: { padding: '3px 8px', fontSize: '10px' },
+              onclick: () => app?.baseController?.setDrawingPlane('side')
+            }, 'S: Side'),
+            makeElement('button', {
+              className: 'dr-nav-btn primary',
+              id: 'btn-lab-parallax-toggle',
+              style: { padding: '3px 8px', fontSize: '10px' },
+              onclick: () => toggleParallax()
+            }, '🔄 Parallax: ON')
+          ])
+        ]);
+        wrap.appendChild(hud);
+
+        const canvasMount = makeElement('div', {
+          id: 'accucad-mount-spline-parallax-gym',
+          style: { flex: 1, width: '100%', minHeight: '580px', position: 'relative', background: '#050811' }
+        });
+        wrap.appendChild(canvasMount);
+        container.appendChild(wrap);
+
+        const boot = async () => {
+          await CadStudioDemoComponent.ensureAccuCadLoaded();
+          if (globalThis.Main) {
+            app = new globalThis.Main();
+            await app.run({
+              container: canvasMount,
+              showSidePanel: false,
+              showCompassUi: false,
+              initialTool: 'curve',
+              presetGeometry: 'primitives',
+              cameraPos: { x: 3.5, y: 3.5, z: 4.8 },
+              target: [0, 0.4, 0],
+              background: 0x050811,
+              initialPlane: 'top'
+            });
+
+            instId = CadStudioDemoComponent.registerInstance(app, canvasMount, 'Spline & Parallax Lab');
+
+            if (typeof CameraOrbitAnimator !== 'undefined' && app.threeDView) {
+              CameraOrbitAnimator.setDependencies(app.threeDView);
+              CameraOrbitAnimator.start();
+            }
+          }
+        };
+
+        boot();
+
+        function toggleParallax() {
+          if (typeof CameraOrbitAnimator !== 'undefined') {
+            CameraOrbitAnimator.toggle();
+            const btn = document.getElementById('btn-lab-parallax-toggle');
+            if (btn) {
+              const isRunning = CameraOrbitAnimator._running;
+              btn.textContent = isRunning ? '🔄 Parallax: ON' : '○ Parallax: OFF';
+              btn.style.color = isRunning ? '#ffffff' : '#94a3b8';
+            }
+          }
+        }
+
+        const observer = new MutationObserver(() => {
+          if (!document.body.contains(wrap)) {
+            if (instId) CadStudioDemoComponent.unregisterInstance(instId);
+            if (typeof CameraOrbitAnimator !== 'undefined') CameraOrbitAnimator.stop();
+            if (app && typeof app.destroy === 'function') app.destroy();
+            observer.disconnect();
+          }
+        });
+        observer.observe(wrap.parentNode || document.body, { childList: true });
+    }
   static exportToDxf(vertices) {
     if (!vertices || vertices.length < 2) return;
 
@@ -566,36 +600,36 @@ class CadStudioDemoComponent {
 
       return CadStudioDemoComponent._accuCadLoadPromise;
     }
+
   static _renderSnappingGym(stage) {
-      stage.innerHTML = '';
-      const gymWrap = makeElement('div', {
-        style: { width: '100%', height: '100%', minHeight: '660px', position: 'relative', display: 'flex', flexDirection: 'column' }
-      });
+        stage.innerHTML = '';
+        const gymWrap = makeElement('div', {
+          style: { width: '100%', height: '100%', minHeight: '660px', position: 'relative', display: 'flex', flexDirection: 'column' }
+        });
 
-      const hud = makeElement('div', {
-        style: {
-          padding: '8px 14px', background: '#0c1220', borderBottom: '1px solid #1e293b',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace'
+        const hud = makeElement('div', {
+          style: {
+            padding: '8px 14px', background: '#0a0e1a', borderBottom: '1px solid #1e293b',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace'
+          }
+        }, [
+          makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+            makeElement('strong', { style: { color: '#00f2fe' } }, '🎯 Focused Snapping & Kinematics Bench:'),
+            makeElement('span', {}, 'Hover wireframes • 50ms Chord / Ctrl Snaps • [G] Origin • Pull away for Mini-Jack')
+          ]),
+          makeElement('span', { style: { color: '#10b981', fontWeight: 'bold' } }, '● Screen-Space Thick Pick (14px)')
+        ]);
+        gymWrap.appendChild(hud);
+
+        const mountPoint = makeElement('div', { style: { flex: 1, position: 'relative' } });
+        gymWrap.appendChild(mountPoint);
+        stage.appendChild(gymWrap);
+
+        if (typeof TentativeSnappingLab !== 'undefined' && TentativeSnappingLab.render) {
+          TentativeSnappingLab.render(mountPoint);
         }
-      }, [
-        makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-          makeElement('strong', { style: { color: '#00f2fe' } }, '🎯 Focused Snapping & Tentative Workbench:'),
-          makeElement('span', {}, 'Hover wireframes • 50ms Chord / Ctrl Snaps • [G] Origin • Pull away to test Mini-Jack')
-        ]),
-        makeElement('span', { style: { color: '#10b981', fontWeight: 'bold' } }, '● Screen-Space 14px Thick Pick')
-      ]);
-      gymWrap.appendChild(hud);
-
-      const mountPoint = makeElement('div', { style: { flex: 1, position: 'relative' } });
-      gymWrap.appendChild(mountPoint);
-      stage.appendChild(gymWrap);
-
-      if (typeof TentativeSnappingLab !== 'undefined' && TentativeSnappingLab.render) {
-        TentativeSnappingLab.render(mountPoint);
       }
-    }
-
   static _renderCompassGym(stage) {
       stage.innerHTML = '';
       const compWrap = makeElement('div', {

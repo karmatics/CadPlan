@@ -1,4 +1,4 @@
-class ModelLoader {
+var ModelLoader = class ModelLoader {
   constructor() {}
 
   static loadGLB(file, app, feedbackElement, onParsed) {
@@ -55,6 +55,7 @@ class ModelLoader {
 
     reader.readAsArrayBuffer(file);
   }
+
   static clearSceneGeometry(app, meshes, loadedModel) {
     if (loadedModel && app.scene) {
       app.scene.remove(loadedModel);
@@ -96,7 +97,7 @@ class ModelLoader {
 
     mesh.material = wasArray ? newMaterials : newMaterials[0];
   }
-}
+};
 
 globalThis.ModelLoader = ModelLoader;
 if (typeof module !== 'undefined' && module.exports) module.exports = ModelLoader;

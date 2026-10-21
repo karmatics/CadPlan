@@ -20,6 +20,14 @@ class CadInteractiveDemoContent {
           ]
         },
         {
+          section: 'choreography_showcase',
+          partLabel: 'Chapter 7 • Ghost Drafter Studio',
+          title: 'Autonomous Choreography & Seamless Human Takeover',
+          blocks: [
+            { id: 'comp_choreography_demo', type: 'component', component: 'CadChoreographyDemoComponent' }
+          ]
+        },
+        {
           section: 'model_studio_section',
           partLabel: 'Chapter 7 • Inspection Deck',
           title: '3D Model Studio: PBR Materials & AccuDraw Dimensions',

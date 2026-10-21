@@ -1,11 +1,6 @@
-class BezierVertex {
-  /**
-   * Authentic BezierVertex data structure for on-curve cubic Bézier curves.
-   * Stores the on-curve through-point, dual control points, curvature, and balance.
-   */
+var BezierVertex = class BezierVertex {
   constructor(point, pointType = 'click') {
     this.point = point ? point.slice() : [0, 0, 0];
-    // Initialize control points coincident with the through-point
     this.controlPoints = [this.point.slice(), this.point.slice()];
     this.tangents = [null, null];
     this.curvature = 1.0;
@@ -46,7 +41,7 @@ class BezierVertex {
     if (typeof obj.tangentAngleOffset === 'number') v.tangentAngleOffset = obj.tangentAngleOffset;
     return v;
   }
-}
+};
 
 globalThis.BezierVertex = BezierVertex;
 if (typeof module !== 'undefined' && module.exports) module.exports = BezierVertex;
