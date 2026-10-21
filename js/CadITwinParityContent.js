@@ -122,13 +122,12 @@ class CadITwinParityContent {
     }
 
   static p_smartline_1() {
-      return [
-        "In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users were forced to draw individual straight lines, circles, and arcs using separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture.",
-        "Within SmartLine, there are two distinct kinds of arcs: **Rounded Corner Fillets** and **Independent Tangent Arc Segments**. If a rounded corner could do it, that's what was done—it was by far the most common architectural transition. But when an independent arc segment was required, SmartLine seamlessly transitioned into it without interrupting the placement command loop.",
-        "Crucially, for corner fillets, **if a segment was too short to physically fit the requested rounding radius, SmartLine simply rendered a clean, sharp corner**. It did not distort the drafter's requested radius, push adjacent vertices, or interrupt the user with modal error dialogs. The geometry stayed clean, predictable, and fast."
-      ];
-    }
-
+    return [
+      "In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users were forced to draw individual straight lines, circles, and arcs using separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture.",
+      "Within SmartLine, there are two distinct kinds of arcs: **Rounded Corner Fillets** and **Independent Tangent Arc Segments**. If a rounded corner could do it, that's what was done. Crucially, when rounded corner is turned on, **it rounds the transition even when it is rounding into an arc**—we lock them down as soon as we can. The original SmartLine offered chamfers as well, but we are discarding chamfers because chamfering into an arc does not make geometric sense.",
+      "For corner fillets, **if a segment was too short to physically fit the requested rounding radius, SmartLine simply rendered a clean, sharp corner**. It did not distort the drafter's requested radius, push adjacent vertices, or interrupt the user with modal error dialogs. The geometry stayed clean, predictable, and fast."
+    ];
+  }
   static p_smartline_2() {
       return [
         "Arc segments were remarkably easy to make tangent to the previous segment because AccuDraw automatically oriented itself with the tangent vector of the prior line. Crucially, as soon as you switched into Arc mode, AccuDraw flipped into **Polar mode**, letting the draftsperson immediately type the radius or chord distance directly without looking at a command prompt.",
@@ -139,24 +138,26 @@ class CadITwinParityContent {
     }
 
   static sidebar_smartline_transitions() {
-      return [
-        "SmartLine Geometry & Corner Fillet Rules:\n" +
-        "1. Type A: Rounded Corner Fillets:\n" +
-        "   • Tangent circular arc connecting incoming and outgoing segment bisectors.\n" +
-        "   • Tangent Setback: $T = R \\tan(\\theta / 2)$ where $\\theta$ is the turning angle.\n" +
-        "   • Short-Segment Fallback (Rob Brown's Rule): If $T > \\text{segment length} / 2$, the fillet is suppressed and a clean sharp corner is rendered.\n" +
-        "2. Trailing Corner Live Adjustment (Post-Closure Hook):\n" +
-        "   • Closing a loop applies the active fillet radius to the closing vertex $P_0$.\n" +
-        "   • Adjusting the radius immediately after placement dynamically tunes that trailing corner until a new command begins.\n" +
-        "3. Type B: Tangent Arc Segments (Closest-Point Heuristic):\n" +
-        "   • Minimizes distance between cursor and candidate arc circumference.\n" +
-        "   • Smooth transitions across zero: sweeps from 0° to +5° or backs up across the line to -6° with zero deadband jitter.\n" +
-        "4. Post-Arc Exit Tangent Orientation:\n" +
-        "   • Compass automatically aligns primary axis to the exit tangent vector of the placed arc.\n" +
-        "5. Single-Stroke Escapes & Planes:\n" +
-        "   • 'T' (Top), 'F' (Front), 'S' (Side), or 'V' (View) snaps compass back to orthogonal planes without breaking the polyline chain."
-      ];
-    }
+    return [
+      "SmartLine Geometry & Corner Fillet Rules:\n" +
+      "1. Type A: Rounded Corner Fillets:\n" +
+      "   • Tangent circular arc connecting incoming and outgoing segment bisectors.\n" +
+      "   • Applies even when rounding into an arc segment (locking down boundaries as early as possible).\n" +
+      "   • Chamfers Discarded: Chamfering into circular arcs is eliminated as non-physical.\n" +
+      "   • Tangent Setback: T = R tan(θ / 2) where θ is the turning angle.\n" +
+      "   • Short-Segment Fallback (Rob Brown's Rule): If T > segment length / 2, the fillet is suppressed and a clean sharp corner is rendered.\n" +
+      "2. Trailing Corner Live Adjustment (Post-Closure Hook):\n" +
+      "   • Closing a loop applies the active fillet radius to the closing vertex P_0.\n" +
+      "   • Adjusting the radius immediately after placement dynamically tunes that trailing corner until a new command begins.\n" +
+      "3. Type B: Tangent Arc Segments (Closest-Point Heuristic):\n" +
+      "   • Minimizes distance between cursor and candidate arc circumference.\n" +
+      "   • Smooth transitions across zero: sweeps from 0° to +5° or backs up across the line to -6° with zero deadband jitter.\n" +
+      "4. Post-Arc Exit Tangent Orientation:\n" +
+      "   • Compass automatically aligns primary axis to the exit tangent vector of the placed arc.\n" +
+      "5. Single-Stroke Escapes & Planes:\n" +
+      "   • 'T' (Top), 'F' (Front), 'S' (Side), or 'V' (View) snaps compass back to orthogonal planes without breaking the polyline chain."
+    ];
+  }
   static p_smartline_3() {
       return [
         "To bring this interaction model into the modern open ecosystem, we implement the entire 2D drafting engine in pure SVG. In the live laboratory above, you can lay down lines, press `A` or `~` to swing dynamic tangent arcs, watch the Squircle Compass rotate to align with exit tangents, and press `T` or `V` to break onto standard planes.",

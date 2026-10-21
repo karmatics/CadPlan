@@ -47,6 +47,45 @@
   text-shadow: 0 0 12px var(--cp-cyan);
 }
 
+/* Crawling Ants Border Animation for Annotated Living Spec Elements */
+@keyframes cp-crawling-ants {
+  0% {
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+  }
+  100% {
+    background-position: 40px 0, 100% 40px, -40px 100%, 0 -40px;
+  }
+}
+
+.cadplan-has-note-marker {
+  position: relative !important;
+  background-image: 
+    linear-gradient(90deg, #00f2fe 50%, transparent 50%),
+    linear-gradient(180deg, #00f2fe 50%, transparent 50%),
+    linear-gradient(270deg, #00f2fe 50%, transparent 50%),
+    linear-gradient(0deg, #00f2fe 50%, transparent 50%) !important;
+  background-repeat: repeat-x, repeat-y, repeat-x, repeat-y !important;
+  background-size: 16px 2px, 2px 16px, 16px 2px, 2px 16px !important;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100% !important;
+  animation: cp-crawling-ants 1.4s linear infinite !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 18px rgba(0, 242, 254, 0.25) !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+.cadplan-has-note-marker:hover {
+  box-shadow: 0 0 28px rgba(0, 242, 254, 0.45) !important;
+}
+
+.cadplan-has-note-marker.proposal-mode {
+  background-image: 
+    linear-gradient(90deg, #c084fc 50%, transparent 50%),
+    linear-gradient(180deg, #c084fc 50%, transparent 50%),
+    linear-gradient(270deg, #c084fc 50%, transparent 50%),
+    linear-gradient(0deg, #c084fc 50%, transparent 50%) !important;
+  box-shadow: 0 0 18px rgba(192, 132, 252, 0.3) !important;
+}
+
 /* Mic Recording Pulse Animation */
 @keyframes cp-mic-pulse {
   0% {
@@ -68,30 +107,6 @@
   background: #450a0a !important;
   color: #fca5a5 !important;
   border-color: #ef4444 !important;
-}
-
-/* Audio Waveform Ripple */
-.cp-audio-wave {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  height: 14px;
-  margin-left: 6px;
-}
-.cp-audio-wave span {
-  display: block;
-  width: 2.5px;
-  height: 100%;
-  background: #00f2fe;
-  border-radius: 1px;
-  animation: cp-wave-bounce 0.8s infinite ease-in-out;
-}
-.cp-audio-wave span:nth-child(2) { animation-delay: 0.15s; }
-.cp-audio-wave span:nth-child(3) { animation-delay: 0.3s; }
-.cp-audio-wave span:nth-child(4) { animation-delay: 0.45s; }
-@keyframes cp-wave-bounce {
-  0%, 100% { transform: scaleY(0.2); }
-  50% { transform: scaleY(1); }
 }
 
 /* Tactical Segmented Toggle (Author vs LLM) */
@@ -148,103 +163,4 @@
   background: rgba(0, 242, 254, 0.12);
   border-color: #00f2fe;
   color: #00f2fe;
-}
-
-/* In-Situ Visual Diff Highlight */
-.cp-diff-del {
-  background: rgba(239, 68, 68, 0.25);
-  color: #fca5a5;
-  text-decoration: line-through;
-  border-radius: 3px;
-  padding: 1px 3px;
-}
-.cp-diff-ins {
-  background: rgba(16, 185, 129, 0.25);
-  color: #6ee7b7;
-  font-weight: 700;
-  border-radius: 3px;
-  padding: 1px 3px;
-  text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
-}
-
-/* In-Situ Block Flash upon Acceptance */
-@keyframes cp-accepted-flash {
-  0% {
-    background-color: rgba(16, 185, 129, 0.35);
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.7);
-  }
-  100% {
-    background-color: transparent;
-    box-shadow: none;
-  }
-}
-.cp-block-accepted-flash {
-  animation: cp-accepted-flash 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-/* Smart Sidebar Search & Accordion Details */
-.cp-sidebar-search {
-  width: 100%;
-  background: #080c16;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  padding: 7px 10px;
-  color: #f8fafc;
-  font-family: var(--cp-font-sans);
-  font-size: 11px;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.cp-sidebar-search:focus {
-  border-color: var(--cp-cyan);
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
-}
-
-.cp-chapter-card {
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  overflow: hidden;
-  transition: all 0.15s ease;
-}
-.cp-chapter-card.active {
-  border-color: var(--cp-cyan);
-  background: rgba(0, 242, 254, 0.08);
-  box-shadow: 0 0 14px rgba(0, 242, 254, 0.15);
-}
-.cp-chapter-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  cursor: pointer;
-  user-select: none;
-}
-.cp-chapter-header-row:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-.cp-chapter-sections-list {
-  padding: 4px 10px 8px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.cp-section-item {
-  color: #94a3b8;
-  font-size: 10.5px;
-  font-family: var(--cp-font-sans);
-  cursor: pointer;
-  padding: 3px 6px;
-  border-radius: 4px;
-  transition: all 0.12s ease;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.cp-section-item:hover {
-  color: #00f2fe;
-  background: rgba(0, 242, 254, 0.1);
-  padding-left: 9px;
 }

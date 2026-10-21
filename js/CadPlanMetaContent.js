@@ -60,6 +60,22 @@ class CadPlanMetaContent {
           ]
         },
         {
+          section: 'next_thread_extreme_accucad',
+          partLabel: 'Chapter 0 • Next Thread Master Blueprint',
+          title: 'Next Thread: Extreme accuCad Embedding, Animated Micro-Demos & Document-First Architecture',
+          blocks: [
+            { id: 'p_next_thread_vision_1', type: 'p' },
+            { id: 'p_next_thread_demos_2', type: 'p' },
+            { id: 'sidebar_choreography_spec', type: 'sidebar', kicker: 'Interaction Engine', title: 'The Autonomous Choreography & Takeover Protocol' },
+            { id: 'p_next_thread_curves_3', type: 'p' },
+            { id: 'sidebar_extreme_curves', type: 'sidebar', kicker: 'Curve Mathematics', title: 'On-Curve Relaxation & Kinetic Tether Dynamics' },
+            { id: 'p_next_thread_docfirst_4', type: 'p' },
+            { id: 'sidebar_docfirst_flow', type: 'sidebar', kicker: 'Architecture', title: 'Document-First Workflow (Zero-Luno Friction)' },
+            { id: 'p_next_thread_gpu_5', type: 'p' },
+            { id: 'sidebar_next_thread_deliverables', type: 'sidebar', kicker: 'Execution Agenda', title: 'Next Thread Immediate Deliverables Checklist' }
+          ]
+        },
+        {
           section: 'html_protocol_roadmap',
           partLabel: 'Chapter 0 • Dossier Architecture',
           title: 'The 5-Step HTML & In-Situ Aardvark Evolution Roadmap',
@@ -402,6 +418,85 @@ class CadPlanMetaContent {
         "• 2. Native Luno Cockpit Drawer: Tapping '🌙 Luno' in the header slides out the Luno control deck as a native UI drawer.\n" +
         "• 3. Zero-Latency Communication: Direct method calls between CadPlan and OutboxQueue with zero postMessage serialization.\n" +
         "• 4. Decoupled Mobile Companion: Desktop workspace remains consolidated, while smartphone trackpads connect over low-latency WebRTC."
+      ];
+    }
+
+  static p_next_thread_vision_1() {
+      return [
+        "The primary mandate of the upcoming engineering thread is to **take accuCad native embedding to the absolute extreme**. We are not building passive documentation with static images or toy mock-ups. When people open this living specification, they must be completely knocked over by how alive, interactive, and hyper-sophisticated it is.",
+        "The document serves a dual purpose: first and foremost, it communicates directly with a human audience—the author, peer engineers, and prospective open-source collaborators—grounding them in proven spatial ergonomics. Simultaneously, it acts as an exhaustive, verifiable engineering prompt for autonomous AI coding agents. It lays out the definitive architectural blueprint for software that will be written partly by the author and partly by the global developer community using this specification."
+      ];
+    }
+  static p_next_thread_demos_2() {
+      return [
+        "Instead of forcing users to navigate to an external tab or launch a heavy workstation to understand a concept, **every single chapter will feature a live, animated in-process accuCad micro-demo** that immediately demonstrates the exact topic of that page in motion.",
+        "As soon as you switch to Chapter 1 (Origins), the 3D compass rotates into Top, Front, and Side orientations while placing a 3D isometric bracket. On Chapter 3 (accuCad Audit), the demo displays 50ms chorded tentative snapping with live Mini-Jack projection lines. On Chapter 4 (Shortcuts), single-keystroke commands execute without `<Enter>`. On Chapter 5 (Curve Drawer), splines dynamically interpolate through on-curve points. Each demo runs a scripted 'ghost drafter' animation loop that continuously showcases the ergonomics. Crucially, if the user moves their mouse over the canvas, **the scripted loop smoothly yields**, giving the user immediate, interactive command of the real 3D drafting engine."
+      ];
+    }
+
+  static sidebar_choreography_spec() {
+      return [
+        "The Autonomous Choreography & Takeover Protocol:\n" +
+        "• Dedicated Scripted Scenarios: Each page declares an automated interaction script demonstrating its specific capability (Plane Turning, Smart Locking, Chord Snapping, Spline Tensioning).\n" +
+        "• Ghost Drafter Virtual Cursor: An animated SVG reticle simulates exact mouse trajectories, data clicks, and chord snaps at 60 FPS.\n" +
+        "• Seamless Human Takeover: Hovering or clicking anywhere inside the active canvas pauses the animation loop, transfers keyboard routing to the human drafter, and allows unrestricted live CAD drawing.\n" +
+        "• Single Source of Truth: Scenarios are NOT ad-hoc animations; they dispatch real data points directly through BaseController and AccuDrawLogic."
+      ];
+    }
+  static p_next_thread_curves_3() {
+      return [
+        "A centerpiece of the next thread is showcasing the **authentic Curve Drawer to the extreme**. For forty years, the commercial CAD industry has tortured users with off-curve Bézier handles. In our engine, we demonstrate Rob Brown's proven alternatives directly in the live viewports.",
+        "We will showcase both distinct curve modalities concurrently: **Modality 1 (On-Curve Through-Points)** with real-time 8-iteration $G^1$ tangent relaxation, vertex-targeted curvature fullness, and chord balance; and **Modality 2 (The Kinetic Tether / String-Drag)** where pressing `Ctrl` extends an elastic tow rope to filter out hand micro-tremors, while pressing `Shift` backtracks along the path to interactively undo and re-aim. Every segment drawn in the canvas automatically generates real AutoCAD DXF bulge factors $\text{bulge} = \tan(\theta/4)$, demonstrating zero-loss round-tripping with CADCraft and legacy DWG workflows."
+      ];
+    }
+  static sidebar_extreme_curves() {
+      return [
+        "Curve Drawer & SmartLine Parity Engine:\n" +
+        "• Modality 1: On-Curve Through-Point Relaxation:\n" +
+        "  - Click anchors strictly ON the curve itself.\n" +
+        "  - UpdateControlPoints.js derives exact cubic Bézier control points iteratively.\n" +
+        "  - Independent per-vertex Curvature (tension) and Balance (tangency weighting).\n" +
+        "• Modality 2: Kinetic String-Drag (Tether):\n" +
+        "  - Ctrl Drag: Extends elastic dashed string from curve tip.\n" +
+        "  - Ctrl Release: Towing action smoothly pulls curve tip, filtering micro-tremors.\n" +
+        "  - Shift Push: Interactive reverse scrubbing to backtrack and undo mistakes.\n" +
+        "• SmartLine Continuous Fillet Fallback:\n" +
+        "  - Short-Segment Rule: If fillet setback exceeds half the segment length, renders a clean sharp corner without error dialogs.\n" +
+        "  - Closest-Point Sweep: Natural directional arc swings from +5° to -6° with zero deadband jitter."
+      ];
+    }
+  static p_next_thread_docfirst_4() {
+      return [
+        "The next thread firmly establishes our **Document-First Architecture**. The document is the primary deliverable—it is not trapped inside Luno, nor does it require booting Luno just to read or annotate.",
+        "Anyone can load `CadPlan` as a standalone web app. As you read, you can attach voice directives, text thoughts, or bug reports to any paragraph, table, or 3D canvas using Aardvark. Every note receives our animated crawling-ants outline and is stored safely in browser IndexedDB. When you want to edit the specification or compile an AI prompt, tapping an edit link or `🌙 Luno` slides open the Luno development cockpit in-process. The stored notes are bundled into Outbox payloads, dispatched to the AI, and when the patch returns, our resolution protocol automatically retires the notes and clears the crawling ants."
+      ];
+    }
+  static sidebar_docfirst_flow() {
+      return [
+        "Document-First Lifecycle Architecture:\n" +
+        "1. Standalone Document Load: The living spec loads instantly in any browser without server dependencies or Luno dev bloat.\n" +
+        "2. Universal Annotation: Aardvark pins voice notes and text directives to any DOM node, highlighting them with crawling ants.\n" +
+        "3. Safe Persistence: Directives persist in IndexedDB across reloads until explicitly resolved or compiled.\n" +
+        "4. On-Demand Luno Cockpit: Tapping '🌙 Luno' opens the in-process cockpit drawer to review checkpoints and queue Outbox payloads.\n" +
+        "5. Automated Retirement: The AI returns patches with resolution metadata, clearing notes and chiming audio acknowledgment."
+      ];
+    }
+
+  static p_next_thread_gpu_5() {
+      return [
+        "To enable dozens of live `accuCad` viewports across the dossier without crashing browser WebGL context limits (typically 8–16 simultaneous contexts), the next thread implements an **intelligent multi-instance GPU lifecycle**.",
+        "Using `IntersectionObserver`, viewports that scroll off-screen automatically pause their rendering loops and suspend requestAnimationFrame updates, reducing GPU memory and power consumption to near-zero. Furthermore, our **Centralized Keyboard Router** guarantees that only the single on-screen canvas currently hovered or interacted with captures single-stroke shortcuts (`T`, `F`, `S`, `V`, `L`, `Space`, `O`), preventing shortcut cross-talk while keeping the desktop experience lightning-fast."
+      ];
+    }
+  static sidebar_next_thread_deliverables() {
+      return [
+        "Next Thread Deliverables Checklist:\n" +
+        "• 1. Autonomous Choreography Engine: Automated animated micro-demos running in-process on every chapter.\n" +
+        "• 2. Seamless Takeover Handshake: Human cursor interaction pauses choreography and gives full manual drafting control.\n" +
+        "• 3. Curve Drawer Deep Showcase: Dynamic on-curve through-point relaxation, kinetic string dragging, and DXF bulge factors.\n" +
+        "• 4. GPU Context & Lifecycle Optimization: IntersectionObserver suspension for off-screen viewports.\n" +
+        "• 5. Unified Keyboard Router: Context-aware single-stroke key capture isolated strictly to the active canvas.\n" +
+        "• 6. Document-First Decoupling: Standalone reading & annotation without loading Luno, with 1-click in-process cockpit sliding."
       ];
     }
 }

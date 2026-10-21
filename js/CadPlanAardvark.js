@@ -468,8 +468,12 @@ class CadPlanAardvark {
         };
       }
     }
+
   _highlightAnnotatedElements() {
-      document.querySelectorAll('.cadplan-has-note-marker').forEach(el => el.classList.remove('cadplan-has-note-marker'));
+      // Clear legacy highlights
+      document.querySelectorAll('.cadplan-has-note-marker').forEach(el => {
+        el.classList.remove('cadplan-has-note-marker', 'proposal-mode');
+      });
 
       if (typeof CadPlanItemNotes === 'undefined') return;
 
@@ -480,6 +484,7 @@ class CadPlanAardvark {
         if (notes.length === 0) return;
 
         const firstNote = notes[0];
+        const hasAiProposal = notes.some(n => n.isLLM);
         let targetEl = null;
 
         if (firstNote.blockId) {
@@ -497,7 +502,11 @@ class CadPlanAardvark {
         }
 
         if (targetEl instanceof Element) {
+          // Apply the crawling ants animation border to the annotated element
           targetEl.classList.add('cadplan-has-note-marker');
+          if (hasAiProposal) {
+            targetEl.classList.add('proposal-mode');
+          }
         }
       });
     }

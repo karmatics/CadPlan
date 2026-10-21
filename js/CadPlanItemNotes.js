@@ -951,65 +951,11 @@ class CadPlanItemNotes {
       }
       return () => {};
     }
+
   static playHapticSound(type = 'click') {
-      try {
-        if (typeof window === 'undefined') return;
-        if (localStorage.getItem('cp_sound_enabled') === 'false') return;
-
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-
-        if (!this._audioCtx) {
-          this._audioCtx = new AudioCtx();
-        }
-        if (this._audioCtx.state === 'suspended') {
-          this._audioCtx.resume();
-        }
-
-        const ctx = this._audioCtx;
-        const now = ctx.currentTime;
-
-        if (type === 'snap' || type === 'click') {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(440, now);
-          osc.frequency.exponentialRampToValueAtTime(110, now + 0.04);
-          gain.gain.setValueAtTime(0.12, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.045);
-        } else if (type === 'accept' || type === 'chime') {
-          [523.25, 659.25, 783.99].forEach((freq, i) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now + i * 0.06);
-            gain.gain.setValueAtTime(0.08, now + i * 0.06);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.4);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now + i * 0.06);
-            osc.stop(now + i * 0.06 + 0.45);
-          });
-        } else if (type === 'delete') {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
-          gain.gain.setValueAtTime(0.09, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.09);
-        }
-      } catch (e) {}
+    // Obnoxious navigation clicks permanently silenced per user directive
+    return;
   }
-
   static generateElementLocator(element) {
       if (!element || !(element instanceof Element)) {
         return { key: 'unknown', xpath: '', cssPath: '', textSnippet: '', isOfficial: false };
@@ -1141,6 +1087,53 @@ class CadPlanItemNotes {
         if (loc.cssPath && n.cssPath && n.cssPath === loc.cssPath) return true;
         return false;
       });
+    }
+
+  static async resolveNotesFromLlmPayload(rawPayloadText) {
+      if (!rawPayloadText || typeof rawPayloadText !== 'string') return [];
+
+      const resolvedIds = new Set();
+
+      // 1. Tag-based protocol: <script type="application/luno-notes" data-action="resolve" data-notes="note_1,note_2">
+      const tagRegex = /<(?:script|template)[^>]*?data-action=["']resolve["'][^>]*?data-notes=["']([^"']+)["'][^>]*>/gi;
+      let match;
+      while ((match = tagRegex.exec(rawPayloadText)) !== null) {
+        match[1].split(/[\s,]+/).forEach(id => {
+          if (id.trim()) resolvedIds.add(id.trim());
+        });
+      }
+
+      // 2. Natural language comment protocol: <!-- RESOLVED_NOTES: note_1, note_2 -->
+      const commentRegex = /<!--\s*RESOLVED_NOTES:\s*([^->]+)-->/gi;
+      while ((match = commentRegex.exec(rawPayloadText)) !== null) {
+        match[1].split(/[\s,]+/).forEach(id => {
+          if (id.trim()) resolvedIds.add(id.trim());
+        });
+      }
+
+      if (resolvedIds.size === 0) return [];
+
+      const resolvedList = Array.from(resolvedIds);
+      for (const id of resolvedList) {
+        await CadPlanItemNotes.updateNote(id, {
+          status: 'resolved',
+          resolvedTimestamp: Date.now(),
+          resolutionSource: 'llm-patch-applied'
+        });
+      }
+
+      CadPlanItemNotes.playHapticSound('accept');
+
+      // Trigger immediate UI refresh across all living spec views
+      if (globalThis._cadPlanInstance?.aardvark) {
+        globalThis._cadPlanInstance.aardvark._highlightAnnotatedElements();
+      }
+      if (globalThis._cadPlanInstance?.reader) {
+        globalThis._cadPlanInstance.reader._updateBlockNoteBadges();
+        globalThis._cadPlanInstance.reader._populateSidePanelNotes();
+      }
+
+      return resolvedList;
     }
 }
 

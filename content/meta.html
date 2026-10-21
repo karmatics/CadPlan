@@ -172,4 +172,166 @@
       </ul>
     </aside>
   </section>
+
+  <section data-section="next_thread_extreme_accucad">
+    <h2 class="section-title">Next Thread: Extreme accuCad Embedding, Animated Micro-Demos & Document-First Architecture</h2>
+
+    <p data-block="p_next_thread_vision_1">
+      The primary mandate of the upcoming engineering thread is to <strong>take accuCad native embedding to the absolute extreme</strong>. We are not building passive documentation with static images or toy mock-ups. When people open this living specification, they must be completely knocked over by how alive, interactive, and hyper-sophisticated it is.
+      <br><br>
+      The document serves a dual purpose: first and foremost, it communicates directly with a human audience—the author, peer engineers, and prospective open-source collaborators—grounding them in proven spatial ergonomics. Simultaneously, it acts as an exhaustive, verifiable engineering prompt for autonomous AI coding agents. It lays out the definitive architectural blueprint for software that will be written partly by the author and partly by the global developer community using this specification.
+    </p>
+
+    <p data-block="p_next_thread_demos_2">
+      Instead of forcing users to navigate to an external tab or launch a heavy workstation to understand a concept, <strong>every single chapter will feature a live, animated in-process accuCad micro-demo</strong> that immediately demonstrates the exact topic of that page in motion.
+      <br><br>
+      As soon as you switch to Chapter 1 (Origins), the 3D compass rotates into Top, Front, and Side orientations while placing a 3D isometric bracket. On Chapter 3 (accuCad Audit), the demo displays 50ms chorded tentative snapping with live Mini-Jack projection lines. On Chapter 4 (Shortcuts), single-keystroke commands execute without <code>&lt;Enter&gt;</code>. On Chapter 5 (Curve Drawer), splines dynamically interpolate through on-curve points. Each demo runs a scripted "ghost drafter" animation loop that continuously showcases the ergonomics. Crucially, if the user moves their mouse over the canvas, <strong>the scripted loop smoothly yields</strong>, giving the user immediate, interactive command of the real 3D drafting engine.
+    </p>
+
+    <aside data-block="sidebar_choreography_spec" data-type="sidebar">
+      <span class="sidebar-kicker">Interaction Engine</span>
+      <strong class="sidebar-title">The Autonomous Choreography & Takeover Protocol</strong>
+      <ul>
+        <li><strong>Dedicated Scripted Scenarios:</strong> Each page declares an automated interaction script demonstrating its specific capability (Plane Turning, Smart Locking, Chord Snapping, Spline Tensioning).</li>
+        <li><strong>Ghost Drafter Virtual Cursor:</strong> An animated SVG reticle simulates exact mouse trajectories, data clicks, and chord snaps at 60 FPS.</li>
+        <li><strong>Seamless Human Takeover:</strong> Hovering or clicking anywhere inside the active canvas pauses the animation loop, transfers keyboard routing to the human drafter, and allows unrestricted live CAD drawing.</li>
+        <li><strong>Single Source of Truth:</strong> Scenarios are NOT ad-hoc animations; they dispatch real data points directly through BaseController and AccuDrawLogic.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_next_thread_curves_3">
+      A centerpiece of the next thread is showcasing the <strong>authentic Curve Drawer to the extreme</strong>. For forty years, the commercial CAD industry has tortured users with off-curve Bézier handles. In our engine, we demonstrate Rob Brown's proven alternatives directly in the live viewports.
+      <br><br>
+      We will showcase both distinct curve modalities concurrently: <strong>Modality 1 (On-Curve Through-Points)</strong> with real-time 8-iteration $G^1$ tangent relaxation, vertex-targeted curvature fullness, and chord balance; and <strong>Modality 2 (The Kinetic Tether / String-Drag)</strong> where pressing <code>Ctrl</code> extends an elastic tow rope to filter out hand micro-tremors, while pressing <code>Shift</code> backtracks along the path to interactively undo and re-aim. Every segment drawn in the canvas automatically generates real AutoCAD DXF bulge factors $\text{bulge} = \tan(\theta/4)$, demonstrating zero-loss round-tripping with CADCraft and legacy DWG workflows.
+    </p>
+
+    <aside data-block="sidebar_extreme_curves" data-type="sidebar">
+      <span class="sidebar-kicker">Curve Mathematics</span>
+      <strong class="sidebar-title">On-Curve Relaxation & Kinetic Tether Dynamics</strong>
+      <ul>
+        <li><strong>Modality 1: On-Curve Through-Point Relaxation:</strong> Click anchors strictly ON the curve itself. UpdateControlPoints.js derives exact cubic Bézier control points iteratively with vertex-targeted curvature and balance.</li>
+        <li><strong>Modality 2: Kinetic String-Drag (Tether):</strong> Holding <code>Ctrl</code> extends elastic dashed string; releasing pulls curve tip; holding <code>Shift</code> interactively scrubs backward along trajectory to undo mistakes.</li>
+        <li><strong>SmartLine Continuous Fillet Fallback:</strong> If setback exceeds half the segment length, renders a clean sharp corner without interrupting the drafter.</li>
+        <li><strong>Closest-Point Sweep:</strong> Solves tangent arc orientation by evaluating proximity to candidate circumference, sweeping smoothly from +5° to -6° with zero deadband jitter.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_next_thread_docfirst_4">
+      The next thread firmly establishes our <strong>Document-First Architecture</strong>. The document is the primary deliverable—it is not trapped inside Luno, nor does it require booting Luno just to read or annotate.
+      <br><br>
+      Anyone can load <code>CadPlan</code> as a standalone web app. As you read, you can attach voice directives, text thoughts, or bug reports to any paragraph, table, or 3D canvas using Aardvark. Every note receives our animated crawling-ants outline and is stored safely in browser IndexedDB. When you want to edit the specification or compile an AI prompt, tapping an edit link or <code>🌙 Luno</code> slides open the Luno development cockpit in-process. The stored notes are bundled into Outbox payloads, dispatched to the AI, and when the patch returns, our resolution protocol automatically retires the notes and clears the crawling ants.
+    </p>
+
+    <aside data-block="sidebar_docfirst_flow" data-type="sidebar">
+      <span class="sidebar-kicker">Architecture</span>
+      <strong class="sidebar-title">Document-First Workflow (Zero-Luno Friction)</strong>
+      <ul>
+        <li><strong>1. Standalone Document Load:</strong> The living spec loads instantly in any browser without server dependencies or Luno dev bloat.</li>
+        <li><strong>2. Universal Annotation:</strong> Aardvark pins voice notes and text directives to any DOM node, highlighting them with crawling ants.</li>
+        <li><strong>3. Safe Persistence:</strong> Directives persist in IndexedDB across reloads until explicitly resolved or compiled.</li>
+        <li><strong>4. On-Demand Luno Cockpit:</strong> Tapping '🌙 Luno' opens the in-process cockpit drawer to review checkpoints and queue Outbox payloads.</li>
+        <li><strong>5. Automated Retirement:</strong> The AI returns patches with resolution metadata, clearing notes and chiming audio acknowledgment.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_next_thread_gpu_5">
+      To enable dozens of live <code>accuCad</code> viewports across the dossier without crashing browser WebGL context limits (typically 8–16 simultaneous contexts), the next thread implements an <strong>intelligent multi-instance GPU lifecycle</strong>.
+      <br><br>
+      Using <code>IntersectionObserver</code>, viewports that scroll off-screen automatically pause their rendering loops and suspend requestAnimationFrame updates, reducing GPU memory and power consumption to near-zero. Furthermore, our <strong>Centralized Keyboard Router</strong> guarantees that only the single on-screen canvas currently hovered or interacted with captures single-stroke shortcuts (<code>T</code>, <code>F</code>, <code>S</code>, <code>V</code>, <code>L</code>, <code>Space</code>, <code>O</code>), preventing shortcut cross-talk while keeping the desktop experience lightning-fast.
+    </p>
+
+    <aside data-block="sidebar_next_thread_deliverables" data-type="sidebar">
+      <span class="sidebar-kicker">Execution Agenda</span>
+      <strong class="sidebar-title">Next Thread Immediate Deliverables Checklist</strong>
+      <ul>
+        <li><strong>1. Autonomous Choreography Engine:</strong> Automated animated micro-demos running in-process on every chapter.</li>
+        <li><strong>2. Seamless Takeover Handshake:</strong> Human cursor interaction pauses choreography and gives full manual drafting control.</li>
+        <li><strong>3. Curve Drawer Deep Showcase:</strong> Dynamic on-curve through-point relaxation, kinetic string dragging, and DXF bulge factors.</li>
+        <li><strong>4. GPU Context & Lifecycle Optimization:</strong> IntersectionObserver suspension for off-screen viewports.</li>
+        <li><strong>5. Unified Keyboard Router:</strong> Context-aware single-stroke key capture isolated strictly to the active canvas.</li>
+        <li><strong>6. Document-First Decoupling:</strong> Standalone reading & annotation without loading Luno, with 1-click in-process cockpit sliding.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="next_thread_extreme_accucad">
+    <h2 class="section-title">Next Thread: Extreme accuCad Embedding, Animated Micro-Demos & Document-First Architecture</h2>
+
+    <p data-block="p_next_thread_vision_1">
+      The primary mandate of the upcoming engineering thread is to <strong>take accuCad native embedding to the absolute extreme</strong>. We are not building passive documentation with static images or toy mock-ups. When people open this living specification, they must be completely knocked over by how alive, interactive, and hyper-sophisticated it is.
+      <br><br>
+      The document serves a dual purpose: first and foremost, it communicates directly with a human audience—the author, peer engineers, and prospective open-source collaborators—grounding them in proven spatial ergonomics. Simultaneously, it acts as an exhaustive, verifiable engineering prompt for autonomous AI coding agents. It lays out the definitive architectural blueprint for software that will be written partly by the author and partly by the global developer community using this specification.
+    </p>
+
+    <p data-block="p_next_thread_demos_2">
+      Instead of forcing users to navigate to an external tab or launch a heavy workstation to understand a concept, <strong>every single chapter will feature a live, animated in-process accuCad micro-demo</strong> that immediately demonstrates the exact topic of that page in motion.
+      <br><br>
+      As soon as you switch to Chapter 1 (Origins), the 3D compass rotates into Top, Front, and Side orientations while placing a 3D isometric bracket. On Chapter 3 (accuCad Audit), the demo displays 50ms chorded tentative snapping with live Mini-Jack projection lines. On Chapter 4 (Shortcuts), single-keystroke commands execute without <code>&lt;Enter&gt;</code>. On Chapter 5 (Curve Drawer), splines dynamically interpolate through on-curve points. Each demo runs a scripted "ghost drafter" animation loop that continuously showcases the ergonomics. Crucially, if the user moves their mouse over the canvas, <strong>the scripted loop smoothly yields</strong>, giving the user immediate, interactive command of the real 3D drafting engine.
+    </p>
+
+    <aside data-block="sidebar_choreography_spec" data-type="sidebar">
+      <span class="sidebar-kicker">Interaction Engine</span>
+      <strong class="sidebar-title">The Autonomous Choreography & Takeover Protocol</strong>
+      <ul>
+        <li><strong>Dedicated Scripted Scenarios:</strong> Each page declares an automated interaction script demonstrating its specific capability (Plane Turning, Smart Locking, Chord Snapping, Spline Tensioning).</li>
+        <li><strong>Ghost Drafter Virtual Cursor:</strong> An animated SVG reticle simulates exact mouse trajectories, data clicks, and chord snaps at 60 FPS.</li>
+        <li><strong>Seamless Human Takeover:</strong> Hovering or clicking anywhere inside the active canvas pauses the animation loop, transfers keyboard routing to the human drafter, and allows unrestricted live CAD drawing.</li>
+        <li><strong>Single Source of Truth:</strong> Scenarios are NOT ad-hoc animations; they dispatch real data points directly through BaseController and AccuDrawLogic.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_next_thread_curves_3">
+      A centerpiece of the next thread is showcasing the <strong>authentic Curve Drawer to the extreme</strong>. For forty years, the commercial CAD industry has tortured users with off-curve Bézier handles. In our engine, we demonstrate Rob Brown's proven alternatives directly in the live viewports.
+      <br><br>
+      We will showcase both distinct curve modalities concurrently: <strong>Modality 1 (On-Curve Through-Points)</strong> with real-time 8-iteration $G^1$ tangent relaxation, vertex-targeted curvature fullness, and chord balance; and <strong>Modality 2 (The Kinetic Tether / String-Drag)</strong> where pressing <code>Ctrl</code> extends an elastic tow rope to filter out hand micro-tremors, while pressing <code>Shift</code> backtracks along the path to interactively undo and re-aim. Every segment drawn in the canvas automatically generates real AutoCAD DXF bulge factors $\text{bulge} = \tan(\theta/4)$, demonstrating zero-loss round-tripping with CADCraft and legacy DWG workflows.
+    </p>
+
+    <aside data-block="sidebar_extreme_curves" data-type="sidebar">
+      <span class="sidebar-kicker">Curve Mathematics</span>
+      <strong class="sidebar-title">On-Curve Relaxation & Kinetic Tether Dynamics</strong>
+      <ul>
+        <li><strong>Modality 1: On-Curve Through-Point Relaxation:</strong> Click anchors strictly ON the curve itself. UpdateControlPoints.js derives exact cubic Bézier control points iteratively with vertex-targeted curvature and balance.</li>
+        <li><strong>Modality 2: Kinetic String-Drag (Tether):</strong> Holding <code>Ctrl</code> extends elastic dashed string; releasing pulls curve tip; holding <code>Shift</code> interactively scrubs backward along trajectory to undo mistakes.</li>
+        <li><strong>SmartLine Continuous Fillet Fallback:</strong> If setback exceeds half the segment length, renders a clean sharp corner without interrupting the drafter.</li>
+        <li><strong>Closest-Point Sweep:</strong> Solves tangent arc orientation by evaluating proximity to candidate circumference, sweeping smoothly from +5° to -6° with zero deadband jitter.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_next_thread_docfirst_4">
+      The next thread firmly establishes our <strong>Document-First Architecture</strong>. The document is the primary deliverable—it is not trapped inside Luno, nor does it require booting Luno just to read or annotate.
+      <br><br>
+      Anyone can load <code>CadPlan</code> as a standalone web app. As you read, you can attach voice directives, text thoughts, or bug reports to any paragraph, table, or 3D canvas using Aardvark. Every note receives our animated crawling-ants outline and is stored safely in browser IndexedDB. When you want to edit the specification or compile an AI prompt, tapping an edit link or <code>🌙 Luno</code> slides open the Luno development cockpit in-process. The stored notes are bundled into Outbox payloads, dispatched to the AI, and when the patch returns, our resolution protocol automatically retires the notes and clears the crawling ants.
+    </p>
+
+    <aside data-block="sidebar_docfirst_flow" data-type="sidebar">
+      <span class="sidebar-kicker">Architecture</span>
+      <strong class="sidebar-title">Document-First Workflow (Zero-Luno Friction)</strong>
+      <ul>
+        <li><strong>1. Standalone Document Load:</strong> The living spec loads instantly in any browser without server dependencies or Luno dev bloat.</li>
+        <li><strong>2. Universal Annotation:</strong> Aardvark pins voice notes and text directives to any DOM node, highlighting them with crawling ants.</li>
+        <li><strong>3. Safe Persistence:</strong> Directives persist in IndexedDB across reloads until explicitly resolved or compiled.</li>
+        <li><strong>4. On-Demand Luno Cockpit:</strong> Tapping '🌙 Luno' opens the in-process cockpit drawer to review checkpoints and queue Outbox payloads.</li>
+        <li><strong>5. Automated Retirement:</strong> The AI returns patches with resolution metadata, clearing notes and chiming audio acknowledgment.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_next_thread_gpu_5">
+      To enable dozens of live <code>accuCad</code> viewports across the dossier without crashing browser WebGL context limits (typically 8–16 simultaneous contexts), the next thread implements an <strong>intelligent multi-instance GPU lifecycle</strong>.
+      <br><br>
+      Using <code>IntersectionObserver</code>, viewports that scroll off-screen automatically pause their rendering loops and suspend requestAnimationFrame updates, reducing GPU memory and power consumption to near-zero. Furthermore, our <strong>Centralized Keyboard Router</strong> guarantees that only the single on-screen canvas currently hovered or interacted with captures single-stroke shortcuts (<code>T</code>, <code>F</code>, <code>S</code>, <code>V</code>, <code>L</code>, <code>Space</code>, <code>O</code>), preventing shortcut cross-talk while keeping the desktop experience lightning-fast.
+    </p>
+
+    <aside data-block="sidebar_next_thread_deliverables" data-type="sidebar">
+      <span class="sidebar-kicker">Execution Agenda</span>
+      <strong class="sidebar-title">Next Thread Immediate Deliverables Checklist</strong>
+      <ul>
+        <li><strong>1. Autonomous Choreography Engine:</strong> Automated animated micro-demos running in-process on every chapter.</li>
+        <li><strong>2. Seamless Takeover Handshake:</strong> Human cursor interaction pauses choreography and gives full manual drafting control.</li>
+        <li><strong>3. Curve Drawer Deep Showcase:</strong> Dynamic on-curve through-point relaxation, kinetic string dragging, and DXF bulge factors.</li>
+        <li><strong>4. GPU Context & Lifecycle Optimization:</strong> IntersectionObserver suspension for off-screen viewports.</li>
+        <li><strong>5. Unified Keyboard Router:</strong> Context-aware single-stroke key capture isolated strictly to the active canvas.</li>
+        <li><strong>6. Document-First Decoupling:</strong> Standalone reading & annotation without loading Luno, with 1-click in-process cockpit sliding.</li>
+      </ul>
+    </aside>
+  </section>
 </article>
