@@ -338,30 +338,30 @@ class CadITwinParityContent {
     }
 
   static p_tool_actions_2() {
-      return [
-        "This architecture confirms why AccuDraw remains so resilient: when a user triggers Rotate Element (`R, E`) or Align to Surface (`R, Q`), a transient tool instance runs, snaps to the target element's normal vector, updates `ThreeAxes`, and immediately pops back to the primary drawing command via `SavedState`. The active line, polyline, or polygon placement is never broken."
-      ];
-    }
+    return [
+      "This architecture confirms why AccuDraw remains so resilient: when a user triggers Rotate Element (`R, E`) or Align to Surface (`R, Q`), a transient tool instance runs, snaps to the target element's normal vector, updates `ThreeAxes`, and immediately pops back to the primary drawing command via `SavedState`. The active line, polyline, or polygon placement is never broken.",
+      "Furthermore, it enforces **Rob Brown's Context Reversion Rule**: while drawing, the compass tracks the orientation of the active stroke. Upon command completion or when `Reset` is pressed, `AccuDraw` unwinds the contextual rotation, smoothly animating the compass back to the baseline coordinate frame (Top, Front, Side, View, or ACS) that was active before the tool started. The drafter's spatial baseline is always preserved."
+    ];
+  }
 
   static sidebar_tool_actions() {
-      return [
-        "Bentley AccuDrawTool Subsystem (itwin_reference/AccuDrawTool.ts):\n" +
-        "• Coordinate Locks: `AccuDrawSetLockXTool` (X), `AccuDrawSetLockYTool` (Y), `AccuDrawSetLockZTool` (Z), `AccuDrawSetLockDistanceTool` (D), `AccuDrawSetLockAngleTool` (A), `AccuDrawSetLockSmartTool` (Enter/L).\n" +
-        "• Spatial Plane Rotations: `AccuDrawRotateTopTool` (T), `AccuDrawRotateFrontTool` (F), `AccuDrawRotateSideTool` (S), `AccuDrawRotateViewTool` (V), `AccuDrawRotateCycleTool` (C).\n" +
-        "• 90° Plane Stepping: `AccuDrawRotate90AboutXTool` (RX), `AccuDrawRotate90AboutYTool` (RY), `AccuDrawRotate90AboutZTool` (RZ).\n" +
-        "• Interactive Collectors: `AccuDrawRotateAxesTool` (RA), `AccuDrawRotateElementTool` (RE), `AccuDrawRotatePointsTool` (RP), `AccuDrawSetOriginTool` (O).\n" +
-        "• Modes & State: `AccuDrawChangeModeTool` (Space/P), `AccuDrawSuspendToggleTool` (WA)."
-      ];
-    }
-
+    return [
+      "Bentley AccuDrawTool Subsystem & State Invariants:\n" +
+      "• Coordinate Locks: `AccuDrawSetLockXTool` (X), `AccuDrawSetLockYTool` (Y), `AccuDrawSetLockZTool` (Z), `AccuDrawSetLockDistanceTool` (D), `AccuDrawSetLockAngleTool` (A), `AccuDrawSetLockSmartTool` (Enter/L).\n" +
+      "• Spatial Plane Rotations: `AccuDrawRotateTopTool` (T), `AccuDrawRotateFrontTool` (F), `AccuDrawRotateSideTool` (S), `AccuDrawRotateViewTool` (V), `AccuDrawRotateCycleTool` (C).\n" +
+      "• 90° Plane Stepping: `AccuDrawRotate90AboutXTool` (RX), `AccuDrawRotate90AboutYTool` (RY), `AccuDrawRotate90AboutZTool` (RZ).\n" +
+      "• Context Reversion Invariant: Right-click / Reset pops active tool and reverts compass rotation to baseline plane.\n" +
+      "• Modes & State: `AccuDrawChangeModeTool` (Space/P), `AccuDrawSuspendToggleTool` (WA)."
+    ];
+  }
   static p_plane_math_1() {
-      return [
-        "In AccuDraw, explicit spatial rotation is governed by two distinct, highly optimized commands: **Rotate Quick (`RQ`)** and **Rotate Axes (`RA`)**.",
-        "• **Rotate Quick (`RQ`)**: Designed for fast, in-plane reorientation. It takes the active compass origin $\\vec{O}$ and a single data point $\\vec{P}$ to establish the new primary $X$-axis: $\\hat{X} = \\text{normalize}(\\vec{P} - \\vec{O})$. To preserve stability and avoid sudden gimbal flips, it preserves the active construction plane's normal (whether Top, Front, Side, or custom) and computes the perpendicular axis via cross product: $\\hat{Y} = \\text{normalize}(\\vec{Z}_{\\text{current}} \\times \\hat{X})$. It strictly avoids view-dependent calculations unless the compass was explicitly placed in View mode (`V`).",
-        "• **Rotate Axes (`RA`)**: An explicit 3D 3-point coordinate system builder that does not require using the current origin. Point 1 defines the new origin $\\vec{O}$; Point 2 defines the primary $X$-axis direction $\\hat{X} = \\text{normalize}(\\vec{P}_2 - \\vec{P}_1)$; and Point 3 establishes the construction plane and positive $Y$ half-space."
-      ];
-    }
-
+    return [
+      "In AccuDraw, explicit spatial rotation is governed by two distinct, highly optimized commands: **Rotate Quick (`RQ`)** and **Rotate Axes (`RA`)**.",
+      "• **Rotate Quick (`RQ`)**: Designed for fast, in-plane reorientation. It takes the active compass origin $\\vec{O}$ and a single data point $\\vec{P}$ to establish the new primary $X$-axis: $\\hat{X} = \\text{normalize}(\\vec{P} - \\vec{O})$. To preserve stability and avoid sudden gimbal flips, it preserves the active construction plane's normal (whether Top, Front, Side, or custom) and computes the perpendicular axis via cross product: $\\hat{Y} = \\text{normalize}(\\vec{Z}_{\\text{current}} \\times \\hat{X})$. It strictly avoids view-dependent calculations unless the compass was explicitly placed in View mode (`V`).",
+      "• **Rotate Axes (`RA`)**: An explicit 3D 3-point coordinate system builder that does not require using the current origin. Point 1 defines the new origin $\\vec{O}$; Point 2 defines the primary $X$-axis direction $\\hat{X} = \\text{normalize}(\\vec{P}_2 - \\vec{P}_1)$; and Point 3 establishes the construction plane and positive $Y$ half-space.",
+      "• **The Z-Lock Plane Projection Invariant**: As Rob Brown formalizes, whenever $Z$ is locked, coordinates are constrained to the active $Z$ construction plane ($Z=0$ or elevation $Z_e$). If the coordinate is snapped to off-plane 3D geometry, the engine executes a **model-space perpendicular projection** along $\\vec{Z}_c$: $\\vec{P}_{\\text{flat}} = \\vec{P}_{\\text{snap}} - ((\\vec{P}_{\\text{snap}} - \\vec{O}) \\cdot \\vec{Z}_c)\\vec{Z}_c$. If the cursor is un-snapped, it projects along the **camera ray** $\\vec{R}(t) = \\vec{O}_{\\text{cam}} + t\\vec{D}_{\\text{cam}}$. This preserves exact geometric coplanarity without view-angle skew."
+    ];
+  }
   static p_plane_math_2() {
       return [
         "A vital insight from Rob Brown regarding `RA` is that **Point 3 does not need to be perpendicular to the $X$-axis**. Requiring the user to eyeball or construct an exact 90° third point would be clumsy and defeat the purpose.",
@@ -371,22 +371,48 @@ class CadITwinParityContent {
     }
 
   static sidebar_plane_math_code() {
-      return [
-        "Explicit Plane Rotation Mechanics: RQ vs. RA:\n" +
-        "• 1. Rotate Quick (RQ — In-Plane 1-Point Reorientation):\n" +
-        "  - $\\hat{X} = \\text{normalize}(\\vec{P} - \\vec{O})$ using active origin $\\vec{O}$.\n" +
-        "  - $\\hat{Y} = \\text{normalize}(\\vec{Z}_{\\text{current}} \\times \\hat{X})$ preserving active plane normal.\n" +
-        "  - $\\hat{Z} = \\hat{X} \\times \\hat{Y}$.\n" +
-        "  - Avoids view-dependent shifts unless in explicit View mode ('V').\n" +
-        "• 2. Rotate Axes (RA — 3-Point 3D Construction System):\n" +
-        "  - Point 1: Sets new Origin $\\vec{O} = \\vec{P}_1$.\n" +
-        "  - Point 2: Defines X-axis direction $\\hat{X} = \\text{normalize}(\\vec{P}_2 - \\vec{P}_1)$.\n" +
-        "  - Point 3: Defines Y half-plane (does NOT need to be perpendicular to X).\n" +
-        "  - Vector Normal: $\\hat{Z} = \\text{normalize}(\\hat{X} \\times (\\vec{P}_3 - \\vec{P}_1))$.\n" +
-        "  - Derived Y-Axis: $\\hat{Y} = \\hat{Z} \\times \\hat{X}$.\n" +
-        "• Index Line Flash: Immediate visual feedback along the new primary axis upon rotation commit."
-      ];
-    }
+    return [
+      "Z-Lock Projection & Rotation Math (itwin_reference & compassdraw-core):\n" +
+      "```rust\n" +
+      "impl CompassDraw {\n" +
+      "    /// Resolves coordinate under active Z-lock constraint\n" +
+      "    pub fn resolve_z_locked_point(\n" +
+      "        &self,\n" +
+      "        candidate: PointInput,\n" +
+      "        camera_ray: Ray3d,\n" +
+      "    ) -> [f64; 3] {\n" +
+      "        let normal = self.axes.z;\n" +
+      "        let origin = self.origin;\n\n" +
+      "        match candidate {\n" +
+      "            // 1. Snapped to 3D geometry -> Model-Space Perpendicular Normal Drop\n" +
+      "            PointInput::Snapped(p_snap) => {\n" +
+      "                let to_p = [p_snap[0] - origin[0], p_snap[1] - origin[1], p_snap[2] - origin[2]];\n" +
+      "                let dist = to_p[0]*normal[0] + to_p[1]*normal[1] + to_p[2]*normal[2];\n" +
+      "                [\n" +
+      "                    p_snap[0] - dist * normal[0],\n" +
+      "                    p_snap[1] - dist * normal[1],\n" +
+      "                    p_snap[2] - dist * normal[2],\n" +
+      "                ]\n" +
+      "            },\n" +
+      "            // 2. Un-snapped free cursor -> Camera Line-of-Sight Ray-Plane Intersection\n" +
+      "            PointInput::FreeCursor => {\n" +
+      "                let denom = camera_ray.dir[0]*normal[0] + camera_ray.dir[1]*normal[1] + camera_ray.dir[2]*normal[2];\n" +
+      "                let diff = [origin[0] - camera_ray.origin[0], origin[1] - camera_ray.origin[1], origin[2] - camera_ray.origin[2]];\n" +
+      "                let t = (diff[0]*normal[0] + diff[1]*normal[1] + diff[2]*normal[2]) / denom;\n" +
+      "                [\n" +
+      "                    camera_ray.origin[0] + camera_ray.dir[0] * t,\n" +
+      "                    camera_ray.origin[1] + camera_ray.dir[1] * t,\n" +
+      "                    camera_ray.origin[2] + camera_ray.dir[2] * t,\n" +
+      "                ]\n" +
+      "            }\n" +
+      "        }\n" +
+      "    }\n" +
+      "}\n" +
+      "```\n" +
+      "• Snapped: Zero camera dependency, pure 3D perpendicular normal drop.\n" +
+      "• Free: Camera perspective unprojection onto active construction plane."
+    ];
+  }
   static p_val_history_1() {
       return [
         "A standout usability feature in `AccuDrawTool.ts` is the **Value Memory Stack**: `choosePreviousValue(index: ItemField)` and `chooseNextValue(index: ItemField)`. In high-production civil and architectural drafting, drafters repeatedly place geometry with recurring dimensions (e.g. wall thicknesses of 6\", door clearances of 36\", or column bays of 24')."

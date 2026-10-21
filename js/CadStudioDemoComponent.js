@@ -155,7 +155,7 @@ class CadStudioDemoComponent {
     const frameWrap = makeElement('div', {
       style: {
         width: '100%',
-        minHeight: '660px',
+        minHeight: '680px',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
@@ -182,7 +182,7 @@ class CadStudioDemoComponent {
         frameWrap.style.left = 'auto';
         frameWrap.style.width = '100%';
         frameWrap.style.height = 'auto';
-        frameWrap.style.minHeight = '660px';
+        frameWrap.style.minHeight = '680px';
         frameWrap.style.zIndex = 'auto';
         btnExpand.textContent = '⛶ Fullscreen';
         btnExpand.style.color = '#38bdf8';
@@ -213,7 +213,7 @@ class CadStudioDemoComponent {
     }, [
       makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
         makeElement('strong', { style: { color: '#00f2fe' } }, '📐 accuCad [Instance 2: Production Studio] • Native Embedded'),
-        makeElement('span', { id: 'accucad-inst2-focus', style: { color: '#10b981' } }, '● Active Focus')
+        makeElement('span', { id: 'accucad-inst2-focus', style: { color: '#10b981' } }, '● In-Process Canvas')
       ]),
       makeElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } }, [
         btnExpand = makeElement('button', {
@@ -221,7 +221,7 @@ class CadStudioDemoComponent {
           style: { padding: '3px 8px', fontSize: '10px', color: '#38bdf8', borderColor: '#38bdf866' },
           onclick: toggleExpand
         }, '⛶ Fullscreen'),
-        makeElement('span', { style: { color: '#64748b' } }, 'Click canvas to focus shortcuts [T/F/S/L/Space/O/G]')
+        makeElement('span', { style: { color: '#64748b' } }, 'Shortcuts active on canvas click [T/F/S/L/Space/O/G]')
       ])
     ]);
     let btnExpand;
@@ -240,7 +240,7 @@ class CadStudioDemoComponent {
     });
     frameWrap.appendChild(appMount);
 
-    // Interactive In-Situ Code Runner Drawer
+    // Terminal Chrome In-Situ Code Runner
     const codeRunner = makeElement('div', {
       style: {
         background: '#0a0e1a',
@@ -254,56 +254,70 @@ class CadStudioDemoComponent {
       }
     });
 
+    const presets = CadStudioDemoComponent.getScriptPresets();
+
     const codeRunnerHeader = makeElement('div', {
-      style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
+      style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }
     }, [
-      makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
-        makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, '⚡ Live In-Situ Code Runner:'),
-        makeElement('span', { style: { color: '#94a3b8' } }, 'Edit and execute script directly inside this 3D viewport')
+      makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+        makeElement('div', { className: 'cp-terminal-dots' }, [
+          makeElement('span', { className: 'cp-terminal-dot red' }),
+          makeElement('span', { className: 'cp-terminal-dot yellow' }),
+          makeElement('span', { className: 'cp-terminal-dot green' })
+        ]),
+        makeElement('span', { style: { color: '#00f2fe', fontWeight: 'bold' } }, '⚡ In-Situ CAD Code Runner:'),
+        presetSelect = makeElement('select', {
+          style: {
+            background: '#070a13',
+            color: '#00f2fe',
+            border: '1px solid rgba(0, 242, 254, 0.4)',
+            borderRadius: '4px',
+            padding: '3px 8px',
+            fontSize: '10.5px',
+            fontFamily: 'monospace',
+            outline: 'none',
+            cursor: 'pointer'
+          },
+          onchange: (e) => {
+            const idx = parseInt(e.target.value);
+            if (presets[idx]) {
+              codeEditor.value = presets[idx].code;
+              codeFeedback.textContent = `Loaded preset: ${presets[idx].name}. Tap "▶ Run Script" to execute.`;
+              codeFeedback.style.color = '#38bdf8';
+            }
+          }
+        }, presets.map((p, i) => makeElement('option', { value: i }, p.name)))
       ]),
       makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
         makeElement('button', {
           className: 'dr-nav-btn primary',
           style: { padding: '3px 10px', fontSize: '10px', fontWeight: 'bold' },
           onclick: () => {
-            try {
-              const code = codeEditor.value;
-              const runFn = new Function('app', 'bc', 'THREE', 'ElementOperations', 'RectangleElement', 'PathElement', 'ArcElement', code);
-              runFn(activeApp, activeApp.baseController, activeApp.THREE, globalThis.ElementOperations, globalThis.RectangleElement, globalThis.PathElement, globalThis.ArcElement);
-              codeFeedback.textContent = `✓ Code executed successfully at ${new Date().toLocaleTimeString()}`;
-              codeFeedback.style.color = '#10b981';
-            } catch (err) {
-              codeFeedback.textContent = `Error: ${err.message}`;
-              codeFeedback.style.color = '#ef4444';
+            if (activeApp?.baseController) {
+              const res = activeApp.baseController.executeScript(codeEditor.value);
+              if (res.success) {
+                codeFeedback.textContent = `✓ Executed script successfully in viewport at ${new Date().toLocaleTimeString()}`;
+                codeFeedback.style.color = '#10b981';
+              } else {
+                codeFeedback.textContent = `Error: ${res.error}`;
+                codeFeedback.style.color = '#ef4444';
+              }
             }
           }
-        }, '▶ Run Code in Viewport'),
+        }, '▶ Run Script in Viewport'),
         makeElement('button', {
           className: 'dr-nav-btn',
           style: { padding: '3px 8px', fontSize: '10px' },
           onclick: () => {
-            codeEditor.value = defaultCode;
-            codeFeedback.textContent = 'Code reset to default.';
+            codeEditor.value = presets[0].code;
+            codeFeedback.textContent = 'Code reset to default preset.';
             codeFeedback.style.color = '#94a3b8';
           }
-        }, '↺ Reset Code')
+        }, '↺ Reset')
       ])
     ]);
+    let presetSelect;
     codeRunner.appendChild(codeRunnerHeader);
-
-    const defaultCode = `// Add a custom oriented block and update AccuDraw compass plane
-  const bc = app.baseController;
-  bc.setDrawingPlane('top');
-  bc.setColor('#38bdf8');
-  bc.setLineWidth(3);
-
-  const customBlock = new RectangleElement([-1.0, -0.6, 0.2], [1.0, 0.6, 0.8], bc.rotationMatrix);
-  customBlock.color = '#38bdf8';
-  bc.cadElements.push(customBlock);
-  ElementOperations.rebuildPermanentVisual(bc, customBlock);
-
-  // Relocate floating AccuDraw origin to block corner
-  bc.setOrigin([1.0, 0.6, 0.8]);`;
 
     const codeEditor = makeElement('textarea', {
       style: {
@@ -322,7 +336,7 @@ class CadStudioDemoComponent {
       },
       spellcheck: false
     });
-    codeEditor.value = defaultCode;
+    codeEditor.value = presets[0].code;
     codeRunner.appendChild(codeEditor);
 
     const codeFeedback = makeElement('div', {
@@ -787,6 +801,75 @@ class CadStudioDemoComponent {
         });
       }
     }
+
+  static getScriptPresets() {
+    return [
+      {
+        name: '1. Parametric 3D Bracket',
+        desc: 'Draws a stepped bracket aligned to the active top plane and offsets AccuDraw origin.',
+        code: `const bc = app.baseController;
+  bc.setDrawingPlane('top');
+  bc.setColor('#38bdf8');
+  bc.setLineWidth(3);
+
+  const basePlate = new RectangleElement([-1.2, -0.8, 0], [1.2, 0.8, 0], bc.rotationMatrix);
+  basePlate.color = '#38bdf8';
+  bc.cadElements.push(basePlate);
+  ElementOperations.rebuildPermanentVisual(bc, basePlate);
+
+  const upright = new RectangleElement([0.4, -0.8, 0], [1.2, 0.8, 1.2], bc.rotationMatrix);
+  upright.color = '#10b981';
+  bc.cadElements.push(upright);
+  ElementOperations.rebuildPermanentVisual(bc, upright);
+
+  bc.setOrigin([1.2, 0.8, 1.2]);`
+      },
+      {
+        name: '2. Mechanical Flange with Fillets',
+        desc: 'Generates a rounded multi-vertex polygon using RoundingUtils3D vector fillets.',
+        code: `const bc = app.baseController;
+  bc.setDrawingPlane('top');
+  bc.setColor('#00f2fe');
+
+  const path = new PathElement([
+    [-1.0, -1.0, 0],
+    [1.0, -1.0, 0],
+    [1.0, 1.0, 0],
+    [-1.0, 1.0, 0]
+  ]);
+  path.closed = true;
+  path.color = '#00f2fe';
+  path.lineWidth = 3;
+
+  // Set 0.35 unit corner rounding radius on all vertices
+  path.vertices.forEach(v => { v.radius = 0.35; });
+  bc.cadElements.push(path);
+  ElementOperations.rebuildPermanentVisual(bc, path);
+
+  bc.setOrigin([0, 0, 0]);`
+      },
+      {
+        name: '3. Surface Alignment & Stepped Columns',
+        desc: 'Erects vertical columns and reorients compass to Front plane.',
+        code: `const bc = app.baseController;
+  bc.setDrawingPlane('front');
+
+  const col1 = new CapsuleElement([-0.8, 0, 0], [-0.8, 1.4, 0]);
+  col1.radius = 0.2;
+  col1.color = '#f59e0b';
+  bc.cadElements.push(col1);
+  ElementOperations.rebuildPermanentVisual(bc, col1);
+
+  const col2 = new CapsuleElement([0.8, 0, 0], [0.8, 1.4, 0]);
+  col2.radius = 0.2;
+  col2.color = '#c084fc';
+  bc.cadElements.push(col2);
+  ElementOperations.rebuildPermanentVisual(bc, col2);
+
+  bc.setDrawingPlane('top');`
+      }
+    ];
+  }
 }
 
 globalThis.CadStudioDemoComponent = CadStudioDemoComponent;

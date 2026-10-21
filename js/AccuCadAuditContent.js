@@ -66,29 +66,30 @@ class AccuCadAuditContent {
   }
 
   static p_audit_ctrl_2() {
-      return [
-        "Input flows through `EventHandlers.js`. When the mouse moves, screen pixels are unprojected into a 3D ray by `GeneratePoint.generate()`. The ray's intersection with the active drawing plane yields a raw point. That point feeds directly into `AccuDrawLogic.onMotion()`, which evaluates active axis locks and directional deltas. Finally, `getConstrainedPoint()` calculates the definitive 3D coordinate and forwards it to the active command's `onPoint({ mode: 'hover' })` handler.",
-        "When explicit orientation changes occur, the engine supports both **Rotate Quick (`RQ`)**—which preserves the current plane normal $\\vec{Z}$ and rotates $\\hat{X}$ toward a picked reference point—and **Rotate Axes (`RA`)**, which allows three arbitrary points to define an origin, primary axis, and planar orientation deterministically via cross-product math."
-      ];
-    }
+    return [
+      "Input flows through `EventHandlers.js`. When the mouse moves, screen pixels are unprojected into a 3D ray by `GeneratePoint.generate()`. The ray's intersection with the active drawing plane yields a raw point. That point feeds directly into `AccuDrawLogic.onMotion()`, which evaluates active axis locks and directional deltas. Finally, `getConstrainedPoint()` calculates the definitive 3D coordinate and forwards it to the active command's `onPoint({ mode: 'hover' })` handler.",
+      "When explicit orientation changes occur, the engine supports both **Rotate Quick (`RQ`)**—which preserves the current plane normal $\\vec{Z}$ and rotates $\\hat{X}$ toward a picked reference point—and **Rotate Axes (`RA`)**, which allows three arbitrary points to define an origin, primary axis, and planar orientation deterministically via cross-product math.",
+      "• **The Context-Sensitivity Reset Reversion Invariant (Rob Brown's Rule)**: While an element is being drawn with Context Sensitivity active, AccuDraw rotates its axes to match each newly committed segment. However, the moment the user hits **Reset** (via right-click or `Escape`), the engine **automatically reverts the compass back to the baseline construction plane** (Top, Front, Side, View, or custom ACS) that was active before the element was initiated. This prevents the coordinate system from becoming stranded at an arbitrary skew when an operation is cancelled."
+    ];
+  }
 
   static sidebar_chord_mechanics() {
-      return [
-        "Locked Axis Snapping & Collision Mechanics:\n" +
-        "• Perpendicular Projection (Default Snap):\n" +
-        "  - Snapping to an off-axis point drops a 90° normal onto the locked trajectory in 3D world space.\n" +
-        "  - Strictly view-independent: camera rotation/tilt has zero effect on the mathematical projection.\n" +
-        "• Nearest Snap ('N') Ray-Curve Intersection:\n" +
-        "  - Finds points where the locked ray penetrates the target element.\n" +
-        "  - Solves quadratic ray-arc intersections: ||Origin + t*u - Center||² = R².\n" +
-        "  - Resolves multi-root ambiguity by selecting the intersection point closest to cursor position.\n" +
-        "• The 4-Tier Escape Cascade:\n" +
-        "  - Escape 1: Cancels active numeric typing.\n" +
-        "  - Escape 2: Unlocks currently focused axis.\n" +
-        "  - Escape 3: Releases tentative snapping point.\n" +
-        "  - Escape 4: Resets the active drawing command."
-      ];
-    }
+    return [
+      "Event Loop & Reset Reversion Rules:\n" +
+      "• Perpendicular Projection (Default Snap):\n" +
+      "  - Snapping to an off-axis point drops a 90° normal onto the locked trajectory in 3D world space, strictly view-independent.\n" +
+      "• Nearest Snap ('N') Ray-Curve Intersection:\n" +
+      "  - Solves quadratic ray-arc intersections: ||Origin + t*u - Center||² = R².\n" +
+      "• The Reset Reversion Invariant:\n" +
+      "  - While drafting, compass aligns to the last segment drawn.\n" +
+      "  - On Reset (Right-Click / Esc), compass reverts automatically to the prior baseline plane (Top, Front, Side, View, or ACS).\n" +
+      "• The 4-Tier Escape Cascade:\n" +
+      "  - Escape 1: Cancels active numeric typing.\n" +
+      "  - Escape 2: Unlocks currently focused axis.\n" +
+      "  - Escape 3: Releases tentative snapping point.\n" +
+      "  - Escape 4: Resets active tool and reverts compass to baseline plane."
+    ];
+  }
   static p_audit_math_1() {
     return [
       "I wrote `AccuDrawLogic.js` to manage the mathematics of the floating frame. It doesn't calculate in absolute world space. Instead, it computes the delta vector between the cursor and `this.origin`, then projects that vector against the orientation matrix's basis vectors: `lx = delta · X_axis`, `ly = delta · Y_axis`, and `lz = delta · Z_axis`. In polar mode, it computes distance `√(lx² + ly²)` and angle `atan2(ly, lx) * 180 / π`."
@@ -138,24 +139,26 @@ class AccuCadAuditContent {
     }
 
   static p_audit_snap_2() {
-      return [
-        "This intentional discipline extends into element manipulation and drawing continuity through two independent settings: **Floating Origin** and **Context Sensitivity**.",
-        "• **Floating Origin (`floatingOrigin`)**: Moves the compass origin automatically to the last placed data point when placing an element. This keeps local relative coordinates at $(0, 0, 0)$ for subsequent dimensions. Drafters almost never turn this off.",
-        "• **Context Sensitivity (`contextSensitivity`)**: Automatically rotates the compass axes to match the segment orientation of newly drawn or modified elements. When drafting orthogonal walls or structural grids, drafters often disable context sensitivity so the compass remains locked to orthogonal coordinates while the origin continues to float."
-      ];
-    }
+    return [
+      "This intentional discipline extends into element manipulation and drawing continuity through two independent settings: **Floating Origin** and **Context Sensitivity**.",
+      "• **Floating Origin (`floatingOrigin`)**: Moves the compass origin automatically to the last placed data point when placing an element. This keeps local relative coordinates at $(0, 0, 0)$ for subsequent dimensions. Drafters almost never turn this off.",
+      "• **Context Sensitivity (`contextSensitivity`)**: Automatically rotates the compass axes to match the segment orientation of newly drawn or modified elements. When drafting orthogonal walls or structural grids, drafters often disable context sensitivity so the compass remains locked to orthogonal coordinates while the origin continues to float.",
+      "• **The Z-Lock Plane Projection Invariant (Rob Brown's Rule)**: When $Z$ is locked, any coordinate is forced onto the active $Z$ construction plane (typically $Z=0$ relative to the origin, though any arbitrary elevation $Z_e$ may be active). Crucially, the mode of projection depends on whether the coordinate is snapped: **if it is a snap to off-plane 3D geometry, it drops perpendicularly along the plane normal $\\vec{Z}_c$**, completely independent of the camera view angle. **If it is un-snapped free cursor motion, it projects along the camera's line-of-sight ray**. This guarantees that snapping to elevated geometry never skews or distorts planar dimensions."
+    ];
+  }
 
   static sidebar_mini_jack_vis() {
-      return [
-        "AccuDraw Depth, Snapping & Origin Rules:\n" +
-        "• Tentative Snap is Non-Destructive: Snapping to a candidate vertex does NOT move the origin automatically.\n" +
-        "• Set Origin (O / G): Only pressing O (or G on the home row) moves the origin to the tentative point. Doing so ONLY translates the origin—it strictly preserves the compass orientation without rotating.\n" +
-        "• Floating Origin vs. Context Sensitivity:\n" +
-        "  - Floating Origin: Origin advances to each committed data point (rarely disabled).\n" +
-        "  - Context Sensitivity: Rotates compass axes to match element segment orientation (frequently disabled for orthogonal drafting).\n" +
-        "• The Mini-Jack Cursor: When an axis or snap point is locked and the mouse pulls away, a 3-axis mini-jack renders at the constrained world location, with a perpendicular dashed projection line down to the working plane."
-      ];
-    }
+    return [
+      "AccuDraw Depth, Snapping & Z-Lock Invariant:\n" +
+      "• Tentative Snap is Non-Destructive: Snapping to a candidate vertex does NOT move the origin automatically.\n" +
+      "• Set Origin (O / G): Only pressing O (or G on home row) moves the origin to the tentative point, strictly preserving existing compass orientation without rotating.\n" +
+      "• The Z-Lock Dual-Projection Invariant (Rob Brown's Rule):\n" +
+      "  1. Snapped Coordinate: Drops perpendicularly onto the active Z plane along plane normal Z_c: P_flat = P_snap - ((P_snap - Origin) · Z_c) * Z_c.\n" +
+      "     - Strictly model-space perpendicular: Camera tilt/spin has zero effect on the snap coordinate.\n" +
+      "  2. Un-snapped Free Cursor: Projects to the plane along the camera perspective raycast.\n" +
+      "• The Mini-Jack Cursor: When an axis or snap point is locked and the mouse pulls away, a 3-axis mini-jack renders at the constrained world location, with a perpendicular dashed projection line down to the working plane."
+    ];
+  }
   static p_audit_tools_1() {
     return [
       "The tool commands follow a clean lifecycle. In `DrawPathCommand.js`, vertices are placed with a radius property, allowing continuous lines with real-time rounded corner fillets calculated via `RoundingUtils3D.getRoundingData`. In `DrawRectangleCommand.js`, rectangles are placed with arbitrary 3D orientation matrices rather than simple screen-aligned boxes, allowing boxes and slabs to be built across any face."
