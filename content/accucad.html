@@ -93,4 +93,111 @@
   </section>
 
   <div data-block="comp_dynamic_dimension_hud_lab" data-type="component" data-component="CadDynamicDimensionHudLab"></div>
+
+  <article data-page="accucad" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Prototype Deconstruction & Math Audit</span>
+    <h1 class="dossier-title">Inside accuCad: How the Prototype Works</h1>
+    <p class="dossier-subtitle">A thorough first-person technical walkthrough of the accuCad codebase: controllers, direction-cosine matrices, chorded clicks, and snapping.</p>
+  </header>
+
+  <section data-section="snapping_lab_top">
+    <h2 class="section-title">TentativePointHandler: 50ms Chord Snap & 3-Axis Mini-Jack</h2>
+    <div data-block="comp_tentative_snapping_lab" data-type="component" data-component="TentativeSnappingLab"></div>
+  </section>
+
+  <section data-section="nearest_intersection_section">
+    <h2 class="section-title">Nearest Snap ("N"): Quadratic Ray-Arc Intersections & Root Heuristic</h2>
+    <div data-block="comp_nearest_intersection_lab" data-type="component" data-component="CadNearestIntersectionLab"></div>
+  </section>
+
+  <section data-section="surface_normal_section">
+    <h2 class="section-title">Surface Normal Alignment ("Q"): Gram-Schmidt Non-Flipping Axes & Reset Reversion</h2>
+    <div data-block="comp_surface_normal_lab" data-type="component" data-component="CadSurfaceNormalLab"></div>
+  </section>
+
+  <section data-section="controller">
+    <h2 class="section-title">The Controller & 50ms Chord Loop</h2>
+
+    <p data-block="p_audit_ctrl_1">
+      In <code>accuCad</code>, I built <code>BaseController.js</code> as the central coordinator. It holds the element registry (<code>this.cadElements</code>), the floating origin (<code>this.origin = [0, 0, 0]</code>), the active drawing orientation (<code>this.rotationMatrix</code> as a 3×3 direction cosine matrix), and the registered tool instances (rectangle, arc, path, curve, circle, capsule, move, rotate, scale, delete).
+    </p>
+
+    <p data-block="p_audit_ctrl_2">
+      Input flows through <code>EventHandlers.js</code>. When the mouse moves, screen pixels are unprojected into a 3D ray by <code>GeneratePoint.generate()</code>. The ray's intersection with the active drawing plane yields a raw point. That point feeds directly into <code>AccuDrawLogic.onMotion()</code>, which evaluates active axis locks and directional deltas. Finally, <code>getConstrainedPoint()</code> calculates the definitive 3D coordinate and forwards it to the active command's <code>onPoint({ mode: 'hover' })</code> handler. When explicit orientation changes occur, the engine supports both <strong>Rotate Quick (RQ)</strong>—which preserves the current plane normal and rotates X toward a picked reference point—and <strong>Rotate Axes (RA)</strong>, which allows three arbitrary points to define an origin, primary axis, and planar orientation deterministically via cross-product math.
+    </p>
+
+    <aside data-block="sidebar_chord_mechanics" data-type="sidebar">
+      <span class="sidebar-kicker">Event Handling</span>
+      <strong class="sidebar-title">Chorded Clicks & The 4-Tier Escape Cascade</strong>
+      <ul>
+        <li><strong>Perpendicular Projection (Default Snap):</strong> Snapping to an off-axis point drops a 90° normal onto the locked trajectory in 3D world space, strictly view-independent with zero view distortion.</li>
+        <li><strong>Nearest Snap ('N') Ray-Curve Intersection:</strong> Solves quadratic ray-arc intersections and resolves multi-root ambiguity using cursor proximity.</li>
+        <li><strong>The 4-Tier Escape Cascade:</strong> Escape 1 cancels active typing; Escape 2 unlocks the active axis; Escape 3 releases tentative snap; Escape 4 resets the active tool.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="math">
+    <h2 class="section-title">AccuDrawLogic: Relative Vectors & Smart Lock</h2>
+
+    <p data-block="p_audit_math_1">
+      I wrote <code>AccuDrawLogic.js</code> to manage the mathematics of the floating frame. It doesn't calculate in absolute world space. Instead, it computes the delta vector between the cursor and <code>this.origin</code>, then projects that vector against the orientation matrix's basis vectors: <code>lx = delta · X_axis</code>, <code>ly = delta · Y_axis</code>, and <code>lz = delta · Z_axis</code>. In polar mode, it computes distance <code>√(lx² + ly²)</code> and angle <code>atan2(ly, lx) * 180 / π</code>.
+    </p>
+
+    <p data-block="p_audit_math_2">
+      My Smart Focus logic handles intent dynamically: as the user moves the mouse freely, <code>onMotion</code> continuously compares <code>|lx|</code> against <code>|ly|</code>. If the mouse pulls more strongly horizontally, the X coordinate receives focus; if it pulls vertically, Y receives focus. When you start typing a number, <code>typingMouseAnchor</code> captures the initial cursor coordinate. If you then deliberately drag the mouse along the perpendicular axis past a threshold, the system automatically commits the typed number and shifts active focus to the other axis.
+    </p>
+
+    <aside data-block="sidebar_smart_lock_math" data-type="sidebar">
+      <span class="sidebar-kicker">Constraint Logic</span>
+      <strong class="sidebar-title">Smart Lock (L) & Distance Memory Indexing</strong>
+      <ul>
+        <li><strong>Smart Lock (L):</strong> Evaluates <code>|lx|</code> vs <code>|ly|</code> and locks the subordinate coordinate to 0, or locks polar angles.</li>
+        <li><strong>Screen-Space Hysteresis:</strong> Tolerance is evaluated in screen pixels rather than model units, ensuring uniform tactile pull across all zoom levels.</li>
+        <li><strong>Breaking Free:</strong> Tapping 'L' while indexed disengages sticky distance memory so drafters can slide to nearby dimensions without snapping backward.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_audit_math_3">
+      A vital mathematical distinction in AccuDraw is how locked axes interact with snapped elements. When a draftsperson has an axis or angle locked and snaps to an off-axis vertex, the engine performs Model-Space Perpendicular Projection: $\vec{P}_{\text{constrained}} = \vec{Origin} + ((\vec{P}_{\text{snap}} - \vec{Origin}) \cdot \hat{u}) \hat{u}$. This projection completely ignores the camera view direction—it is calculated purely against the 3D vector basis of the constraint line in model space.
+    </p>
+  </section>
+
+  <section data-section="snapping">
+    <h2 class="section-title">TentativePointHandler: 3D Raycasting & 2D Screen Picking</h2>
+
+    <p data-block="p_audit_snap_1">
+      In <code>TentativePointHandler.js</code>, we implemented precision snapping with strict Active Plane Discipline. In early CAD, draftspersons were plagued by passive snap engines that aggressively jumped the working plane onto background geometry simply because the cursor hovered over an unrelated element. In our engine, free cursor motion stays strictly coplanar with the active working plane. Snapping to a 3D feature is an intentional gesture executed via the 50ms two-button chord or <code>Ctrl</code> hover. Crucially, tentative snapping does NOT move the compass origin on its own—it strictly translates when the drafter explicitly presses <code>O</code> (or <code>G</code> on the home row), leaving the construction plane orientation untouched.
+    </p>
+
+    <p data-block="p_audit_snap_2">
+      This intentional discipline extends into element manipulation and drawing continuity through two independent settings: Floating Origin (advancing the origin to each placed data point) and Context Sensitivity (automatically rotating the compass axes to match newly placed geometry). When drafting orthogonal walls or grids, drafters often disable context sensitivity so the compass remains locked to orthogonal coordinates while the origin continues to float.
+    </p>
+
+    <aside data-block="sidebar_mini_jack_vis" data-type="sidebar">
+      <span class="sidebar-kicker">Visual Cues</span>
+      <strong class="sidebar-title">The Mini-Jack & Z-Plane Projection Guides</strong>
+      <ul>
+        <li><strong>Non-Destructive Snap:</strong> Candidate vertex snapping never alters the origin until explicitly committed.</li>
+        <li><strong>Set Origin (O / G):</strong> Translates the origin without rotating compass orientation.</li>
+        <li><strong>The Mini-Jack:</strong> Renders a 3-axis mini-jack at the projected world coordinate with a dashed perpendicular drop-line to the active plane.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="tools">
+    <h2 class="section-title">Drawing Commands & Camera Oscillation</h2>
+
+    <p data-block="p_audit_tools_1">
+      The tool commands follow a clean lifecycle. In <code>DrawPathCommand.js</code>, vertices are placed with a radius property, allowing continuous lines with real-time rounded corner fillets calculated via <code>RoundingUtils3D.getRoundingData</code>. In <code>DrawRectangleCommand.js</code>, rectangles are placed with arbitrary 3D orientation matrices rather than simple screen-aligned boxes, allowing boxes and slabs to be built across any face.
+    </p>
+
+    <p data-block="p_audit_tools_2">
+      For camera control, <code>ViewManipulator.js</code> handles smooth panning and rotation, while <code>CameraOrbitAnimator.js</code> provides gentle, continuous motion parallax oscillation around the target point. A key detail in <code>CameraOrbitAnimator</code> is its self-healing re-anchoring: if the user pans or rotates while oscillation is running, the math recalculates the phase offset without resetting the camera violently.
+    </p>
+  </section>
+
+  <div data-block="comp_dynamic_dimension_hud_lab" data-type="component" data-component="CadDynamicDimensionHudLab"></div>
+</article>
 </article>

@@ -53,34 +53,11 @@ class CadPlanItemNotes {
   }
 
   static async getAllNotes(dossierFilter = null) {
-    const db = await this.getDB();
-    let list = [];
-
-    if (!db) {
-      const map = this.getLocalMap();
-      Object.values(map).forEach(notes => list.push(...notes));
-    } else {
-      list = await new Promise((resolve) => {
-        const tx = db.transaction(this.STORE_NAME, 'readonly');
-        const store = tx.objectStore(this.STORE_NAME);
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => {
-          const map = this.getLocalMap();
-          const fallback = [];
-          Object.values(map).forEach(notes => fallback.push(...notes));
-          resolve(fallback);
-        };
-      });
+      if (typeof CommentsItemNotes !== 'undefined' && CommentsItemNotes.getAllNotes) {
+        return CommentsItemNotes.getAllNotes(dossierFilter);
+      }
+      return [];
     }
-
-    if (dossierFilter) {
-      list = list.filter(n => !n.dossierId || n.dossierId === dossierFilter);
-    }
-
-    return list.sort((a, b) => a.timestamp - b.timestamp);
-  }
-
   static async getNotesForBlock(pageId, blockId, dossierId = 'CadPlan') {
       const key = `${dossierId}:${pageId}:${blockId}`;
       const all = await this.getAllNotes(dossierId);
@@ -213,139 +190,145 @@ class CadPlanItemNotes {
   }
 
   static async buildNotesDirectivePrompt(docReader = null) {
-      const dossierId = docReader?.options?.dossierId || docReader?.brandTitle || 'CadPlan';
-      const all = await this.getAllNotes(dossierId);
-      const active = all.filter(n => n.status !== 'resolved');
-      if (active.length === 0) {
-        return `# NO ACTIVE LIVING SPEC DIRECTIVES\nThere are currently no active author notes or revision directives attached in the living dossier [${dossierId}].`;
-      }
-
-      let out = `# 🎯 LIVING SPECIFICATION EVOLUTION: AUTHOR DIRECTIVES & UNIVERSAL ANNOTATIONS\n`;
-      out += `**Dossier:** ${dossierId} • **Generated:** ${new Date().toISOString()} • **Author/Inventor:** Rob Brown\n`;
-      out += `**Active Directives:** ${active.length} notes across ${new Set(active.map(n => n.blockKey)).size} locations\n`;
-      out += '**Execution Directive:** Incorporate the following author directives directly into the specified source files and class methods. Keep all existing verified mathematics, direction cosines, and repository connections fully intact.\n\n';
-      out += '---\n\n';
-
-      const grouped = {};
-      active.forEach(n => {
-        grouped[n.blockKey] = grouped[n.blockKey] || [];
-        grouped[n.blockKey].push(n);
-      });
-
-      const componentClassMap = {
-        comp_tentative_snapping_lab: { cls: 'TentativeSnappingLab', file: 'CadPlan/js/TentativeSnappingLab.js', desc: 'Interactive Snapping Lab (50ms chorded clicks & thick picking)' },
-        comp_model_studio: { cls: 'CadModelStudioComponent', file: 'CadPlan/js/CadModelStudioComponent.js', desc: '3D Model Studio (PBR materials, GLB loading & face snapping [Q])' },
-        comp_cad_studio_demo: { cls: 'CadStudioDemoComponent', file: 'CadPlan/js/CadStudioDemoComponent.js', desc: 'Production Studio (Live accuCad iframe & 3D parallax curves)' },
-        comp_code_viewer: { cls: 'CadCodeViewerComponent', file: 'CadPlan/js/CadCodeViewerComponent.js', desc: 'Code Viewer & Rust Crate Hooks' },
-        comp_svg_smartline_lab: { cls: 'SvgSmartLineLab', file: 'CadPlan/js/SvgSmartLineLab.js', desc: 'Pure SVG SmartLine Lab (Continuous chaining, tangent arcs & DXF bulges)' },
-        comp_animated_svg_compass: { cls: 'CadAnimatedSvgCompassLab', file: 'CadPlan/js/CadAnimatedSvgCompassLab.js', desc: 'Animated SVG Compass Lab (Superellipse morphing & Mini-Jack)' },
-        comp_isolated_compass_3d: { cls: 'CadIsolatedCompass3DComponent', file: 'CadPlan/js/CadIsolatedCompass3DComponent.js', desc: 'Isolated 3D Compass Viewport (High-contrast direction cosines)' },
-        comp_agent_telemetry_lab: { cls: 'CadAgentTelemetryLab', file: 'CadPlan/js/CadAgentTelemetryLab.js', desc: 'Autonomous AI Drafting Lab (MCP stream & relative vectors)' },
-        comp_roundtrip_superpower: { cls: 'Cad2Dto3DRoundTripGraphic', file: 'CadPlan/js/Cad2Dto3DRoundTripGraphic.js', desc: '2D OCS to 3D WCS Round-Trip Engine (AutoCAD compatibility)' },
-        comp_kch_interactive_lab: { cls: 'KeyCommandInteractiveLab', file: 'CadPlan/js/KeyCommandInteractiveLab.js', desc: 'Single-Stroke Key Command Engine Sandbox' },
-        comp_curve_drawer_lab: { cls: 'CurveDrawerLabComponent', file: 'CadPlan/js/CurveDrawerLabComponent.js', desc: 'On-Curve Spline Relaxation & Kinetic Tether Lab' },
-        comp_number_stream_lab: { cls: 'AccuDrawNumberStreamLab', file: 'CadPlan/js/AccuDrawNumberStreamLab.js', desc: 'Numerical Command Stream & Decimal Parser' },
-        comp_compass_anatomy: { cls: 'CompassAnatomyComponent', file: 'CadPlan/js/CompassAnatomyComponent.js', desc: 'The Squircle Compass Anatomical Deconstruction' },
-        comp_master_showcase: { cls: 'CadMasterShowcaseComponent', file: 'CadPlan/js/CadMasterShowcaseComponent.js', desc: 'CadPlan Master Showcase & Dual-Audience Engine' },
-        comp_touch_graphic: { cls: 'CadTouchP2PGraphicComponent', file: 'CadPlan/js/CadTouchP2PGraphicComponent.js', desc: 'Two-Handed CAD Architecture & TouchController Graphic' },
-        comp_vision_hero: { cls: 'CadVisionHeroGraphic', file: 'CadPlan/js/CadVisionHeroGraphic.js', desc: 'The Expandable Dual-Mode CAD Engine Graphic' },
-        comp_audience_migration: { cls: 'CadAudienceMigrationGraphic', file: 'CadPlan/js/CadAudienceMigrationGraphic.js', desc: 'Audience Capture & Vibe-Coding Flywheel Graphic' },
-        comp_plugin_hooks: { cls: 'CadPluginHookSpecGraphic', file: 'CadPlan/js/CadPluginHookSpecGraphic.js', desc: 'The 3 Clean Upstream Hooks Plugin Spec Graphic' },
-        comp_freedom_graphic: { cls: 'CadErgonomicFreedomGraphic', file: 'CadPlan/js/CadErgonomicFreedomGraphic.js', desc: 'Ergonomic Freedom & Composable Instruments Graphic' },
-        comp_coordinate_converter: { cls: 'CadCoordinateConverterLab', file: 'CadPlan/js/CadCoordinateConverterLab.js', desc: 'Universal Arc & Coordinate Transformation Engine' },
-        comp_runtime_matrix: { cls: 'CadRuntimeMatrixGraphic', file: 'CadPlan/js/CadRuntimeMatrixGraphic.js', desc: 'Execution Environment Matrix & Pipeline Decoupling' },
-        comp_ecosystem_graphic: { cls: 'CadEcosystemGraphicComponent', file: 'CadPlan/js/CadEcosystemGraphicComponent.js', desc: 'Federated Multi-App Topology Map' },
-        comp_architecture_graphic: { cls: 'CadArchitectureGraphicComponent', file: 'CadPlan/js/CadArchitectureGraphicComponent.js', desc: '4-Layer Headless Geometric Kernel Stack' },
-        comp_origins_graphic: { cls: 'CadOriginsGraphicComponent', file: 'CadPlan/js/CadOriginsGraphicComponent.js', desc: '1995 Milestone & 3D Design Cube Graphic' }
-      };
-
-      const pageClassMap = {
-        meta: { cls: 'CadPlanMetaContent', file: 'CadPlan/js/CadPlanMetaContent.js' },
-        origins: { cls: 'CadOriginsContent', file: 'CadPlan/js/CadOriginsContent.js' },
-        philosophy: { cls: 'AccuDrawPhilosophyContent', file: 'CadPlan/js/AccuDrawPhilosophyContent.js' },
-        accucad: { cls: 'AccuCadAuditContent', file: 'CadPlan/js/AccuCadAuditContent.js' },
-        shortcuts: { cls: 'KeyCommandEngineContent', file: 'CadPlan/js/KeyCommandEngineContent.js' },
-        curvedrawer: { cls: 'CadCurveDrawerContent', file: 'CadPlan/js/CadCurveDrawerContent.js' },
-        touchp2p: { cls: 'CadTouchP2PContent', file: 'CadPlan/js/CadTouchP2PContent.js' },
-        demos: { cls: 'CadInteractiveDemoContent', file: 'CadPlan/js/CadInteractiveDemoContent.js' },
-        ecosystem: { cls: 'CadLunoEcosystemContent', file: 'CadPlan/js/CadLunoEcosystemContent.js' },
-        architecture: { cls: 'CadArchitectureDecisionsContent', file: 'CadPlan/js/CadArchitectureDecisionsContent.js' },
-        cadcraft: { cls: 'CadCraftIntegrationContent', file: 'CadPlan/js/CadCraftIntegrationContent.js' },
-        itwin: { cls: 'CadITwinParityContent', file: 'CadPlan/js/CadITwinParityContent.js' },
-        interview: { cls: 'CadVisionInterviewContent', file: 'CadPlan/js/CadVisionInterviewContent.js' }
-      };
-
-      let itemNumber = 1;
-
-      for (const [key, notes] of Object.entries(grouped)) {
-        const [pageId, blockId] = key.split(':');
-        const isComponent = Boolean(componentClassMap[blockId] || blockId.startsWith('comp_'));
-        const isUniversal = Boolean(notes[0]?.isUniversalElement || notes[0]?.xpath);
-
-        let targetCls = '';
-        let targetFile = '';
-        let targetDesc = '';
-        let previewText = '';
-
-        if (isComponent && componentClassMap[blockId]) {
-          targetCls = componentClassMap[blockId].cls;
-          targetFile = componentClassMap[blockId].file;
-          targetDesc = componentClassMap[blockId].desc;
-        } else {
-          const mapping = pageClassMap[pageId] || {
-            cls: pageId.charAt(0).toUpperCase() + pageId.slice(1) + 'Content',
-            file: `${dossierId}/js/${pageId.charAt(0).toUpperCase() + pageId.slice(1)}Content.js`
-          };
-          targetCls = mapping.cls;
-          targetFile = mapping.file;
-
-          const docCls = globalThis[targetCls];
-          if (docCls && typeof docCls[blockId] === 'function') {
-            const val = docCls[blockId]();
-            previewText = Array.isArray(val) ? val.join('\n\n') : String(val);
-          }
+        const dossierId = docReader?.options?.dossierId || docReader?.brandTitle || 'CadPlan';
+        const all = await this.getAllNotes(dossierId);
+        const active = all.filter(n => n.status !== 'resolved');
+        if (active.length === 0) {
+          return `# NO ACTIVE LIVING SPEC DIRECTIVES\nThere are currently no active author notes or revision directives attached in the living dossier [${dossierId}].`;
         }
 
-        if (!previewText && notes[0]?.blockPreview) {
-          previewText = notes[0].blockPreview;
-        }
-
-        out += `## ${itemNumber++}. Target: \`${targetCls}${isComponent ? '' : '.' + blockId}\`\n`;
-        out += `**Target File:** \`${targetFile}\`\n`;
-        if (targetDesc) out += `**Component Role:** *${targetDesc}*\n`;
-
-        if (isUniversal && notes[0]?.xpath) {
-          out += `**DOM XPath Locator:** \`${notes[0].xpath}\`\n`;
-          if (notes[0].cssPath) out += `**CSS Selector:** \`${notes[0].cssPath}\`\n`;
-        }
-        out += '\n';
-
-        if (previewText) {
-          out += '### Context / Code Excerpt:\n';
-          out += '> ' + previewText.replace(/\n+/g, '\n> ') + '\n\n';
-        }
-
-        out += '### Author Directives & Living Annotations:\n';
-        notes.sort((a, b) => a.timestamp - b.timestamp).forEach((note, idx) => {
-          const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          const cleanTag = note.status === 'pending_cleanup' ? ' `[🧹 MARKED FOR ARCHIVE]`' : '';
-          out += `${idx + 1}. **(${timeStr})${cleanTag}:** ${note.text}\n`;
-          if (note.videoLink) {
-            out += `   - 📹 *Video Anchor:* \`${note.videoLink.videoId}\` @ **${note.videoLink.time}s** (${note.videoLink.label || 'Timestamp'})\n`;
-          }
-        });
-        out += '\n';
-
-        out += '### Expected Implementation Output Container:\n';
-        out += '<' + `script data-file="${targetFile}" data-method="${targetCls}.${isComponent ? 'render' : blockId}" data-action="patch">\n`;
-        out += `// Updated implementation incorporating author directives...\n`;
-        out += '<' + '/script>\n\n';
+        let out = `# 🎯 LIVING SPECIFICATION EVOLUTION: AUTHOR DIRECTIVES & UNIVERSAL ANNOTATIONS\n`;
+        out += `**Dossier:** ${dossierId} • **Generated:** ${new Date().toISOString()} • **Author/Inventor:** Rob Brown\n`;
+        out += `**Active Directives:** ${active.length} notes across ${new Set(active.map(n => n.blockKey)).size} locations\n`;
+        out += '**Execution Directive:** Incorporate the following author directives directly into the specified source files and class methods. Keep all existing verified mathematics, direction cosines, and repository connections fully intact.\n\n';
         out += '---\n\n';
+
+        const grouped = {};
+        active.forEach(n => {
+          grouped[n.blockKey] = grouped[n.blockKey] || [];
+          grouped[n.blockKey].push(n);
+        });
+
+        const componentClassMap = {
+          comp_tentative_snapping_lab: { cls: 'TentativeSnappingLab', file: 'CadPlan/js/TentativeSnappingLab.js', desc: 'Interactive Snapping Lab (50ms chorded clicks & thick picking)' },
+          comp_nearest_intersection_lab: { cls: 'CadNearestIntersectionLab', file: 'CadPlan/js/CadNearestIntersectionLab.js', desc: 'Nearest Snap ("N") Ray-Arc Quadratic Intersection Lab' },
+          comp_surface_normal_lab: { cls: 'CadSurfaceNormalLab', file: 'CadPlan/js/CadSurfaceNormalLab.js', desc: 'Surface Normal Alignment ("Q") & Reset Reversion Lab' },
+          comp_smart_keyin_lab: { cls: 'CadSmartKeyinLab', file: 'CadPlan/js/CadSmartKeyinLab.js', desc: 'SmartKeyin Sign Inference & Smart Backspace Sandbox' },
+          comp_tangent_arc_swing_lab: { cls: 'CadTangentArcSwingLab', file: 'CadPlan/js/CadTangentArcSwingLab.js', desc: 'Closest-Point Sweep Principle & Tangent Arc Swing Studio' },
+          comp_transform_gym: { cls: 'CadTransformGymLab', file: 'CadPlan/js/CadTransformGymLab.js', desc: '3-Point Transform Lab (Move, Rotate, Scale, and live ghosting)' },
+          comp_zplane_gym: { cls: 'CadZPlaneElevationLab', file: 'CadPlan/js/CadZPlaneElevationLab.js', desc: 'Z-Elevation & Construction Slicing Plane Lab' },
+          comp_3d_smartline_lab: { cls: 'Cad3DSmartLineLab', file: 'CadPlan/js/Cad3DSmartLineLab.js', desc: '3D SmartLine & iTwin ThreeAxes Studio' },
+          comp_model_studio: { cls: 'CadModelStudioComponent', file: 'CadPlan/js/CadModelStudioComponent.js', desc: '3D Model Studio (PBR materials, GLB loading & face snapping [Q])' },
+          comp_cad_studio_demo: { cls: 'CadStudioDemoComponent', file: 'CadPlan/js/CadStudioDemoComponent.js', desc: 'Production Studio (Live accuCad iframe & 3D parallax curves)' },
+          comp_code_viewer: { cls: 'CadCodeViewerComponent', file: 'CadPlan/js/CadCodeViewerComponent.js', desc: 'Code Viewer & Rust Crate Hooks' },
+          comp_svg_smartline_lab: { cls: 'SvgSmartLineLab', file: 'CadPlan/js/SvgSmartLineLab.js', desc: 'Pure SVG SmartLine Lab (Continuous chaining, tangent arcs & DXF bulges)' },
+          comp_animated_svg_compass: { cls: 'CadAnimatedSvgCompassLab', file: 'CadPlan/js/CadAnimatedSvgCompassLab.js', desc: 'Animated SVG Compass Lab (Superellipse morphing & Mini-Jack)' },
+          comp_isolated_compass_3d: { cls: 'CadIsolatedCompass3DComponent', file: 'CadPlan/js/CadIsolatedCompass3DComponent.js', desc: 'Isolated 3D Compass Viewport (High-contrast direction cosines)' },
+          comp_agent_telemetry_lab: { cls: 'CadAgentTelemetryLab', file: 'CadPlan/js/CadAgentTelemetryLab.js', desc: 'Autonomous AI Drafting Lab (MCP stream & relative vectors)' },
+          comp_roundtrip_superpower: { cls: 'Cad2Dto3DRoundTripGraphic', file: 'CadPlan/js/Cad2Dto3DRoundTripGraphic.js', desc: '2D OCS to 3D WCS Round-Trip Engine (AutoCAD compatibility)' },
+          comp_kch_interactive_lab: { cls: 'KeyCommandInteractiveLab', file: 'CadPlan/js/KeyCommandInteractiveLab.js', desc: 'Single-Stroke Key Command Engine Sandbox' },
+          comp_curve_drawer_lab: { cls: 'CurveDrawerLabComponent', file: 'CadPlan/js/CurveDrawerLabComponent.js', desc: 'On-Curve Spline Relaxation & Kinetic Tether Lab' },
+          comp_number_stream_lab: { cls: 'AccuDrawNumberStreamLab', file: 'CadPlan/js/AccuDrawNumberStreamLab.js', desc: 'Numerical Command Stream & Decimal Parser' },
+          comp_compass_anatomy: { cls: 'CompassAnatomyComponent', file: 'CadPlan/js/CompassAnatomyComponent.js', desc: 'The Squircle Compass Anatomical Deconstruction' },
+          comp_master_showcase: { cls: 'CadMasterShowcaseComponent', file: 'CadPlan/js/CadMasterShowcaseComponent.js', desc: 'CadPlan Master Showcase & Dual-Audience Engine' },
+          comp_touch_graphic: { cls: 'CadTouchP2PGraphicComponent', file: 'CadPlan/js/CadTouchP2PGraphicComponent.js', desc: 'Two-Handed CAD Architecture & TouchController Graphic' },
+          comp_vision_hero: { cls: 'CadVisionHeroGraphic', file: 'CadPlan/js/CadVisionHeroGraphic.js', desc: 'The Expandable Dual-Mode CAD Engine Graphic' },
+          comp_audience_migration: { cls: 'CadAudienceMigrationGraphic', file: 'CadPlan/js/CadAudienceMigrationGraphic.js', desc: 'Audience Capture & Vibe-Coding Flywheel Graphic' },
+          comp_plugin_hooks: { cls: 'CadPluginHookSpecGraphic', file: 'CadPlan/js/CadPluginHookSpecGraphic.js', desc: 'The 3 Clean Upstream Hooks Plugin Spec Graphic' },
+          comp_freedom_graphic: { cls: 'CadErgonomicFreedomGraphic', file: 'CadPlan/js/CadErgonomicFreedomGraphic.js', desc: 'Ergonomic Freedom & Composable Instruments Graphic' },
+          comp_coordinate_converter: { cls: 'CadCoordinateConverterLab', file: 'CadPlan/js/CadCoordinateConverterLab.js', desc: 'Universal Arc & Coordinate Transformation Engine' },
+          comp_runtime_matrix: { cls: 'CadRuntimeMatrixGraphic', file: 'CadPlan/js/CadRuntimeMatrixGraphic.js', desc: 'Execution Environment Matrix & Pipeline Decoupling' },
+          comp_ecosystem_graphic: { cls: 'CadEcosystemGraphicComponent', file: 'CadPlan/js/CadEcosystemGraphicComponent.js', desc: 'Federated Multi-App Topology Map' },
+          comp_architecture_graphic: { cls: 'CadArchitectureGraphicComponent', file: 'CadPlan/js/CadArchitectureGraphicComponent.js', desc: '4-Layer Headless Geometric Kernel Stack' },
+          comp_origins_graphic: { cls: 'CadOriginsGraphicComponent', file: 'CadPlan/js/CadOriginsGraphicComponent.js', desc: '1995 Milestone & 3D Design Cube Graphic' }
+        };
+
+        const pageClassMap = {
+          meta: { cls: 'CadPlanMetaContent', file: 'CadPlan/js/CadPlanMetaContent.js' },
+          origins: { cls: 'CadOriginsContent', file: 'CadPlan/js/CadOriginsContent.js' },
+          philosophy: { cls: 'AccuDrawPhilosophyContent', file: 'CadPlan/js/AccuDrawPhilosophyContent.js' },
+          accucad: { cls: 'AccuCadAuditContent', file: 'CadPlan/js/AccuCadAuditContent.js' },
+          shortcuts: { cls: 'KeyCommandEngineContent', file: 'CadPlan/js/KeyCommandEngineContent.js' },
+          curvedrawer: { cls: 'CadCurveDrawerContent', file: 'CadPlan/js/CadCurveDrawerContent.js' },
+          touchp2p: { cls: 'CadTouchP2PContent', file: 'CadPlan/js/CadTouchP2PContent.js' },
+          demos: { cls: 'CadInteractiveDemoContent', file: 'CadPlan/js/CadInteractiveDemoContent.js' },
+          ecosystem: { cls: 'CadLunoEcosystemContent', file: 'CadPlan/js/CadLunoEcosystemContent.js' },
+          architecture: { cls: 'CadArchitectureDecisionsContent', file: 'CadPlan/js/CadArchitectureDecisionsContent.js' },
+          cadcraft: { cls: 'CadCraftIntegrationContent', file: 'CadPlan/js/CadCraftIntegrationContent.js' },
+          itwin: { cls: 'CadITwinParityContent', file: 'CadPlan/js/CadITwinParityContent.js' },
+          interview: { cls: 'CadVisionInterviewContent', file: 'CadPlan/js/CadVisionInterviewContent.js' }
+        };
+
+        let itemNumber = 1;
+
+        for (const [key, notes] of Object.entries(grouped)) {
+          const [pageId, blockId] = key.split(':');
+          const isComponent = Boolean(componentClassMap[blockId] || blockId.startsWith('comp_'));
+          const isUniversal = Boolean(notes[0]?.isUniversalElement || notes[0]?.xpath);
+
+          let targetCls = '';
+          let targetFile = '';
+          let targetDesc = '';
+          let previewText = '';
+
+          if (isComponent && componentClassMap[blockId]) {
+            targetCls = componentClassMap[blockId].cls;
+            targetFile = componentClassMap[blockId].file;
+            targetDesc = componentClassMap[blockId].desc;
+          } else {
+            const mapping = pageClassMap[pageId] || {
+              cls: pageId.charAt(0).toUpperCase() + pageId.slice(1) + 'Content',
+              file: `${dossierId}/js/${pageId.charAt(0).toUpperCase() + pageId.slice(1)}Content.js`
+            };
+            targetCls = mapping.cls;
+            targetFile = mapping.file;
+
+            const docCls = globalThis[targetCls];
+            if (docCls && typeof docCls[blockId] === 'function') {
+              const val = docCls[blockId]();
+              previewText = Array.isArray(val) ? val.join('\n\n') : String(val);
+            }
+          }
+
+          if (!previewText && notes[0]?.blockPreview) {
+            previewText = notes[0].blockPreview;
+          }
+
+          out += `## ${itemNumber++}. Target: \`${targetCls}${isComponent ? '' : '.' + blockId}\`\n`;
+          out += `**Target File:** \`${targetFile}\`\n`;
+          if (targetDesc) out += `**Component Role:** *${targetDesc}*\n`;
+
+          if (isUniversal && notes[0]?.xpath) {
+            out += `**DOM XPath Locator:** \`${notes[0].xpath}\`\n`;
+            if (notes[0].cssPath) out += `**CSS Selector:** \`${notes[0].cssPath}\`\n`;
+          }
+          out += '\n';
+
+          if (previewText) {
+            out += '### Context / Code Excerpt:\n';
+            out += '> ' + previewText.replace(/\n+/g, '\n> ') + '\n\n';
+          }
+
+          out += '### Author Directives & Living Annotations:\n';
+          notes.sort((a, b) => a.timestamp - b.timestamp).forEach((note, idx) => {
+            const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const cleanTag = note.status === 'pending_cleanup' ? ' `[🧹 MARKED FOR ARCHIVE]`' : '';
+            out += `${idx + 1}. **(${timeStr})${cleanTag}:** ${note.text}\n`;
+            if (note.videoLink) {
+              out += `   - 📹 *Video Anchor:* \`${note.videoLink.videoId}\` @ **${note.videoLink.time}s** (${note.videoLink.label || 'Timestamp'})\n`;
+            }
+          });
+          out += '\n';
+
+          out += '### Expected Implementation Output Container:\n';
+          out += '<' + `script data-file="${targetFile}" data-method="${targetCls}.${isComponent ? 'render' : blockId}" data-action="patch">\n`;
+          out += `// Updated implementation incorporating author directives...\n`;
+          out += '<' + '/script>\n\n';
+          out += '---\n\n';
+        }
+
+        return out.trim();
       }
-
-      return out.trim();
-    }
-
   static async openPromptBuilderDialog(docReader = null) {
       const hostContainer = document.body;
       const promptText = await this.buildNotesDirectivePrompt(docReader);
@@ -526,306 +509,10 @@ class CadPlanItemNotes {
     }
 
   static async openBlockNotesDialog(pageId, blockId, currentDoc, onUpdated, hostReader = null, extraOptions = {}) {
-        CadPlanItemNotes.playHapticSound(580, 0.04);
-        const dossierId = hostReader?.options?.dossierId || currentDoc?.name || 'CadPlan';
-        const docName = currentDoc?.name || (typeof currentDoc === 'function' ? currentDoc.name : 'DocumentContent');
-        const existing = await this.getNotesForBlock(pageId, blockId, dossierId);
-
-        let targetEl = extraOptions?.targetElement ||
-                       document.querySelector(`[data-block-id="${blockId}"]`) ||
-                       document.querySelector(`[data-block="${blockId}"]`) ||
-                       document.getElementById(`block-${blockId}`) ||
-                       document.getElementById(blockId);
-
-        if (!targetEl && existing.length > 0 && existing[0].xpath) {
-          try {
-            const res = document.evaluate(existing[0].xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-            if (res.singleNodeValue) targetEl = res.singleNodeValue;
-          } catch (e) {}
-        }
-
-        const locator = extraOptions?.locator || (targetEl ? CadPlanItemNotes.generateElementLocator(targetEl) : { key: blockId, isOfficial: true, xpath: '' });
-
-        let excerpt = '';
-        if (currentDoc && typeof currentDoc[blockId] === 'function') {
-          const val = currentDoc[blockId]();
-          excerpt = Array.isArray(val) ? val.join(' ') : String(val);
-        }
-        if (!excerpt && targetEl) {
-          excerpt = targetEl.textContent.trim();
-        }
-        if (!excerpt && existing[0]?.blockPreview) {
-          excerpt = existing[0].blockPreview;
-        }
-        if (excerpt.length > 150) excerpt = excerpt.substring(0, 150) + '...';
-
-        const wrap = makeElement('div', {
-          style: {
-            display: 'flex', flexDirection: 'column', height: '100%',
-            color: '#f8fafc', fontFamily: 'var(--cp-font-sans, system-ui, sans-serif)', gap: '10px',
-            background: 'linear-gradient(180deg, rgba(12, 18, 32, 0.98) 0%, rgba(7, 10, 19, 0.98) 100%)',
-            padding: '12px',
-            boxSizing: 'border-box'
-          }
-        });
-
-        const humanCount = existing.filter(n => !n.isLLM).length;
-        const aiCount = existing.filter(n => n.isLLM).length;
-
-        const topBar = makeElement('div', {
-          style: {
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '8px 12px', borderBottom: '1.5px solid rgba(0, 242, 254, 0.35)',
-            background: 'rgba(0, 242, 254, 0.06)', borderRadius: '8px',
-            fontSize: '11px', fontFamily: 'var(--cp-font-mono, monospace)'
-          }
-        }, [
-          makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }, [
-            makeElement('span', { style: { color: '#00f2fe', fontWeight: '800' } }, `🎯 ${locator.isOfficial ? `${docName}.${blockId}` : locator.key}`),
-            makeElement('span', {
-              style: { color: '#38bdf8', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid #38bdf866', padding: '1px 8px', borderRadius: '12px' }
-            }, `👤 ${humanCount}`),
-            aiCount > 0 ? makeElement('span', {
-              style: { color: '#c084fc', background: 'rgba(192, 132, 252, 0.22)', padding: '1px 8px', borderRadius: '12px', border: '1px solid #c084fc88' }
-            }, `🤖 ${aiCount} Proposal${aiCount === 1 ? '' : 's'}`) : null
-          ]),
-          makeElement('span', { style: { color: '#64748b', fontSize: '10px' } }, `[${dossierId}]`)
-        ]);
-        wrap.appendChild(topBar);
-
-        if (excerpt) {
-          wrap.appendChild(makeElement('div', {
-            style: {
-              background: 'rgba(0, 242, 254, 0.05)', borderLeft: '3.5px solid #00f2fe',
-              padding: '8px 12px', fontSize: '11.5px', color: '#cbd5e1', fontStyle: 'italic', borderRadius: '4px',
-              boxShadow: 'inset 0 0 12px rgba(0, 242, 254, 0.06)'
-            }
-          }, `"${excerpt}"`));
-        }
-
-        const threadList = makeElement('div', {
-          id: 'item-notes-thread-list',
-          style: {
-            flex: 1, minHeight: '160px', maxHeight: '240px', overflowY: 'auto',
-            display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px'
-          }
-        });
-        wrap.appendChild(threadList);
-
-        const renderThread = async () => {
-          threadList.innerHTML = '';
-          const notes = await CadPlanItemNotes.getNotesForBlock(pageId, blockId, dossierId);
-
-          if (notes.length === 0) {
-            threadList.appendChild(makeElement('div', {
-              style: { padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', fontSize: '11.5px' }
-            }, 'No directives on this element. Dictate thoughts below or type note.'));
-            return;
-          }
-
-          notes.forEach((note) => {
-            const timeStr = new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const isLLM = Boolean(note.isLLM || note.author === 'LLM');
-            const isCleanup = note.status === 'pending_cleanup';
-
-            const borderCol = isLLM ? '#c084fc' : (isCleanup ? '#f59e0b' : '#00f2fe');
-            const bgCol = isLLM ? 'rgba(192, 132, 252, 0.1)' : (isCleanup ? 'rgba(245, 158, 11, 0.08)' : 'rgba(0, 242, 254, 0.06)');
-
-            const itemBox = makeElement('div', {
-              style: {
-                background: bgCol,
-                border: `1.5px solid ${borderCol}`,
-                borderLeft: `4.5px solid ${borderCol}`,
-                borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
-              }
-            }, [
-              makeElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
-                makeElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } }, [
-                  makeElement('span', {
-                    style: {
-                      fontSize: '10px', fontWeight: '800', textTransform: 'uppercase',
-                      color: isLLM ? '#c084fc' : '#00f2fe', fontFamily: 'var(--cp-font-mono, monospace)'
-                    }
-                  }, isLLM ? '🤖 AI Staged Proposal' : `👤 ${note.author}`),
-                  makeElement('span', { style: { fontSize: '9px', color: '#64748b' } }, `• ${timeStr}`)
-                ]),
-                makeElement('div', { style: { display: 'flex', gap: '4px', alignItems: 'center' } }, [
-                  // Instant Prompt Formulation Button
-                  makeElement('button', {
-                    className: 'dr-nav-btn',
-                    style: { padding: '2px 8px', fontSize: '10px', color: '#c084fc', borderColor: '#c084fc66' },
-                    title: 'Copy targeted AI mutation prompt for this directive',
-                    onclick: () => {
-                      const promptText = CadPlanItemNotes.generateSingleNotePrompt(note);
-                      CadPlanItemNotes.dispatchToOutbox(`Directive on ${blockId}`, promptText);
-                      alert(`✓ Targeted prompt formulated for [${blockId}] and pushed to Outbox / clipboard!`);
-                    }
-                  }, '⚡ Prompt AI'),
-                  makeElement('button', {
-                    className: 'dr-nav-btn',
-                    style: { padding: '2px 6px', fontSize: '10px', color: '#ef4444' },
-                    title: 'Delete note',
-                    onclick: async () => {
-                      if (confirm('Delete this directive?')) {
-                        await CadPlanItemNotes.deleteNote(note.id);
-                        renderThread();
-                        if (onUpdated) onUpdated();
-                      }
-                    }
-                  }, '✕')
-                ])
-              ]),
-              makeElement('div', { style: { fontSize: '12px', color: '#f8fafc', lineHeight: '1.55', whiteSpace: 'pre-wrap' } }, note.text)
-            ]);
-
-            threadList.appendChild(itemBox);
-          });
-        };
-
-        await renderThread();
-
-        // Dictation Widget Mount
-        const dictationMount = makeElement('div', {
-          style: { minHeight: '110px', display: 'flex', flexDirection: 'column', position: 'relative' }
-        });
-        wrap.appendChild(dictationMount);
-
-        let dictationWidget = null;
-        if (typeof DictationWidget !== 'undefined') {
-          dictationWidget = new DictationWidget({
-            compact: true,
-            placeholder: '🎙️ Dictate directive, or type note for this element...'
-          });
-          dictationMount.appendChild(dictationWidget.getElement());
-        } else {
-          const textarea = makeElement('textarea', {
-            id: 'append-item-note-textarea',
-            placeholder: 'Type directive or staging note for this element...',
-            style: {
-              width: '100%', minHeight: '90px', background: '#090d16', color: '#f8fafc',
-              border: '1px solid #232d3f', borderRadius: '6px', padding: '8px',
-              fontFamily: 'var(--dr-font-sans)', fontSize: '12px', outline: 'none'
-            }
-          });
-          dictationMount.appendChild(textarea);
-        }
-
-        let selectedAuthorMode = 'Author';
-        const toggleAuthorBtn = makeElement('button', {
-          className: 'cp-segmented-btn active author',
-          onclick: () => setAuthorMode('Author')
-        }, '👤 Author Note');
-
-        const toggleLlmBtn = makeElement('button', {
-          className: 'cp-segmented-btn',
-          onclick: () => setAuthorMode('LLM')
-        }, '🤖 AI Proposal');
-
-        const segmentedDeck = makeElement('div', { className: 'cp-segmented-deck' }, [
-          toggleAuthorBtn, toggleLlmBtn
-        ]);
-
-        function setAuthorMode(mode) {
-          selectedAuthorMode = mode;
-          toggleAuthorBtn.className = `cp-segmented-btn ${mode === 'Author' ? 'active author' : ''}`;
-          toggleLlmBtn.className = `cp-segmented-btn ${mode === 'LLM' ? 'active llm' : ''}`;
-        }
-
-        const footer = makeElement('div', {
-          style: {
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', gap: '8px', flexWrap: 'wrap'
-          }
-        });
-
-        let clearTether = null;
-
-        const rightControls = makeElement('div', { style: { display: 'flex', gap: '6px' } }, [
-          makeElement('button', {
-            className: 'dr-nav-btn',
-            onclick: () => dlg.close()
-          }, 'Close'),
-
-          makeElement('button', {
-            className: 'dr-nav-btn primary',
-            style: { fontWeight: '800' },
-            onclick: async () => {
-              let txt = '';
-              if (dictationWidget) {
-                txt = dictationWidget.getText().trim();
-              } else {
-                const ta = document.getElementById('append-item-note-textarea');
-                txt = ta ? ta.value.trim() : '';
-              }
-
-              if (!txt) {
-                alert('Please dictate or type a note before appending.');
-                return;
-              }
-
-              const isLLM = selectedAuthorMode === 'LLM';
-              await CadPlanItemNotes.addNote(pageId, blockId, txt, {
-                dossierId,
-                isLLM,
-                author: isLLM ? 'LLM' : 'Author',
-                type: isLLM ? 'proposal' : 'note',
-                blockPreview: excerpt,
-                xpath: locator.xpath,
-                cssPath: locator.cssPath,
-                tagName: locator.tagName,
-                isUniversalElement: !locator.isOfficial
-              });
-
-              if (dictationWidget) dictationWidget.clearContent();
-              else {
-                const ta = document.getElementById('append-item-note-textarea');
-                if (ta) ta.value = '';
-              }
-
-              await renderThread();
-              if (onUpdated) onUpdated();
-            }
-          }, '💾 + Append')
-        ]);
-
-        footer.appendChild(segmentedDeck);
-        footer.appendChild(rightControls);
-        wrap.appendChild(footer);
-
-        let posX = Math.max(20, (window.innerWidth - 600) / 2);
-        let posY = 60;
-        if (targetEl) {
-          const r = targetEl.getBoundingClientRect();
-          if (r.right + 620 < window.innerWidth) {
-            posX = r.right + 16;
-            posY = Math.max(50, r.top);
-          } else if (r.left > 620) {
-            posX = r.left - 616;
-            posY = Math.max(50, r.top);
-          }
-        }
-
-        const dlg = UITools.makeDialog({
-          title: `📝 Directives [${locator.isOfficial ? blockId : locator.key}]`,
-          size: [600, 580],
-          position: [posX, posY],
-          contentElement: wrap,
-          appendTo: document.body,
-          onClose: () => {
-            if (clearTether) clearTether();
-            if (dictationWidget && typeof dictationWidget.destroy === 'function') {
-              dictationWidget.destroy();
-            }
-          }
-        });
-
-        if (dlg.element && targetEl) {
-          clearTether = CadPlanItemNotes._drawTetherToBlock(dlg.element, targetEl);
-        }
-
-        return dlg;
+      if (typeof CommentsItemNotes !== 'undefined' && CommentsItemNotes.openBlockNotesDialog) {
+        return CommentsItemNotes.openBlockNotesDialog(pageId, blockId, currentDoc, onUpdated, hostReader, extraOptions);
       }
+    }
   static async addAIProposal(pageId, blockId, proposalText, options = {}) {
     return await this.addNote(pageId, blockId, proposalText, {
       ...options,

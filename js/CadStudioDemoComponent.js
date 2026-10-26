@@ -1,152 +1,192 @@
 class CadStudioDemoComponent {
 
   static async render(container) {
-      container.innerHTML = '';
+        container.innerHTML = '';
 
-      const wrap = makeElement('div', {
-        style: {
-          width: '100%',
-          minHeight: '720px',
-          position: 'relative',
-          background: '#090d16',
-          borderRadius: '12px',
-          border: '1.5px solid #21262d',
-          overflow: 'hidden',
-          boxShadow: '0 16px 40px rgba(0,0,0,0.65)',
-          display: 'flex',
-          flexDirection: 'column'
-        }
-      });
-      container.appendChild(wrap);
+        const wrap = makeElement('div', {
+          style: {
+            width: '100%',
+            minHeight: '720px',
+            position: 'relative',
+            background: '#090d16',
+            borderRadius: '12px',
+            border: '1.5px solid #21262d',
+            overflow: 'hidden',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.65)',
+            display: 'flex',
+            flexDirection: 'column'
+          }
+        });
+        container.appendChild(wrap);
 
-      const tabsBar = makeElement('div', {
-        style: {
-          minHeight: '46px',
-          background: 'rgba(15, 20, 28, 0.96)',
-          borderBottom: '1px solid #21262d',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '6px 14px',
-          zIndex: '50',
-          flexWrap: 'wrap',
-          gap: '6px'
-        }
-      });
-
-      const tabsGroup = makeElement('div', {
-        style: { display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }
-      });
-
-      const makeTabBtn = (label, id, isActive = false) => makeElement('button', {
-        id: id,
-        className: `dr-tab-btn ${isActive ? 'active' : ''}`,
-        style: {
-          borderRadius: '6px',
-          padding: '5px 12px',
-          fontFamily: 'monospace',
-          fontSize: '11px',
-          fontWeight: 'bold',
-          cursor: 'pointer'
-        }
-      }, label);
-
-      const tabFull = makeTabBtn('📐 accuCad (Full Workstation)', 'studio-tab-full', true);
-      const tabSnap = makeTabBtn('🎯 Snapping & Tentative Gym', 'studio-tab-snap');
-      const tabCompass = makeTabBtn('🧭 3D Compass Gymnastics', 'studio-tab-compass');
-      const tabSvg = makeTabBtn('🌐 Pure SVG AccuDraw', 'studio-tab-svg');
-      const tabSpline = makeTabBtn('✍️ On-Curve Spline & Parallax', 'studio-tab-spline');
-
-      tabsGroup.appendChild(tabFull);
-      tabsGroup.appendChild(tabSnap);
-      tabsGroup.appendChild(tabCompass);
-      tabsGroup.appendChild(tabSvg);
-      tabsGroup.appendChild(tabSpline);
-
-      const rightControls = makeElement('div', {
-        style: { display: 'flex', gap: '8px', alignItems: 'center' }
-      });
-
-      const openStandaloneBtn = makeElement('a', {
-        href: '../accuCad/index.html',
-        target: '_blank',
-        style: {
-          background: '#1e293b',
-          color: '#38bdf8',
-          border: '1px solid #38bdf866',
-          borderRadius: '6px',
-          padding: '5px 10px',
-          fontFamily: 'monospace',
-          fontSize: '10px',
-          fontWeight: 'bold',
-          textDecoration: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px'
-        }
-      }, '↗ Standalone accuCad');
-
-      rightControls.appendChild(openStandaloneBtn);
-      tabsBar.appendChild(tabsGroup);
-      tabsBar.appendChild(rightControls);
-      wrap.appendChild(tabsBar);
-
-      const stage = makeElement('div', {
-        style: {
-          flex: '1',
-          width: '100%',
-          minHeight: '674px',
-          position: 'relative',
-          background: '#090d16'
-        }
-      });
-      wrap.appendChild(stage);
-
-      const tabButtons = [tabFull, tabSnap, tabCompass, tabSvg, tabSpline];
-
-      function switchView(viewName) {
-        // Cleanly unregister any active instances in stage before clearing
-        stage.querySelectorAll('[id^="accucad-mount-"]').forEach(mountEl => {
-          if (mountEl._accuCadId) {
-            CadStudioDemoComponent.unregisterInstance(mountEl._accuCadId);
+        const tabsBar = makeElement('div', {
+          style: {
+            minHeight: '46px',
+            background: 'rgba(15, 20, 28, 0.96)',
+            borderBottom: '1px solid #21262d',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 14px',
+            zIndex: '50',
+            flexWrap: 'wrap',
+            gap: '6px'
           }
         });
 
-        stage.innerHTML = '';
-        tabButtons.forEach(b => b.classList.remove('active'));
+        const tabsGroup = makeElement('div', {
+          style: { display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }
+        });
 
-        if (viewName === 'full') {
-          tabFull.classList.add('active');
-          openStandaloneBtn.style.display = 'inline-flex';
-          CadStudioDemoComponent._renderAccuCadIframe(stage);
-        } else if (viewName === 'snap') {
-          tabSnap.classList.add('active');
-          openStandaloneBtn.style.display = 'none';
-          CadStudioDemoComponent._renderSnappingGym(stage);
-        } else if (viewName === 'compass') {
-          tabCompass.classList.add('active');
-          openStandaloneBtn.style.display = 'none';
-          CadStudioDemoComponent._renderCompassGym(stage);
-        } else if (viewName === 'svg') {
-          tabSvg.classList.add('active');
-          openStandaloneBtn.style.display = 'none';
-          CadStudioDemoComponent._renderSvgAccuDrawView(stage);
-        } else {
-          tabSpline.classList.add('active');
-          openStandaloneBtn.style.display = 'none';
-          CadStudioDemoComponent._renderAuthenticCurveAndParallaxLab(stage);
+        const makeTabBtn = (label, id, isActive = false) => makeElement('button', {
+          id: id,
+          className: `dr-tab-btn ${isActive ? 'active' : ''}`,
+          style: {
+            borderRadius: '6px',
+            padding: '5px 12px',
+            fontFamily: 'monospace',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            cursor: 'pointer'
+          }
+        }, label);
+
+        const tabFull = makeTabBtn('📐 accuCad (Full Workstation)', 'studio-tab-full', true);
+        const tabSnap = makeTabBtn('🎯 Snapping & Tentative Gym', 'studio-tab-snap');
+        const tabTransform = makeTabBtn('🔄 3-Point Transform Lab', 'studio-tab-transform');
+        const tabZPlane = makeTabBtn('🏢 Z-Elevation & Slicing Plane', 'studio-tab-zplane');
+        const tabSurface = makeTabBtn('⚡ Surface Latch [Q]', 'studio-tab-surface');
+        const tabNearest = makeTabBtn('🎯 Ray-Arc Nearest [N]', 'studio-tab-nearest');
+        const tabKeyin = makeTabBtn('🔀 SmartKeyin & Backspace [±]', 'studio-tab-keyin');
+        const tabArcSwing = makeTabBtn('⌒ Tangent Arc Swing [A]', 'studio-tab-arcswing');
+        const tabCompass = makeTabBtn('🧭 3D Compass Gymnastics', 'studio-tab-compass');
+        const tabSpline = makeTabBtn('✍️ On-Curve Spline & Parallax', 'studio-tab-spline');
+        const tabSvg = makeTabBtn('🌐 Pure SVG AccuDraw', 'studio-tab-svg');
+
+        tabsGroup.appendChild(tabFull);
+        tabsGroup.appendChild(tabSnap);
+        tabsGroup.appendChild(tabTransform);
+        tabsGroup.appendChild(tabZPlane);
+        tabsGroup.appendChild(tabSurface);
+        tabsGroup.appendChild(tabNearest);
+        tabsGroup.appendChild(tabKeyin);
+        tabsGroup.appendChild(tabArcSwing);
+        tabsGroup.appendChild(tabCompass);
+        tabsGroup.appendChild(tabSpline);
+        tabsGroup.appendChild(tabSvg);
+
+        const rightControls = makeElement('div', {
+          style: { display: 'flex', gap: '8px', alignItems: 'center' }
+        });
+
+        const openStandaloneBtn = makeElement('a', {
+          href: '../accuCad/index.html',
+          target: '_blank',
+          style: {
+            background: '#1e293b',
+            color: '#38bdf8',
+            border: '1px solid #38bdf866',
+            borderRadius: '6px',
+            padding: '5px 10px',
+            fontFamily: 'monospace',
+            fontSize: '10px',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px'
+          }
+        }, '↗ Standalone accuCad');
+
+        rightControls.appendChild(openStandaloneBtn);
+        tabsBar.appendChild(tabsGroup);
+        tabsBar.appendChild(rightControls);
+        wrap.appendChild(tabsBar);
+
+        const stage = makeElement('div', {
+          style: {
+            flex: '1',
+            width: '100%',
+            minHeight: '674px',
+            position: 'relative',
+            background: '#090d16'
+          }
+        });
+        wrap.appendChild(stage);
+
+        const tabButtons = [tabFull, tabSnap, tabTransform, tabZPlane, tabSurface, tabNearest, tabKeyin, tabArcSwing, tabCompass, tabSpline, tabSvg];
+
+        function switchView(viewName) {
+          stage.querySelectorAll('[id^="accucad-mount-"]').forEach(mountEl => {
+            if (mountEl._accuCadId) {
+              CadStudioDemoComponent.unregisterInstance(mountEl._accuCadId);
+            }
+          });
+
+          stage.innerHTML = '';
+          tabButtons.forEach(b => b.classList.remove('active'));
+
+          if (viewName === 'full') {
+            tabFull.classList.add('active');
+            openStandaloneBtn.style.display = 'inline-flex';
+            CadStudioDemoComponent._renderAccuCadIframe(stage);
+          } else if (viewName === 'snap') {
+            tabSnap.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderSnappingGym(stage);
+          } else if (viewName === 'transform') {
+            tabTransform.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderTransformGym(stage);
+          } else if (viewName === 'zplane') {
+            tabZPlane.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderZPlaneGym(stage);
+          } else if (viewName === 'surface') {
+            tabSurface.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderSurfaceNormalGym(stage);
+          } else if (viewName === 'nearest') {
+            tabNearest.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderNearestIntersectionGym(stage);
+          } else if (viewName === 'keyin') {
+            tabKeyin.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderSmartKeyinGym(stage);
+          } else if (viewName === 'arcswing') {
+            tabArcSwing.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderTangentArcSwingGym(stage);
+          } else if (viewName === 'compass') {
+            tabCompass.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderCompassGym(stage);
+          } else if (viewName === 'spline') {
+            tabSpline.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderAuthenticCurveAndParallaxLab(stage);
+          } else {
+            tabSvg.classList.add('active');
+            openStandaloneBtn.style.display = 'none';
+            CadStudioDemoComponent._renderSvgAccuDrawView(stage);
+          }
         }
+
+        tabFull.onclick = () => switchView('full');
+        tabSnap.onclick = () => switchView('snap');
+        tabTransform.onclick = () => switchView('transform');
+        tabZPlane.onclick = () => switchView('zplane');
+        tabSurface.onclick = () => switchView('surface');
+        tabNearest.onclick = () => switchView('nearest');
+        tabKeyin.onclick = () => switchView('keyin');
+        tabArcSwing.onclick = () => switchView('arcswing');
+        tabCompass.onclick = () => switchView('compass');
+        tabSpline.onclick = () => switchView('spline');
+        tabSvg.onclick = () => switchView('svg');
+
+        switchView('full');
       }
-
-      tabFull.onclick = () => switchView('full');
-      tabSnap.onclick = () => switchView('snap');
-      tabCompass.onclick = () => switchView('compass');
-      tabSvg.onclick = () => switchView('svg');
-      tabSpline.onclick = () => switchView('spline');
-
-      switchView('full');
-    }
-
   static async _renderAccuCadIframe(container) {
       container.innerHTML = '';
 
@@ -904,6 +944,46 @@ class CadStudioDemoComponent {
       }
     ];
   }
+
+  static _renderSurfaceNormalGym(stage) {
+      stage.innerHTML = '';
+      const mountPoint = makeElement('div', { style: { width: '100%', height: '100%', position: 'relative' } });
+      stage.appendChild(mountPoint);
+
+      if (typeof CadSurfaceNormalLab !== 'undefined' && CadSurfaceNormalLab.render) {
+        CadSurfaceNormalLab.render(mountPoint);
+      }
+    }
+
+  static _renderNearestIntersectionGym(stage) {
+      stage.innerHTML = '';
+      const mountPoint = makeElement('div', { style: { width: '100%', height: '100%', position: 'relative' } });
+      stage.appendChild(mountPoint);
+
+      if (typeof CadNearestIntersectionLab !== 'undefined' && CadNearestIntersectionLab.render) {
+        CadNearestIntersectionLab.render(mountPoint);
+      }
+    }
+
+  static _renderSmartKeyinGym(stage) {
+      stage.innerHTML = '';
+      const mountPoint = makeElement('div', { style: { width: '100%', height: '100%', position: 'relative' } });
+      stage.appendChild(mountPoint);
+
+      if (typeof CadSmartKeyinLab !== 'undefined' && CadSmartKeyinLab.render) {
+        CadSmartKeyinLab.render(mountPoint);
+      }
+    }
+
+  static _renderTangentArcSwingGym(stage) {
+      stage.innerHTML = '';
+      const mountPoint = makeElement('div', { style: { width: '100%', height: '100%', position: 'relative' } });
+      stage.appendChild(mountPoint);
+
+      if (typeof CadTangentArcSwingLab !== 'undefined' && CadTangentArcSwingLab.render) {
+        CadTangentArcSwingLab.render(mountPoint);
+      }
+    }
 }
 
 globalThis.CadStudioDemoComponent = CadStudioDemoComponent;

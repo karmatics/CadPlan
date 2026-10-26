@@ -195,4 +195,214 @@
       </ul>
     </aside>
   </section>
+
+  <article data-page="itwin" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Lineage Parity & SmartLine Specification</span>
+    <h1 class="dossier-title">10. iTwin Parity Audit & SmartLine Spec</h1>
+    <p class="dossier-subtitle">Auditing Bentley’s 3,862-line TypeScript AccuDraw engine, formalizing the SmartLine state machine, and blueprinting compassdraw-core in Rust.</p>
+  </header>
+
+  <section data-section="universal_converter_top">
+    <h2 class="section-title">Universal Arc & Coordinate Transformation Engine</h2>
+    <div data-block="comp_coordinate_converter" data-type="component" data-component="CadCoordinateConverterLab"></div>
+  </section>
+
+  <section data-section="smart_keyin_lab_top">
+    <h2 class="section-title">Directional Sign Inference & CAD Smart Backspace Laboratory</h2>
+    <div data-block="comp_smart_keyin_lab" data-type="component" data-component="CadSmartKeyinLab"></div>
+  </section>
+
+  <section data-section="tangent_arc_swing_top">
+    <h2 class="section-title">Closest-Point Sweep Principle & Tangent Arc Swing Studio</h2>
+    <div data-block="comp_tangent_arc_swing_lab" data-type="component" data-component="CadTangentArcSwingLab"></div>
+  </section>
+
+  <section data-section="itwin_audit">
+    <h2 class="section-title">Inside Bentley iTwin AccuDraw.ts (3,862 Lines)</h2>
+
+    <p data-block="p_itwin_1">
+      With the direct download of Bentley's <code>@itwin/core-frontend</code> production source into our workspace (<code>itwin_reference/AccuDraw.ts</code> and <code>AccuSnap.ts</code>), we can compare my original 1990s C implementation, our modern WebGL <code>accuCad</code> prototype, and Bentley's active 3,862-line TypeScript engine side-by-side.
+    </p>
+
+    <p data-block="p_itwin_2">
+      Our direct code inspection of Bentley's <code>AccuDraw.ts</code> confirms the five foundational pillars of the engine:
+      <br><br>
+      1. <strong><code>ThreeAxes</code> (3D Direction Cosines):</strong> Maintains three orthonormal unit vectors (<code>x</code>, <code>y</code>, <code>z</code>) derived from <code>Matrix3d</code>. It provides <code>fromMatrix3d</code>, <code>toMatrix3d</code>, and <code>equals</code>, allowing the compass plane to rotate into Top, Front, Side, View, or arbitrary surface normals without gimbal lock.
+      <br><br>
+      2. <strong><code>RoundOff</code> (Screen-Space Inset & Hysteresis):</strong> Computes distance and angle round-offs. Indexing hysteresis is evaluated in screen-space pixels to maintain uniform tactile feel across zoom ratios, preventing magnetic traps through single-keystroke axis isolation.
+      <br><br>
+      3. <strong><code>ItemField</code> &amp; <code>KeyinStatus</code>:</strong> Tracks active input focus across X, Y, Distance, Angle, and Z, distinguishing between dynamic coordinate tracking and hard numerical locks.
+      <br><br>
+      4. <strong><code>AccuDrawHintBuilder</code>:</strong> The standardized protocol whereby interactive CAD drawing tools communicate contextual intent to the compass—such as anchoring origin to the prior vertex or aligning orientation to the current stroke segment.
+      <br><br>
+      5. <strong><code>SavedState</code>:</strong> A transactional state stack that allows AccuDraw to push and pop coordinate frames across view manipulation and nested sub-commands.
+    </p>
+
+    <aside data-block="sidebar_itwin_architecture" data-type="sidebar">
+      <span class="sidebar-kicker">iTwin Symbols</span>
+      <strong class="sidebar-title">AccuDraw.ts & AccuSnap.ts Core Topology</strong>
+      <ul>
+        <li><code>ThreeAxes</code>: True 3×3 direction-cosine basis managing spatial orientation vectors.</li>
+        <li><code>RoundOff</code>: Distance and angle roundoff engine with screen-space hysteresis tolerance.</li>
+        <li><code>AccuDrawFlags</code>: Packed state flags for auto-orientation, floating origin, and polar mode.</li>
+        <li><code>AccuDrawHintBuilder</code>: Standardized contextual communication between tools and compass.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="smartline_spec">
+    <h2 class="section-title">The SmartLine Continuous Chaining State Machine</h2>
+    <div data-block="comp_3d_smartline_lab" data-type="component" data-component="Cad3DSmartLineLab"></div>
+    <div data-block="comp_svg_smartline_lab" data-type="component" data-component="SvgSmartLineLab"></div>
+
+    <p data-block="p_smartline_1">
+      In 1994, alongside AccuDraw, I invented SmartLine. Prior to SmartLine, CAD users were forced to draw individual straight lines, circles, and arcs using separate disconnected tools, manually trimming intersections and using fillet commands to round corners afterwards. SmartLine combined all linear geometry into a single continuous gesture. Within SmartLine, there are two distinct kinds of arcs: <strong>Rounded Corner Fillets</strong> and <strong>Independent Tangent Arc Segments</strong>. If a rounded corner could do it, that's what was done. Crucially, for corner fillets, <strong>if a segment was too short to physically fit the requested rounding radius, SmartLine simply rendered a clean, sharp corner</strong>. It did not distort the drafter's requested radius, push adjacent vertices, or interrupt the user with modal error dialogs. The geometry stayed clean, predictable, and fast.
+    </p>
+
+    <p data-block="p_smartline_2">
+      Arc segments were remarkably easy to make tangent to the previous segment because AccuDraw automatically oriented itself with the tangent vector of the prior line. Crucially, as soon as you switched into Arc mode, AccuDraw flipped into <strong>Polar mode</strong>, letting the draftsperson immediately type the radius or chord distance directly without looking at a command prompt. SmartLine arc segments are governed by <strong>Rob Brown's Closest-Point Sweep Principle</strong>: the orientation is solved by finding the candidate tangent arc where the cursor is as close as possible to a point along the circumference. As you pull the mouse away, the arc naturally opens out from 0° to +5°; if you back up and cross the tangent line, it smoothly flips to -6° with zero deadband jitter. Upon committing the arc, the compass automatically aligns to the exit tangent vector, allowing the draftsperson to continue tangent or perpendicular into the next segment effortlessly.
+    </p>
+
+    <aside data-block="sidebar_smartline_transitions" data-type="sidebar">
+      <span class="sidebar-kicker">State Machine</span>
+      <strong class="sidebar-title">SmartLine Continuous Geometry Transitions</strong>
+      <ul>
+        <li><strong>Type A: Rounded Corner Fillets:</strong> Tangent circular arc connecting incoming and outgoing segment bisectors. Short-Segment Fallback renders a clean sharp corner if setback exceeds half segment length.</li>
+        <li><strong>Trailing Corner Live Adjustment:</strong> Closing a loop applies active fillet radius to $P_0$, keeping a live adjustment hook until a new command begins.</li>
+        <li><strong>Type B: Tangent Arc Segments:</strong> Closest-Point heuristic evaluates proximity to candidate circumference with zero deadband jitter.</li>
+        <li><strong>Exit Tangent Orientation:</strong> Compass aligns to exit tangent vector automatically upon arc commit.</li>
+        <li><strong>Single-Stroke Escapes:</strong> <code>T</code>, <code>F</code>, <code>S</code>, or <code>V</code> snaps compass back to orthogonal planes without breaking polyline chain.</li>
+      </ul>
+    </aside>
+
+    <p data-block="p_smartline_3">
+      To bring this interaction model into the modern open ecosystem, we implement the entire 2D drafting engine in pure SVG. In the live laboratory above, you can lay down lines, press <code>A</code> or <code>~</code> to swing dynamic tangent arcs, watch the Squircle Compass rotate to align with exit tangents, and press <code>T</code> or <code>V</code> to break onto standard planes. Each segment drawn in the SVG canvas maps 1:1 into CADCraft's <code>LwPolyline</code> with <code>PolyVertex { point, bulge: tan(θ/4) }</code>.
+    </p>
+  </section>
+
+  <section data-section="surface_and_state">
+    <h2 class="section-title">Surface Normal Alignment (Q), Transactional Undo & winit Key Interception</h2>
+
+    <p data-block="p_surface_normal_1">
+      A primary capability proven in our <code>accuCad</code> prototype is <strong>Instant Surface Normal Alignment (<code>Q</code>)</strong>. When drafting in 3D, a user clicks or tentative-snaps onto an angled face of a 3D solid or imported assembly, and taps <code>Q</code>. The compass immediately tilts flush against that surface. The challenge in 3D space is that a face hit provides only a single vector: the surface normal $\vec{n}$. To construct a stable drafting plane, we derive two orthogonal tangent vectors ($\vec{X}_c, \vec{Y}_c$) using Gram-Schmidt orthogonalization without gimbal lock or sudden axis flipping as the camera moves.
+    </p>
+
+    <aside data-block="sidebar_surface_normal_math" data-type="sidebar">
+      <span class="sidebar-kicker">Gram-Schmidt Math</span>
+      <strong class="sidebar-title">3D Face Normal Derivation & Non-Flipping Axes</strong>
+      <p>
+        Derives stable, non-flipping 3D drafting axes from a surface hit normal $\vec{n}$. Selects a reference up vector to avoid collinear cross products, normalizes $\vec{X} = \text{up} \times \vec{n}$, and derives $\vec{Y} = \vec{n} \times \vec{X}$, feeding directly into CADCraft's <code>Mat4::ocs</code>.
+      </p>
+    </aside>
+
+    <p data-block="p_state_stack_1">
+      To preserve continuity between AutoCAD and AccuDraw, we synchronize their state stacks. In CADCraft, drawing operations commit changes to <code>cadcraft-doc::EntityStore</code> with incremental transaction IDs. In <code>compassdraw-core</code>, we maintain a parallel <code>SavedState</code> stack. Whenever an entity point is committed, AccuDraw records its floating origin, active <code>ThreeAxes</code>, and coordinate locks. If the user invokes AutoCAD's <code>UNDO</code> command, CADCraft notifies CompassDraw, which pops its state stack to the matching transaction ID—instantly returning the compass origin and working depth to the prior vertex.
+    </p>
+
+    <aside data-block="sidebar_smart_backspace_winit" data-type="sidebar">
+      <span class="sidebar-kicker">Event Interception</span>
+      <strong class="sidebar-title">Single-Stroke Typing & Smart Backspace in winit</strong>
+      <ul>
+        <li><strong>Numeric Interception:</strong> Numbers are captured directly into the active field buffer without opening command-line prompts.</li>
+        <li><strong>Smart Backspace:</strong> Truncates active typing buffer or least significant digit of live dynamic coordinate.</li>
+        <li><strong>Zero Double-Typing:</strong> Eliminates keystroke conflicts between AccuDraw and CADCraft.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="fillet_comparison">
+    <h2 class="section-title">Fillet Geometry: CADCraft Newton-Raphson vs. Analytic Bisector</h2>
+
+    <p data-block="p_fillet_comp_1">
+      Our inspection of CADCraft's <code>crates/geom/src/fillet.rs</code> reveals a sophisticated numerical solver. Rather than just supporting simple circular arc fillets between straight line segments, CADCraft's <code>CornerFit</code> computes circles tangent across any combination of Lines, Circles, Ellipses, and Splines (<code>TanCurve</code>) using a 40-step damped Newton-Raphson method on exact offset curves.
+    </p>
+
+    <p data-block="p_fillet_comp_2">
+      By contrast, in <code>accuCad/js/RoundingUtils3D.js</code>, our 3D path filleting algorithm is closed-form and analytic: it calculates the 3D angle bisector between incoming and outgoing unit vectors, directly projecting tangent touch points $p_1$ and $p_2$. This is ultra-fast ($O(1)$) and works across arbitrary 3D planes. By combining both approaches, <code>compassdraw-core</code> uses analytic 3D bisectors for real-time mouse hover previews, and CADCraft's Newton solver for complex spline/ellipse boundary fillets.
+    </p>
+
+    <aside data-block="sidebar_fillet_comparison" data-type="sidebar">
+      <span class="sidebar-kicker">Algorithm Audit</span>
+      <strong class="sidebar-title">CornerFit (Rust) vs. RoundingUtils3D (JS)</strong>
+      <ul>
+        <li><strong>CADCraft (<code>fillet.rs</code>):</strong> Damped Newton-Raphson solver supporting lines, circles, ellipses, and NURBS splines.</li>
+        <li><strong>accuCad (<code>RoundingUtils3D.js</code>):</strong> Closed-form 3D vector bisector math ($O(1)$ speed, zero iterations) optimized for 60 FPS cursor previews.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="smart_keyin">
+    <h2 class="section-title">SmartKeyin: Directional Sign Inference & SavedState</h2>
+
+    <p data-block="p_smart_keyin_1">
+      One of the most elegant interaction design details in AccuDraw—preserved in Bentley's <code>AccuDraw.ts</code> under <code>public smartKeyin = true</code>—is automatic directional sign inference. When drafting precisely, forcing a user to type <code>-12.5</code> versus <code>12.5</code> based on Cartesian signs breaks drafting rhythm. Your eyes are on the geometry, not on coordinate signs.
+    </p>
+
+    <p data-block="p_smart_keyin_2">
+      In <code>AccuDraw.ts</code>, when <code>smartKeyin</code> is active, the engine checks whether the current cursor delta vector points along the negative axis: <code>this._xIsNegative === (this.delta.x &gt;= 0.0)</code>. If the user moves the mouse to the left and types <code>5</code>, AccuDraw automatically multiplies the value by <code>-1</code>. The sign is inferred entirely from physical human motion. Furthermore, <code>AccuDraw.ts</code> maintains <code>savedStateViewTool</code> and <code>savedStateInputCollector</code>: when the user pans, zooms, rotates the view, or runs a nested query command, AccuDraw pushes its coordinate frame to a state stack, restoring origin, locks, and orientation without resetting the active drawing command.
+    </p>
+
+    <aside data-block="sidebar_smart_keyin_math" data-type="sidebar">
+      <span class="sidebar-kicker">Math & State Stack</span>
+      <strong class="sidebar-title">SmartKeyin Quadrant Inference & SavedState</strong>
+      <ul>
+        <li><code>delta.x &lt; 0.0 ? -abs(val) : abs(val)</code>: Eliminates 100% of negative key-ins during drafting.</li>
+        <li><code>savedStateViewTool</code>: Restores active compass frame after view manipulation (Pan, Zoom, Orbit).</li>
+        <li><code>savedStateInputCollector</code>: Preserves origin and locks across nested measurement tools.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="mcp_agents">
+    <h2 class="section-title">MCP Autonomous Drafting & Compass Constraints</h2>
+
+    <p data-block="p_mcp_agent_spec_1">
+      CADCraft includes <code>cadcraft-mcp</code>—a native Model Context Protocol server. Currently, AI agents interact with CADCraft using raw absolute coordinates (e.g. <code>create_line(x1, y1, x2, y2)</code>). Anyone who has watched an LLM draft knows the problem: models struggle with exact spatial trigonometry, producing misaligned corners, small gaps, and overlapping lines.
+    </p>
+
+    <p data-block="p_mcp_agent_spec_2">
+      By exposing CompassDraw endpoints to the MCP server (<code>compass_origin</code>, <code>compass_align</code>, <code>compass_lock_axis</code>, <code>smartline_segment</code>), the AI agent drafts using relative vectors: "Move origin to vertex A, lock X-axis, offset 42.5 units, tangent arc of radius 10 to vertex B." This allows the AI agent to produce geometrically perfect, manifold drawings on the first pass without spatial hallucinations.
+    </p>
+
+    <aside data-block="sidebar_mcp_compass_tools" data-type="sidebar">
+      <span class="sidebar-kicker">Agent API</span>
+      <strong class="sidebar-title">Model Context Protocol Compass Endpoints</strong>
+      <ul>
+        <li><code>compass_set_origin(handle, vertex_index)</code>: Anchors compass to an element vertex.</li>
+        <li><code>compass_orient_plane(plane)</code>: Sets Front, Top, Side, or element normal.</li>
+        <li><code>compass_vector_input(distance, angle | dx, dy)</code>: Commits constrained displacement.</li>
+        <li><code>smartline_chain(points, radii, auto_close)</code>: Commits multi-segment tangent path.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="rust_core">
+    <h2 class="section-title">compassdraw-core: The Headless Rust Crate</h2>
+
+    <p data-block="p_rust_crate_1">
+      To bridge our interaction design into CADCraft and the broader Rust CAD ecosystem, we are blueprinting <code>compassdraw-core</code>—a standalone, pure-Rust crate with <code>no_std</code> compatibility that compiles to native desktop binaries (macOS Metal, Windows DX12, Linux Vulkan via <code>winit</code>/<code>wgpu</code>) as well as WebAssembly. The crate contains zero UI, windowing, or DOM allocations. It takes ray origins, ray directions, and key codes, and returns constrained coordinates, direction-cosine matrix bases, and arc bulge factors.
+    </p>
+
+    <p data-block="p_rust_crate_2">
+      Because <code>compassdraw-core</code> is decoupled from both the GPU and windowing systems, it satisfies both requirements simultaneously:
+      <br><br>
+      1. <strong>2D Drafting Replacement:</strong> In 2D mode, it locks the projection plane to Top ($Z=0$), converting 3D ray intersections into 2D planar coordinates (<code>[x, y, 0.0]</code>) that feed directly into CADCraft's standard <code>Vec2</code> command machines.
+      <br><br>
+      2. <strong>3D Spatial Navigation:</strong> In 3D mode, single-keystroke inputs (<code>T</code>, <code>F</code>, <code>S</code>, <code>V</code>, <code>Q</code>) reorient <code>ThreeAxes</code>, allowing <code>PlineM</code> and CADCraft's <code>Mat4::ocs</code> to extrude angled faces with exact topological continuity.
+      <br><br>
+      3. <strong>Dual Host Support:</strong> The same crate feeds CADCraft's native <code>wgpu</code> overlay pass on desktop and drives Three.js / WebGL viewports via our <code>host.rs</code> postMessage bridge on the web.
+    </p>
+
+    <aside data-block="sidebar_rust_crate_api" data-type="sidebar">
+      <span class="sidebar-kicker">Rust Architecture</span>
+      <strong class="sidebar-title">compassdraw-core Crate Specification</strong>
+      <ul>
+        <li><code>ThreeAxes</code>: Direction cosine basis ($x, y, z$) managing spatial orientation.</li>
+        <li><code>CompassDraw</code>: Kernel state machine managing origin, locks, roundoff, and SmartLine chaining.</li>
+        <li><code>no_std</code> compatible: Zero heap/OS bindings for ultra-portable execution in Wasm or microcontrollers.</li>
+      </ul>
+    </aside>
+  </section>
+</article>
 </article>

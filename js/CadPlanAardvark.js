@@ -185,58 +185,37 @@ class CadPlanAardvark {
     }
 
   _highlightElement(el) {
-        if (!el || !this.overlayElement) return;
-        const rect = el.getBoundingClientRect();
-        this.overlayElement.style.display = 'block';
-        this.overlayElement.style.top = `${rect.top}px`;
-        this.overlayElement.style.left = `${rect.left}px`;
-        this.overlayElement.style.width = `${rect.width}px`;
-        this.overlayElement.style.height = `${rect.height}px`;
+      if (!el || !this.overlayElement) return;
 
-        const blockId = el.getAttribute('data-block') || el.getAttribute('data-block-id') || (el.id && !el.id.startsWith('uw') ? el.id : '');
-        const tagName = el.tagName.toLowerCase();
-        const tagDisplay = blockId ? `${tagName}#${blockId}` : tagName;
+      document.querySelectorAll('.comments-active-note-target').forEach(node => {
+        node.classList.remove('comments-active-note-target');
+      });
 
-        // Compute full breadcrumb path
-        const getBreadcrumb = (node) => {
-          const parts = [];
-          let curr = node;
-          while (curr && curr !== document.body && parts.length < 4) {
-            const bId = curr.getAttribute('data-block') || curr.id;
-            const sec = curr.getAttribute('data-section');
-            if (bId) parts.unshift(`${curr.tagName.toLowerCase()}#${bId}`);
-            else if (sec) parts.unshift(`sec#${sec}`);
-            else parts.unshift(curr.tagName.toLowerCase());
-            curr = curr.parentElement;
-          }
-          return parts.join(' ➔ ');
-        };
-        const breadcrumbStr = getBreadcrumb(el);
+      const rect = el.getBoundingClientRect();
 
-        if (this.tagElement) {
-          this.tagElement.textContent = `<${tagDisplay}>`;
-        }
+      this.overlayElement.style.display = 'block';
+      this.overlayElement.style.top = `${rect.top}px`;
+      this.overlayElement.style.left = `${rect.left}px`;
+      this.overlayElement.style.width = `${rect.width}px`;
+      this.overlayElement.style.height = `${rect.height}px`;
 
-        let noteBadge = '';
-        const notes = CadPlanItemNotes.getLocalMap();
-        let count = 0;
-        Object.keys(notes).forEach(k => {
-          if (blockId && k.endsWith(':' + blockId)) {
-            count += (notes[k] || []).filter(n => n.status !== 'resolved').length;
-          }
-        });
-        if (count > 0) {
-          noteBadge = ` • 📝 ${count} note${count > 1 ? 's' : ''}`;
-        }
+      const blockId = el.getAttribute('data-block') || el.getAttribute('data-block-id') || (el.id && !el.id.startsWith('uw') ? el.id : '');
+      const tagName = el.tagName.toLowerCase();
+      const tagDisplay = blockId ? `${tagName}#${blockId}` : tagName;
 
-        if (this.isElementLocked) {
-          this.overlayElement.classList.add('locked');
-          this._showHudMessage(`[LOCKED] ${breadcrumbStr}${noteBadge} — [C] Note | [E] Edit | [Space/Esc] Unlock`);
-        } else {
-          this.overlayElement.classList.remove('locked');
-          this._showHudMessage(`${breadcrumbStr}${noteBadge} — [C] Note | [Space] Freeze | [W] Wider | [N] Narrower`);
-        }
+      if (this.tagElement) {
+        this.tagElement.textContent = `<${tagDisplay}>`;
       }
+
+      if (this.isElementLocked) {
+        this.overlayElement.classList.add('locked');
+        el.classList.add('comments-active-note-target');
+        this._showHudMessage(`[LOCKED] <${tagDisplay}> — Focused • Press Esc to unlock`);
+      } else {
+        this.overlayElement.classList.remove('locked');
+        this._showHudMessage(`<${tagDisplay}> — Click or press 'C' to note | 'W' wider | 'N' narrower`);
+      }
+    }
   _selectParent() {
     if (this.currentElement && this.currentElement.parentElement && this.currentElement.tagName !== 'BODY') {
       this.widerStack.push(this.currentElement);
@@ -401,34 +380,47 @@ class CadPlanAardvark {
       this._highlightElement(el);
       this._closeRadialMenu();
 
-      const loc = CadPlanItemNotes.generateElementLocator(el);
-      const ctx = CadPlanDataRegistry.getElementContext(el);
+      if (this.overlayElement) {
+        this.overlayElement.style.display = 'none';
+      }
+
+      const loc = (typeof CadPlanItemNotes !== 'undefined' && typeof CadPlanItemNotes.generateElementLocator === 'function')
+        ? CadPlanItemNotes.generateElementLocator(el)
+        : { key: el.id || 'target_block', isOfficial: false, xpath: '' };
+
+      const ctx = (typeof CadPlanDataRegistry !== 'undefined')
+        ? CadPlanDataRegistry.getElementContext(el)
+        : { blockId: loc.key, pageId: 'overview' };
 
       let clearConnectors = null;
 
-      const dlg = CadPlanItemNotes.openBlockNotesDialog(
-        ctx.pageId,
-        loc.key,
-        globalThis.CadPlan || { name: 'CadPlan' },
-        () => {
-          this._highlightAnnotatedElements();
-          CadPlanItemNotes._notify();
-        },
-        null,
-        { targetElement: el, locator: loc }
-      );
+      if (typeof CadPlanItemNotes !== 'undefined' && typeof CadPlanItemNotes.openBlockNotesDialog === 'function') {
+        const dlg = CadPlanItemNotes.openBlockNotesDialog(
+          ctx.pageId,
+          loc.key,
+          globalThis.CommentsDocs || { name: 'CommentsDocs' },
+          () => {
+            this._highlightAnnotatedElements();
+          },
+          null,
+          { targetElement: el, locator: loc }
+        );
 
-      if (dlg && dlg.element) {
-        clearConnectors = this._drawOuterCornerConnectors(el, dlg.element);
+        if (dlg && dlg.element) {
+          clearConnectors = this._drawOuterCornerConnectors(el, dlg.element);
 
-        const origClose = dlg.options.onClose;
-        dlg.options.onClose = () => {
-          if (clearConnectors) clearConnectors();
-          this.isElementLocked = false;
-          this.lockedElement = null;
-          if (this.isActive) this._highlightElement(el);
-          if (typeof origClose === 'function') origClose();
-        };
+          const origClose = dlg.options.onClose;
+          dlg.options.onClose = () => {
+            if (clearConnectors) clearConnectors();
+            this.isElementLocked = false;
+            this.lockedElement = null;
+            el.classList.remove('comments-active-note-target');
+            if (this.isActive && this.currentElement) {
+              this._highlightElement(this.currentElement);
+            }
+            if (typeof origClose === 'function') origClose();
+          };
+        }
       }
     }
   _showHudMessage(text) {
@@ -542,91 +534,34 @@ class CadPlanAardvark {
         }
       });
     }
+
   _drawOuterCornerConnectors(element, dialogElement) {
       let svg = document.getElementById('cadplan-outer-corners-svg');
       if (!svg) {
         svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.id = 'cadplan-outer-corners-svg';
-        svg.setAttribute('style', 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999970;overflow:visible;');
+        svg.className = 'comments-corner-rays-canvas';
+        svg.setAttribute('style', 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;overflow:visible;');
 
-        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line1.id = 'cadplan-outer-line-1';
-        line1.setAttribute('stroke', '#00f2fe');
-        line1.setAttribute('stroke-width', '1.5');
-        line1.setAttribute('stroke-dasharray', '4,3');
-        line1.setAttribute('opacity', '0.75');
+        // 4 corner rays: TL->TL, TR->TR, BR->BR, BL->BL
+        for (let i = 0; i < 4; i++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.id = `cadplan-corner-line-${i}`;
+          line.setAttribute('stroke', '#00f2fe');
+          line.setAttribute('stroke-width', '1.3');
+          line.setAttribute('stroke-dasharray', '4,3');
+          line.setAttribute('opacity', '0.65');
+          svg.appendChild(line);
+        }
 
-        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line2.id = 'cadplan-outer-line-2';
-        line2.setAttribute('stroke', '#00f2fe');
-        line2.setAttribute('stroke-width', '1.5');
-        line2.setAttribute('stroke-dasharray', '4,3');
-        line2.setAttribute('opacity', '0.75');
-
-        svg.appendChild(line1);
-        svg.appendChild(line2);
         document.body.appendChild(svg);
       }
 
+      // Force SVG z-index lower than dialog box so rays are underneath
+      const dlgZ = parseInt(window.getComputedStyle(dialogElement).zIndex) || 100000;
+      svg.style.zIndex = String(Math.max(1, dlgZ - 1));
+
       let rafId = null;
-
-      // Mathematical 16-pair external common tangent solver between two disjoint rectangles
-      const findExternalTangents = (rA, rB) => {
-        const vA = [
-          { x: rA.left,  y: rA.top },
-          { x: rA.right, y: rA.top },
-          { x: rA.right, y: rA.bottom },
-          { x: rA.left,  y: rA.bottom }
-        ];
-        const vB = [
-          { x: rB.left,  y: rB.top },
-          { x: rB.right, y: rB.top },
-          { x: rB.right, y: rB.bottom },
-          { x: rB.left,  y: rB.bottom }
-        ];
-
-        const cross = (p1, p2, p) => (p2.x - p1.x) * (p.y - p1.y) - (p2.y - p1.y) * (p.x - p1.x);
-
-        const tangents = [];
-
-        for (let i = 0; i < 4; i++) {
-          for (let j = 0; j < 4; j++) {
-            const p1 = vA[i];
-            const p2 = vB[j];
-
-            let sideA = 0;
-            let validA = true;
-            for (let a = 0; a < 4; a++) {
-              const cp = cross(p1, p2, vA[a]);
-              if (Math.abs(cp) > 1e-4) {
-                const sign = cp > 0 ? 1 : -1;
-                if (sideA === 0) sideA = sign;
-                else if (sideA !== sign) { validA = false; break; }
-              }
-            }
-            if (!validA) continue;
-
-            let sideB = 0;
-            let validB = true;
-            for (let b = 0; b < 4; b++) {
-              const cp = cross(p1, p2, vB[b]);
-              if (Math.abs(cp) > 1e-4) {
-                const sign = cp > 0 ? 1 : -1;
-                if (sideB === 0) sideB = sign;
-                else if (sideB !== sign) { validB = false; break; }
-              }
-            }
-            if (!validB) continue;
-
-            // External tangent requires all vertices of both shapes to lie on the same side
-            if (sideA === 0 || sideB === 0 || sideA === sideB) {
-              tangents.push({ p1, p2 });
-            }
-          }
-        }
-
-        return tangents;
-      };
 
       const updateFrame = () => {
         if (!element || !element.isConnected || !dialogElement || !dialogElement.isConnected) {
@@ -634,31 +569,37 @@ class CadPlanAardvark {
           return;
         }
 
+        const curDlgZ = parseInt(window.getComputedStyle(dialogElement).zIndex) || 100000;
+        if (svg.style.zIndex !== String(curDlgZ - 1)) {
+          svg.style.zIndex = String(Math.max(1, curDlgZ - 1));
+        }
+
         const eRect = element.getBoundingClientRect();
         const dRect = dialogElement.getBoundingClientRect();
 
-        const tangents = findExternalTangents(eRect, dRect);
+        const eCorners = [
+          { x: eRect.left,  y: eRect.top },
+          { x: eRect.right, y: eRect.top },
+          { x: eRect.right, y: eRect.bottom },
+          { x: eRect.left,  y: eRect.bottom }
+        ];
 
-        const l1 = document.getElementById('cadplan-outer-line-1');
-        const l2 = document.getElementById('cadplan-outer-line-2');
+        const dCorners = [
+          { x: dRect.left,  y: dRect.top },
+          { x: dRect.right, y: dRect.top },
+          { x: dRect.right, y: dRect.bottom },
+          { x: dRect.left,  y: dRect.bottom }
+        ];
 
-        if (tangents.length >= 2 && l1 && l2) {
-          l1.style.display = 'block';
-          l2.style.display = 'block';
-
-          l1.setAttribute('x1', tangents[0].p1.x);
-          l1.setAttribute('y1', tangents[0].p1.y);
-          l1.setAttribute('x2', tangents[0].p2.x);
-          l1.setAttribute('y2', tangents[0].p2.y);
-
-          l2.setAttribute('x1', tangents[1].p1.x);
-          l2.setAttribute('y1', tangents[1].p1.y);
-          l2.setAttribute('x2', tangents[1].p2.x);
-          l2.setAttribute('y2', tangents[1].p2.y);
-        } else if (l1 && l2) {
-          // Fallback for overlapping geometry
-          l1.style.display = 'none';
-          l2.style.display = 'none';
+        for (let i = 0; i < 4; i++) {
+          const l = document.getElementById(`cadplan-corner-line-${i}`);
+          if (l) {
+            l.setAttribute('x1', eCorners[i].x);
+            l.setAttribute('y1', eCorners[i].y);
+            l.setAttribute('x2', dCorners[i].x);
+            l.setAttribute('y2', dCorners[i].y);
+            l.style.display = 'block';
+          }
         }
 
         rafId = requestAnimationFrame(updateFrame);
@@ -672,7 +613,6 @@ class CadPlanAardvark {
         if (s) s.remove();
       };
     }
-
   _handleClick(e) {
       if (!this.isActive) return;
 

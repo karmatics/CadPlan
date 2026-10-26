@@ -50,16 +50,29 @@ class CadOriginsContent {
 
   static p_rob_intro_2() {
     return [
-      "I taught myself MDL programming because I knew there had to be a better way: a way to let the keyboard and mouse work together as a seamless team. I created a floating, context-sensitive compass that stayed right at the cursor, evaluated mouse movement, and locked onto drawing axes with single keystrokes without needing the Enter key. That invention became Bentley Systems' first issued patent in corporate history (US Patent #5,754,182). It defined the drafting experience of MicroStation 95, PowerDraft, and every subsequent release for over thirty years, becoming the core usability moat that kept departments of transportation and global engineering firms loyal."
+      "I taught myself MDL programming because I knew there had to be a better way: a way to let the keyboard and mouse work together as a seamless team. Prior to joining Bentley in 1994, I was the sole inventor on an earlier dynamic constraint patent at Intergraph (US Patent #5,371,845). When moving to Bentley, I had to execute a deliberate engineering and intellectual property workaround to ensure our technology was completely clean and unencumbered.",
+      "Rather than relying on passive element inferencing, I invented an active, kinetic floating compass that stayed directly under the cursor, evaluated mouse movement, and locked onto drawing axes with single keystrokes without needing the Enter key. Along with the compass, I designed and patented dynamic on-canvas view controls that let drafters reorient drawing planes in mid-stroke.",
+      "That invention became Bentley Systems' first issued patent in corporate history (US Patent #5,754,182), with myself as sole inventor. It defined the drafting experience of MicroStation 95, PowerDraft, and every subsequent release for over thirty years. It became the definitive usability moat that kept departments of transportation and global engineering firms loyal, anchoring an estimated $5.0 Billion to $6.5 Billion of the company's multi-billion dollar enterprise valuation today."
     ];
   }
 
   static sidebar_patent_milestone() {
     return [
-      "Historical Provenance & Patents:\n• US Patent #5,371,845: Conceived and filed while I was at Intergraph, laying the early groundwork for dynamic constraints.\n• US Patent #5,754,182: Issued May 19, 1998, to Bentley Systems. Sole inventor: Robert J. Brown. Established the patent foundation for AccuDraw, defining automated coordinate indexing, floating origin translation, and dynamic polar/rectangular alignment.\n• Current Status: These original patents have now legally expired, placing the foundational constraint and compass mechanics cleanly into the public domain."
+      "Historical Provenance, Workarounds & Patents:\n" +
+      "• US Patent #5,371,845 (Intergraph Corporation):\n" +
+      "  - Filed Oct 1, 1992; Issued Dec 6, 1994. Sole inventor: Robert J. Brown.\n" +
+      "  - Established early dynamic constraint and graphical alignment techniques.\n" +
+      "• The Engineering Workaround & US Patent #5,754,182 (Bentley Systems):\n" +
+      "  - Filed Jan 19, 1995; Issued May 19, 1998. Sole inventor: Robert J. Brown.\n" +
+      "  - When transitioning to Bentley in 1994, Brown designed around his own prior Intergraph patent by creating an active, kinetic floating orientation frame (AccuDraw), dynamic on-canvas view controls, and neuromuscular single-key shortcuts.\n" +
+      "  - This provided Bentley Systems with clean, unencumbered, sole-inventor intellectual property for its historic first patent.\n" +
+      "• Enterprise Value Contribution:\n" +
+      "  - Conservative (Anti-Churn Moat): $3.0B – $3.5B.\n" +
+      "  - Moderate (Core Civil / DOT Dominance): $5.0B – $6.5B (45%–55% of Bentley's ~$11B–$12B market cap).\n" +
+      "  - Aggressive (Existential Independence): ~$11B+ (prevented early acquisition/failure during the 1995 AutoCAD R13 window).\n" +
+      "• Current Status: Both foundational patents have reached statutory expiration, placing the coordinate and constraint mathematics into the public domain."
     ];
   }
-
   static p_bentley_playbook_1() {
     return [
       "There is a fascinating historical parallel to what I am doing today. Back in the 1980s, Intergraph dominated high-end infrastructure CAD on proprietary Unix graphics workstations that cost tens of thousands of dollars. Bentley Systems built its initial success through a brilliant technological transition: they made software that allowed those same Intergraph IGDS workflows and files to run smoothly on standard, inexpensive personal computers. They didn't destroy Intergraph; they expanded the entire market by making powerful CAD accessible on commodity PC hardware."
