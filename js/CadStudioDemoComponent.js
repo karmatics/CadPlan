@@ -731,79 +731,85 @@ class CadStudioDemoComponent {
     }
 
   static registerInstance(app, container, name = 'accuCad') {
-      if (!CadStudioDemoComponent._instances) {
-        CadStudioDemoComponent._instances = new Map();
-        CadStudioDemoComponent._activeInst = null;
+        if (!CadStudioDemoComponent._instances) {
+          CadStudioDemoComponent._instances = new Map();
+          CadStudioDemoComponent._activeInst = null;
 
-        window.addEventListener('keydown', (e) => {
-          const tag = e.target?.tagName;
-          if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
-          if (globalThis._cadPlanInstance?.aardvark?.isActive) return;
+          window.addEventListener('keydown', (e) => {
+            const tag = e.target?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
+            if (globalThis._cadPlanInstance?.aardvark?.isActive) return;
 
-          const cur = CadStudioDemoComponent._activeInst;
-          if (!cur || cur.isSuspended || !cur.app?.baseController) return;
+            const cur = CadStudioDemoComponent._activeInst;
+            if (!cur || cur.isSuspended || !cur.app?.baseController) return;
 
-          const isInteracting = cur.container.contains(document.activeElement) ||
-                                cur.container.matches(':hover');
-          if (!isInteracting) return;
+            const isInteracting = cur.container.contains(document.activeElement) ||
+                                  cur.container.matches(':hover');
+            if (!isInteracting) return;
 
-          if (typeof cur.app.baseController.handleKeyDown === 'function') {
-            cur.app.baseController.handleKeyDown(e);
-          }
-        }, { capture: true });
-
-        window.addEventListener('pointerdown', (e) => {
-          const cur = CadStudioDemoComponent._activeInst;
-          if (cur && cur.container) {
-            const isInsideCanvas = cur.container.contains(e.target);
-            const isInsideAccuDrawUi = Boolean(e.target.closest && e.target.closest('.accudraw-ui, .accudraw-dialog, [id*="accudraw"], .uw-dialog'));
-            if (!isInsideCanvas && !isInsideAccuDrawUi) {
-              CadStudioDemoComponent.setActiveInstance(null);
-              CadStudioDemoComponent.dismissAccuDrawUi(cur.app);
+            // Route to BaseController / EventHandlers
+            if (typeof cur.app.baseController.handleKeyDown === 'function') {
+              cur.app.baseController.handleKeyDown(e);
+            } else if (typeof EventHandlers !== 'undefined' && typeof EventHandlers.handleKeyDown === 'function') {
+              EventHandlers.handleKeyDown(cur.app.baseController, e);
             }
-          }
-        }, { capture: true });
+          }, { capture: true });
 
-        CadStudioDemoComponent._observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            const item = CadStudioDemoComponent._instances.get(entry.target._accuCadId);
-            if (item) {
-              item.isSuspended = !entry.isIntersecting;
-              if (item.app?.threeLoader) {
-                item.app.threeLoader.isPaused = item.isSuspended;
-              }
-              if (item.isSuspended && CadStudioDemoComponent._activeInst === item) {
+          window.addEventListener('pointerdown', (e) => {
+            const cur = CadStudioDemoComponent._activeInst;
+            if (cur && cur.container) {
+              const isInsideCanvas = cur.container.contains(e.target);
+              const isInsideAccuDrawUi = Boolean(e.target.closest && e.target.closest('.accudraw-ui, .accudraw-dialog, [id*="accudraw"], .uw-dialog'));
+              if (!isInsideCanvas && !isInsideAccuDrawUi) {
                 CadStudioDemoComponent.setActiveInstance(null);
-                CadStudioDemoComponent.dismissAccuDrawUi(item.app);
+                CadStudioDemoComponent.dismissAccuDrawUi(cur.app);
               }
             }
-          });
-        }, { threshold: 0.15 });
+          }, { capture: true });
+
+          CadStudioDemoComponent._observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              const item = CadStudioDemoComponent._instances.get(entry.target._accuCadId);
+              if (item) {
+                item.isSuspended = !entry.isIntersecting;
+                if (item.app?.threeLoader) {
+                  item.app.threeLoader.isPaused = item.isSuspended;
+                }
+                if (item.isSuspended && CadStudioDemoComponent._activeInst === item) {
+                  CadStudioDemoComponent.setActiveInstance(null);
+                  CadStudioDemoComponent.dismissAccuDrawUi(item.app);
+                }
+              }
+            });
+          }, { threshold: 0.15 });
+        }
+
+        const id = 'inst_' + Math.random().toString(36).substr(2, 8);
+        container._accuCadId = id;
+        container.tabIndex = 0;
+        container.style.outline = 'none';
+
+        const item = { id, app, container, name, isSuspended: false };
+        CadStudioDemoComponent._instances.set(id, item);
+
+        if (CadStudioDemoComponent._observer) {
+          CadStudioDemoComponent._observer.observe(container);
+        }
+
+        // Pointer entry unpauses KeyCommandHandler and sets focus to this canvas
+        const activateHandler = () => {
+          CadStudioDemoComponent.setActiveInstance(item);
+          if (typeof KeyCommandHandler !== 'undefined') {
+            KeyCommandHandler.setPaused(false);
+          }
+        };
+
+        container.addEventListener('pointerdown', activateHandler);
+        container.addEventListener('focus', activateHandler);
+        container.addEventListener('mouseenter', activateHandler);
+
+        return id;
       }
-
-      const id = 'inst_' + Math.random().toString(36).substr(2, 8);
-      container._accuCadId = id;
-      container.tabIndex = 0;
-      container.style.outline = 'none';
-
-      const item = { id, app, container, name, isSuspended: false };
-      CadStudioDemoComponent._instances.set(id, item);
-
-      if (CadStudioDemoComponent._observer) {
-        CadStudioDemoComponent._observer.observe(container);
-      }
-
-      container.addEventListener('pointerdown', () => {
-        CadStudioDemoComponent.setActiveInstance(item);
-      });
-
-      container.addEventListener('focus', () => {
-        CadStudioDemoComponent.setActiveInstance(item);
-      });
-
-      return id;
-    }
-
   static setActiveInstance(item) {
       if (CadStudioDemoComponent._instances) {
         CadStudioDemoComponent._instances.forEach(inst => {

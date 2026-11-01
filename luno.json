@@ -92,7 +92,7 @@
   "styles": [
     "basic3d.css"
   ],
-  "processedCountSinceCheckpoint": 0,
+  "processedCountSinceCheckpoint": 7,
   "changedMethods": {
     "Library/CommunityOracle.js": "2026-10-20T18:21:51.929Z",
     "Voting/luno.json": "2026-10-20T18:21:51.929Z",
@@ -101,7 +101,7 @@
     "luno.json": "2026-10-21T20:27:01.828Z",
     "CadPlan.js": "2026-10-21T05:40:15.634Z",
     "Luno/core/LunoServer.js": "2026-10-20T20:02:07.587Z",
-    "js/CadStudioDemoComponent.js": "2026-10-21T20:27:01.828Z",
+    "js/CadStudioDemoComponent.js": "2026-11-01T03:26:13.905Z",
     "js/CadModelStudioComponent.js": "2026-10-21T08:03:22.919Z",
     "Library/CodeMirrorWidget.js": "2026-10-20T20:21:20.437Z",
     "Library/DocumentReader.js": "2026-10-21T05:40:15.634Z",
@@ -111,19 +111,19 @@
     "js/CurveDrawerLabComponent.js": "2026-10-20T20:21:20.437Z",
     "Library/SidePanel.js": "2026-10-20T20:42:58.932Z",
     "js/AccuDrawDemoComponent.js": "2026-10-20T20:53:33.794Z",
-    "Library/KeyCommandHandler.js": "2026-10-20T20:53:33.794Z",
+    "Library/KeyCommandHandler.js": "2026-11-01T03:26:13.905Z",
     "Library/UITools.js": "2026-10-20T20:53:33.794Z",
     "Library/SliderControl.js": "2026-10-20T20:53:33.794Z",
     "js/CadPlanAardvark.js": "2026-10-22T00:30:29.553Z",
     "js/CadPlanNotesManager.js": "2026-10-20T20:53:33.794Z",
     "js/AccuCadAuditContent.js": "2026-10-21T05:50:01.308Z",
-    "accuCad/js/BaseController.js": "2026-10-21T05:50:01.308Z",
+    "accuCad/js/BaseController.js": "2026-11-01T03:26:13.905Z",
     "js/CompassAnatomyComponent.js": "2026-10-21T05:35:08.274Z",
     "js/TentativeSnappingLab.js": "2026-10-21T08:03:22.919Z",
     "basic3d.css": "2026-10-21T05:40:15.634Z",
     "js/SvgSmartLineLab.js": "2026-10-21T05:40:15.634Z",
     "js/CadITwinParityContent.js": "2026-10-21T20:27:01.828Z",
-    "accuCad/js/EventHandlers.js": "2026-10-21T05:50:01.308Z",
+    "accuCad/js/EventHandlers.js": "2026-11-01T03:26:13.905Z",
     "js/CompassSkinAddons.js": "2026-10-21T06:52:46.774Z",
     "content/philosophy.html": "2026-10-21T06:26:22.600Z",
     "content/accucad.html": "2026-10-21T06:26:22.600Z",
@@ -154,8 +154,11 @@
     "Opus/js/OpusConvergenceStepperLab.js": "2026-10-26T01:33:09.262Z",
     "Opus/content/verification.html": "2026-10-26T01:44:28.061Z",
     "Opus/js/OpusVerificationContent.js": "2026-10-26T01:44:30.579Z",
-    "Opus/Opus.js": "2026-10-26T01:37:18.583Z"
+    "Opus/Opus.js": "2026-10-26T01:37:18.583Z",
+    "Library/PopupBox.js": "2026-11-01T03:26:13.905Z",
+    "accuCad/js/ControllerSetup.js": "2026-11-01T03:26:13.905Z",
+    "AardvarkPlaylist/js/KeyboardEditController.js": "2026-11-01T03:26:13.905Z"
   },
-  "lastCheckpointTime": "2026-10-28T07:19:45.782Z",
+  "lastCheckpointTime": "2026-10-31T05:11:09.434Z",
   "pendingCheckpointDescription": "Clean working tree"
 }
