@@ -52,7 +52,7 @@ class CadOriginsContent {
     return [
       "I taught myself MDL programming because I knew there had to be a better way: a way to let the keyboard and mouse work together as a seamless team. Prior to joining Bentley in 1994, I was the sole inventor on an earlier dynamic constraint patent at Intergraph (US Patent #5,371,845). When moving to Bentley, I had to execute a deliberate engineering and intellectual property workaround to ensure our technology was completely clean and unencumbered.",
       "Rather than relying on passive element inferencing, I invented an active, kinetic floating compass that stayed directly under the cursor, evaluated mouse movement, and locked onto drawing axes with single keystrokes without needing the Enter key. Along with the compass, I designed and patented dynamic on-canvas view controls that let drafters reorient drawing planes in mid-stroke.",
-      "That invention became Bentley Systems' first issued patent in corporate history (US Patent #5,754,182), with myself as sole inventor. It defined the drafting experience of MicroStation 95, PowerDraft, and every subsequent release for over thirty years. It became the definitive usability moat that kept departments of transportation and global engineering firms loyal, anchoring an estimated $5.0 Billion to $6.5 Billion of the company's multi-billion dollar enterprise valuation today."
+      "That invention became Bentley Systems' first issued patent in corporate history (US Patent #5,754,182), with myself as sole inventor. It defined the drafting experience of MicroStation 95, PowerDraft, and every subsequent release for over thirty years. It became the definitive usability moat that kept 48 out of 50 State DOTs and global engineering firms loyal, anchoring an estimated $1.2B to $5.54B+ ($2.3B 4-model consensus midpoint) of the company's enterprise valuation today."
     ];
   }
 
@@ -66,10 +66,11 @@ class CadOriginsContent {
       "  - Filed Jan 19, 1995; Issued May 19, 1998. Sole inventor: Robert J. Brown.\n" +
       "  - When transitioning to Bentley in 1994, Brown designed around his own prior Intergraph patent by creating an active, kinetic floating orientation frame (AccuDraw), dynamic on-canvas view controls, and neuromuscular single-key shortcuts.\n" +
       "  - This provided Bentley Systems with clean, unencumbered, sole-inventor intellectual property for its historic first patent.\n" +
-      "• Enterprise Value Contribution:\n" +
-      "  - Conservative (Anti-Churn Moat): $3.0B – $3.5B.\n" +
-      "  - Moderate (Core Civil / DOT Dominance): $5.0B – $6.5B (45%–55% of Bentley's ~$11B–$12B market cap).\n" +
-      "  - Aggressive (Existential Independence): ~$11B+ (prevented early acquisition/failure during the 1995 AutoCAD R13 window).\n" +
+      "• Enterprise Value Contribution (Bentley Systems ~$11B–$12B Market Cap):\n" +
+      "  - Conservative (Anti-Churn Moat): $1.2B – $2.21B.\n" +
+      "  - 4-Model Consensus Midpoint: $2.3B (Claude, Gemini, ChatGPT, Grok).\n" +
+      "  - Core Base Case (State DOT Dominance): $2.7B – $5.54B.\n" +
+      "  - Aggressive Impact Case: $5.54B – $9.97B.\n" +
       "• Current Status: Both foundational patents have reached statutory expiration, placing the coordinate and constraint mathematics into the public domain."
     ];
   }
