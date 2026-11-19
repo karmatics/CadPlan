@@ -11,109 +11,109 @@ class CadPlan {
     }
 
   async run(env) {
-          if (this.rootElement) {
-            this.destroy();
-          }
+      if (this.rootElement) {
+        this.destroy();
+      }
 
-          if (!env || !env.container) {
-            throw new Error('[CadPlan] run() requires an environment object with a valid container.');
-          }
+      if (!env || !env.container) {
+        throw new Error('[CadPlan] run() requires an environment object with a valid container.');
+      }
 
-          if (typeof DomBasics !== 'undefined' && typeof DomBasics.run === 'function') {
-            DomBasics.run();
-          }
+      if (typeof DomBasics !== 'undefined' && typeof DomBasics.run === 'function') {
+        DomBasics.run();
+      }
 
-          this.env = env;
-          this.rootElement = env.container;
-          globalThis._cadPlanInstance = this;
+      this.env = env;
+      this.rootElement = env.container;
+      globalThis._cadPlanInstance = this;
 
-          document.documentElement.style.overflowY = 'auto';
-          document.body.style.overflowY = 'auto';
+      document.documentElement.style.overflowY = 'auto';
+      document.body.style.overflowY = 'auto';
 
-          this.rootElement.style.overflowX = 'hidden';
-          this.rootElement.style.overflowY = 'visible';
-          this.rootElement.style.height = 'auto';
-          this.rootElement.style.minHeight = '100vh';
-          this.rootElement.style.boxSizing = 'border-box';
-          this.rootElement.style.marginLeft = '0px';
-          this.rootElement.style.width = '100%';
+      this.rootElement.style.overflowX = 'hidden';
+      this.rootElement.style.overflowY = 'visible';
+      this.rootElement.style.height = 'auto';
+      this.rootElement.style.minHeight = '100vh';
+      this.rootElement.style.boxSizing = 'border-box';
+      this.rootElement.style.marginLeft = '0px';
+      this.rootElement.style.width = '100%';
 
-          if (typeof KeyCommandHandler !== 'undefined' && typeof KeyCommandHandler.setPaused === 'function') {
-            KeyCommandHandler.setPaused(true);
-          }
+      if (typeof KeyCommandHandler !== 'undefined' && typeof KeyCommandHandler.setPaused === 'function') {
+        KeyCommandHandler.setPaused(true);
+      }
 
-          const pages = [
-            { id: 'meta', title: '0. Living Dossier & Methodology', docClass: () => globalThis.CadPlanMetaContent },
-            { id: 'origins', title: '1. My Story & The Playbook', docClass: () => globalThis.CadOriginsContent },
-            { id: 'philosophy', title: '2. The Squircle Compass', docClass: () => globalThis.AccuDrawPhilosophyContent },
-            { id: 'accucad', title: '3. Inside accuCad (Snapping & Kinematics)', docClass: () => globalThis.AccuCadAuditContent },
-            { id: 'shortcuts', title: '4. Key Command Engine (Single Stroke & Ranges)', docClass: () => globalThis.KeyCommandEngineContent },
-            { id: 'curvedrawer', title: '5. The Curve Drawer (On-Curve & Kinetic String)', docClass: () => globalThis.CadCurveDrawerContent },
-            { id: 'touchp2p', title: '6. Wireless TouchController (Two-Handed CAD)', docClass: () => globalThis.CadTouchP2PContent },
-            { id: 'demos', title: '7. Production Studio (AccuDraw & 3D Parallax)', docClass: () => globalThis.CadInteractiveDemoContent },
-            { id: 'ecosystem', title: '8. Luno Loop & Self-Replication', docClass: () => globalThis.CadLunoEcosystemContent },
-            { id: 'architecture', title: '9. Headless Kernel & Open Architecture', docClass: () => globalThis.CadArchitectureDecisionsContent },
-            { id: 'cadcraft', title: '10. ArtCraft CADCraft & CompassDraw', docClass: () => globalThis.CadCraftIntegrationContent },
-            { id: 'itwin', title: '11. iTwin Parity & SmartLine Spec', docClass: () => globalThis.CadITwinParityContent },
-            { id: 'interview', title: "12. Inventor's Vision & Roadmap", docClass: () => globalThis.CadVisionInterviewContent }
-          ];
-          this._pages = pages;
+      const pages = [
+        { id: 'meta', title: '0. Living Dossier & Methodology', docClass: () => globalThis.CadPlanMetaContent },
+        { id: 'origins', title: '1. My Story & The Playbook', docClass: () => globalThis.CadOriginsContent },
+        { id: 'philosophy', title: '2. The Squircle Compass', docClass: () => globalThis.AccuDrawPhilosophyContent },
+        { id: 'accucad', title: '3. Inside accuCad (Snapping & Kinematics)', docClass: () => globalThis.AccuCadAuditContent },
+        { id: 'shortcuts', title: '4. Key Command Engine (Single Stroke & Ranges)', docClass: () => globalThis.KeyCommandEngineContent },
+        { id: 'curvedrawer', title: '5. The Curve Drawer (On-Curve & Kinetic String)', docClass: () => globalThis.CadCurveDrawerContent },
+        { id: 'touchp2p', title: '6. Wireless TouchController (Two-Handed CAD)', docClass: () => globalThis.CadTouchP2PContent },
+        { id: 'demos', title: '7. Production Studio (AccuDraw & 3D Parallax)', docClass: () => globalThis.CadInteractiveDemoContent },
+        { id: 'ecosystem', title: '8. Luno Loop & Self-Replication', docClass: () => globalThis.CadLunoEcosystemContent },
+        { id: 'architecture', title: '9. Headless Kernel & Open Architecture', docClass: () => globalThis.CadArchitectureDecisionsContent },
+        { id: 'cadcraft', title: '10. ArtCraft CADCraft & CompassDraw', docClass: () => globalThis.CadCraftIntegrationContent },
+        { id: 'itwin', title: '11. iTwin Parity & SmartLine Spec', docClass: () => globalThis.CadITwinParityContent },
+        { id: 'interview', title: "12. Inventor's Vision & Roadmap", docClass: () => globalThis.CadVisionInterviewContent },
+        { id: 'lego', title: '13. Modular Lego Architecture & File Map', docClass: () => globalThis.CadLegoArchitectureContent }
+      ];
+      this._pages = pages;
 
-          this.reader = new DocumentReader({
-            container: env.container,
-            brandTitle: 'Next-Gen CAD Architecture',
-            brandIcon: '📐',
-            dossierId: 'CadPlan',
-            pages: pages,
-            itemNotes: globalThis.CadPlanItemNotes || null,
-            itemNotesClass: globalThis.CadPlanItemNotes || null,
-            editorClass: globalThis.CadPlanDocumentEditor || null
-          });
+      this.reader = new DocumentReader({
+        container: env.container,
+        brandTitle: 'Next-Gen CAD Architecture',
+        brandIcon: '📐',
+        dossierId: 'CadPlan',
+        pages: pages,
+        itemNotes: globalThis.CadPlanItemNotes || null,
+        itemNotesClass: globalThis.CadPlanItemNotes || null,
+        editorClass: globalThis.CadPlanDocumentEditor || null
+      });
 
-          this.activePageId = this.reader.currentPageId || 'meta';
+      this.activePageId = this.reader.currentPageId || 'meta';
 
-          const origSwitchPage = this.reader.switchPage.bind(this.reader);
-          this.reader.switchPage = (pageId, updateUrl = true) => {
-            origSwitchPage(pageId, updateUrl);
-            this._syncSidebarActiveState(pageId);
-          };
+      const origSwitchPage = this.reader.switchPage.bind(this.reader);
+      this.reader.switchPage = (pageId, updateUrl = true) => {
+        origSwitchPage(pageId, updateUrl);
+        this._syncSidebarActiveState(pageId);
+      };
 
-          await this.reader.init();
+      await this.reader.init();
 
-          if (typeof CadPlanAardvark !== 'undefined') {
-            this.aardvark = new CadPlanAardvark({
-              container: this.rootElement,
-              dossierId: 'CadPlan',
-              itemNotes: globalThis.CadPlanItemNotes || null,
-              documentReader: this.reader
-            });
-            this.aardvark.init();
-            this.reader.aardvark = this.aardvark;
-          }
+      if (typeof CadPlanAardvark !== 'undefined') {
+        this.aardvark = new CadPlanAardvark({
+          container: this.rootElement,
+          dossierId: 'CadPlan',
+          itemNotes: globalThis.CadPlanItemNotes || null,
+          documentReader: this.reader
+        });
+        this.aardvark.init();
+        this.reader.aardvark = this.aardvark;
+      }
 
-          if (typeof SidePanel !== 'undefined') {
-            this.sidePanel = new SidePanel('left', 320, null);
-            this.reader.options.sidePanel = this.sidePanel;
-            this._buildSidePanelNavigation(pages);
-            this._syncSidebarActiveState(this.reader.currentPageId);
-            if (window.innerWidth >= 860) {
-              this.sidePanel.open();
-            }
-          }
-
-          if (typeof CadPlanItemNotes !== 'undefined' && typeof CadPlanItemNotes.subscribe === 'function') {
-            this._unsubNotes = CadPlanItemNotes.subscribe(() => {
-              if (this.sidePanel && this._pages) {
-                this._buildSidePanelNavigation(this._pages);
-                this._syncSidebarActiveState(this.activePageId);
-              }
-            });
-          }
-
-          this._setupHeaderToggleButton();
-          return this;
+      if (typeof SidePanel !== 'undefined') {
+        this.sidePanel = new SidePanel('left', 320, null);
+        this.reader.options.sidePanel = this.sidePanel;
+        this._buildSidePanelNavigation(pages);
+        this._syncSidebarActiveState(this.reader.currentPageId);
+        if (window.innerWidth >= 860) {
+          this.sidePanel.open();
         }
+      }
 
+      if (typeof CadPlanItemNotes !== 'undefined' && typeof CadPlanItemNotes.subscribe === 'function') {
+        this._unsubNotes = CadPlanItemNotes.subscribe(() => {
+          if (this.sidePanel && this._pages) {
+            this._buildSidePanelNavigation(this._pages);
+            this._syncSidebarActiveState(this.activePageId);
+          }
+        });
+      }
+
+      this._setupHeaderToggleButton();
+      return this;
+    }
   _buildSidePanelNavigation(pages) {
           if (!this.sidePanel) return;
 

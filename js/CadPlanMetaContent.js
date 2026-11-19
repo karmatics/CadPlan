@@ -25,6 +25,8 @@ class CadPlanMetaContent {
           partLabel: 'Chapter 0 • Core Philosophy',
           title: 'The Living Document as the Ultimate Technology Showcase',
           blocks: [
+            { id: 'comp_surface_latch_lego', type: 'component', component: 'CadSurfaceLatchLegoWidget' },
+            { id: 'comp_touch_lego', type: 'component', component: 'CadTouchLegoWidget' },
             { id: 'p_showcase_philosophy_1', type: 'p' },
             { id: 'p_showcase_philosophy_2', type: 'p' },
             { id: 'sidebar_showcase_vision', type: 'sidebar', kicker: 'Showcase Architecture', title: 'Showcasing the Full Suite: Luno, Aardvark, ColorPicker, & AccuDraw' }
@@ -54,6 +56,7 @@ class CadPlanMetaContent {
           partLabel: 'Chapter 0 • Architectural Law',
           title: 'The Anti-Redundancy Mandate: Single Source of Truth & Modular Instruments',
           blocks: [
+            { id: 'comp_basic3d_modular_embed', type: 'component', component: 'CadBasic3dEmbedComponent' },
             { id: 'p_anti_redundancy_1', type: 'p' },
             { id: 'p_anti_redundancy_2', type: 'p' },
             { id: 'sidebar_anti_redundancy_mandate', type: 'sidebar', kicker: 'Engineering Invariant', title: 'The Anti-Redundancy & Reusability Mandate' }
@@ -116,7 +119,7 @@ class CadPlanMetaContent {
         },
         {
           section: 'asset_directory',
-          partLabel: 'Chapter 0 ��� Repository Directory',
+          partLabel: 'Chapter 0 • Repository Directory',
           title: 'Complete Local Repository & Prototype Topology',
           blocks: [
             { id: 'p_meta_assets_1', type: 'p' },
@@ -136,7 +139,6 @@ class CadPlanMetaContent {
         }
       ];
     }
-
   static p_meta_dossier_1() {
     return [
       "In traditional software engineering, developers build monolithic applications and write separate, static documentation that rots within months. In our architecture, **the software itself is the specification, and code is merely its transient, executable projection.**",

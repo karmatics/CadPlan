@@ -1,0 +1,68 @@
+<article data-page="lego" data-dossier="CadPlan">
+  <header data-section="page_header">
+    <span class="dossier-kicker">Composable Architecture &amp; Thread Handoff</span>
+    <h1 class="dossier-title">13. Modular Lego Architecture &amp; File Map</h1>
+    <p class="dossier-subtitle">How Basic3D, Library/CadModules, single-command loading, cooperative keyboard scopes, and document/iframe embeds fit together like Lego bricks.</p>
+  </header>
+
+  <section data-section="lego_custom_cmd_demo">
+    <h2 class="section-title">Live Demo: Single Custom Command (Zero Built-In Tools Loaded)</h2>
+    <div data-block="comp_custom_cmd_lego" data-type="component" data-component="CadCustomCommandLegoWidget"></div>
+    <p data-block="p_lego_custom_1">
+      This viewport uses <code>CadModules.embed(...)</code> and <code>slice.registerCustomCommand('pin', ...)</code> to attach a brand-new 3D Pin command directly onto <code>ThreeJSLoader</code> + <code>AccuDraw</code> + <code>TentativePointHandler</code> + scoped <code>KeyCommandHandler</code>—without loading <code>DrawRectangleCommand</code>, <code>DrawPathCommand</code>, or any of the other built-in tools.
+    </p>
+  </section>
+
+  <section data-section="lego_file_map">
+    <h2 class="section-title">Where Everything Lives (Verified File Map)</h2>
+    <p data-block="p_lego_map_1">
+      Instead of keeping all CAD features trapped inside the monolithic <code>accuCad</code> app folder, the reusable Lego pieces now live inside <code>Library/</code> and load dynamically on demand. Apps like <code>Basic3D</code> stay lean at startup and do not require AccuDraw or CAD tools to be preloaded or even present unless requested.
+    </p>
+    <aside data-block="sidebar_lego_file_map" data-type="sidebar">
+      <span class="sidebar-kicker">Directory Topology</span>
+      <strong class="sidebar-title">Core Lego Modules &amp; Responsibilities</strong>
+      <ul>
+        <li><code>Library/CadModules.js</code>: Canonical dynamic slice loader (<code>getSliceManifest</code>, <code>getToolManifest</code>, <code>loadToolSlice</code>, <code>mountOnThreeJSLoader</code>, <code>embed</code>). Loads from <code>Library/cad/</code> with automatic fallback to <code>accuCad/js/</code>.</li>
+        <li><code>Library/cad/</code>: Standalone CAD slices (<code>AccuDraw.js</code>, <code>Squircle3D.js</code>, <code>accudraw/AccuDrawLogic.js</code>, <code>TentativePointHandler.js</code>, <code>SmartDrawKeys.js</code>, <code>EventHandlers.js</code>, <code>elements/*</code>, <code>commands/*</code>).</li>
+        <li><code>Library/ThreeJSLoader.js</code>: Base WebGL viewport with auto-updating <code>Line2</code> resolutions on resize and <code>threeApp.loadAccuDraw(options)</code>.</li>
+        <li><code>Library/KeyCommandHandler.js</code>: Cooperative multi-scope shortcut router (<code>createScope</code>, <code>setActiveScope</code>, <code>window.blur</code> cleanup) that yields to host pages, inputs, Aardvark, and sibling widgets.</li>
+        <li><code>Basic3D/Basic3d.js</code>: Minimal 3D host with lazy buttons for AccuDraw, per-tool CAD loading, TouchController, inline document mode, and iframe URL/postMessage API.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="lego_recipes">
+    <h2 class="section-title">Composable Recipes: Slices, Single Tools &amp; Iframes</h2>
+    <p data-block="p_lego_recipes_1">
+      Every capability can be snapped in independently: just the AccuDraw compass + cooperative keyboard, a single built-in tool via <code>slice.loadTool('rectangle')</code>, a single custom command via <code>slice.registerCustomCommand(...)</code>, or wireless phone pairing via <code>slice.loadTouchController(tray)</code>.
+    </p>
+    <aside data-block="sidebar_lego_recipes" data-type="sidebar">
+      <span class="sidebar-kicker">Integration Patterns</span>
+      <strong class="sidebar-title">4 Ways to Feature 3D &amp; CAD in Documents or Apps</strong>
+      <ul>
+        <li><strong>1. Single Built-In Command:</strong> <code>await threeApp.loadAccuDraw({ tool: 'rectangle', keyboard: true, wheelZoomMode: 'when-focused' })</code> loads only <code>RectangleElement</code> and <code>DrawRectangleCommand</code>.</li>
+        <li><strong>2. Single Custom Command:</strong> <code>slice.registerCustomCommand('pin', handler, { hotkey: 'p' })</code> wires AccuDraw constraints + snapping into your own tool.</li>
+        <li><strong>3. Zero-Boilerplate Document Embed:</strong> <code>await CadModules.embed(el, { primitives: true, tool: 'curve' })</code> includes IntersectionObserver off-screen GPU pause and automatic cleanup.</li>
+        <li><strong>4. Iframe Embed + URL Params:</strong> Load <code>/Basic3D/index.html?accudraw=1&amp;tool=rectangle&amp;inline=1&amp;viewMode=smart-drag</code> or drive via <code>postMessage</code> (<code>basic3d:loadAccuDraw</code>, <code>basic3d:loadTool</code>, <code>basic3d:setPlane</code>, <code>basic3d:setViewMode</code>, <code>basic3d:setKeyboard</code>).</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section data-section="lego_view_modes">
+    <h2 class="section-title">Conflict-Free View Controls &amp; Next-Thread Handoff</h2>
+    <p data-block="p_lego_view_1">
+      To avoid overloading <code>Shift</code> (which Basic3D uses for Shift-paint) or fighting Left-Click data points, <code>EventHandlers</code> and <code>CadModules</code> distinguish clicks (&lt; 5px) from drags (&gt;= 5px) and expose explicit navigation and wheel-zoom options.
+    </p>
+    <aside data-block="sidebar_lego_handoff" data-type="sidebar">
+      <span class="sidebar-kicker">Handoff Checklist</span>
+      <strong class="sidebar-title">View Modes &amp; Next-Thread Priorities</strong>
+      <ul>
+        <li><code>viewMode: 'smart-drag'</code> (Default): Left-Click = Draw, Left-Drag = Orbit, Right-Click = Reset, Right-Drag = Pan, Left+Right 50ms Chord = Tentative Snap.</li>
+        <li><code>viewMode: 'middle-right'</code>: Left-Click always draws; Right-Drag = Orbit; Middle-Drag = Pan.</li>
+        <li><code>viewMode: 'modifiers'</code>: Alt+Drag = Orbit; Shift+Drag = Pan.</li>
+        <li><code>wheelZoomMode</code>: <code>'always'</code> (standalone), <code>'when-focused'</code> (in scrollable documents), or <code>'alt'</code>.</li>
+        <li><strong>Next Thread Priorities:</strong> Keep <code>Library/cad/*</code> synced with <code>accuCad/js/*</code> (or retire duplicate app copies), break out <code>CadStorageManager</code> (DXF/JSON) and <code>ViewControls</code> sliders as optional Lego slices.</li>
+      </ul>
+    </aside>
+  </section>
+</article>
