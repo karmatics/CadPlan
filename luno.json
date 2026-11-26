@@ -1,6 +1,6 @@
 {
   "name": "CadPlan",
-  "version": "1.9.27",
+  "version": "1.9.28",
   "description": "CAD Architecture, AccuDraw Provenance, Authentic accuCad Integration, DrawingApp Dynamic Spline & Kinetic Parallax Dossier",
   "type": "luno-web-app",
   "mainClass": "CadPlan",
@@ -60,6 +60,7 @@
     "js/CadITwinParityContent.js",
     "js/CadVisionInterviewContent.js",
     "js/CadLegoArchitectureContent.js",
+    "js/CadUnifiedLegoPlanContent.js",
     "js/curve/BezierVertex.js",
     "js/curve/UpdateControlPoints.js",
     "js/curve/Curve.js",
@@ -105,7 +106,8 @@
       "CadPlan/js/CadPlanMetaContent.js",
       "CadPlan/js/CadArchitectureDecisionsContent.js",
       "CadPlan/js/CadITwinParityContent.js",
-      "CadPlan/js/CadLegoArchitectureContent.js"
+      "CadPlan/js/CadLegoArchitectureContent.js",
+      "CadPlan/js/CadUnifiedLegoPlanContent.js"
     ],
     "3d-embeds": [
       "CadPlan/luno.json",
@@ -141,13 +143,14 @@
       "CadPlan/js/CadCraftIntegrationContent.js",
       "CadPlan/js/CadITwinParityContent.js",
       "CadPlan/js/CadVisionInterviewContent.js",
-      "CadPlan/js/CadLegoArchitectureContent.js"
+      "CadPlan/js/CadLegoArchitectureContent.js",
+      "CadPlan/js/CadUnifiedLegoPlanContent.js"
     ]
   },
   "visibilitySetDescriptions": {
-    "docs-chapters": "All 14 CadPlan prose chapters + router (skips 3D widgets & duplicate HTML)",
+    "docs-chapters": "All 15 CadPlan prose chapters + router (skips 3D widgets & duplicate HTML)",
     "3d-embeds": "Modular Lego 3D embed components (Basic3D, SurfaceLatch, Studio, Compass, Snapping)",
-    "lean-architecture": "Core CadPlan architecture, Meta, iTwin parity & Lego file map",
+    "lean-architecture": "Core CadPlan architecture, Meta, iTwin parity & Lego/Unified integration plan",
     "cadcraft-bridge": "Rust/Wasm CADCraft integration spec & iTwin SmartLine parity"
   }
 }
